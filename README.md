@@ -1,6 +1,3 @@
-<style>
-code { color: red }
-</style>
 # This is the default for __www.bartonlp.com__
 
 This directory has a *index.html* file with a very sparse message.  
