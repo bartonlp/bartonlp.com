@@ -1,0 +1,5 @@
+User-agent: *
+Allow: index.php
+Disallow: *
+
+Sitemap: http://www.bartonphillips.com/Sitemap.xml
