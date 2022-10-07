@@ -599,30 +599,38 @@ jQuery(document).ready(function($) {
     let xpos = pos.left + $(this).width() + 17;
     let ypos = pos.top;
     let table = $(this).closest("table");
-    pos = $(this).offset();
-    xxpos = pos.left;
-    yypos = pos.top;
 
     $.ajax(ajaxurl, {
       type: 'post',
       data: {page: 'fingerToGps', finger: finger, site: thesite, ip: ip},
       success: function(data) {
         console.log("data: ", data);
-        const ar = JSON.parse(data).sort();
         let items = '';
-        let last = '';
-        for(let item in ar) {
-          if(last == ar[item]) {
-            continue;
+        let cnt = 0;
+
+        if(data != "NOT FOUND") {
+          const ar = JSON.parse(data).sort();
+          let last = '';
+
+          for(let item in ar) {
+            if(last == ar[item]) {
+              continue;
+            }
+            cnt++;
+            last = ar[item];
+            items += "<span class='item'>"+ar[item]+"</span><br>";
           }
-          last = ar[item];
-          items += "<span>"+ar[item]+"</span><br>";
+        } else {
+          items = data;
         }
+        $("#outer").hide();
         $("#FindBot").remove();
         table.append("<div id='FindBot' style='position: absolute;top: "+ypos+"px;left:"+xpos+"px;"+
                      "background-color: white; border: 5px solid black;padding: 10px'>"+
                      items+"</div>");
-
+        if(cnt == 1) {
+          $("#FindBot .item").trigger('click');
+        }
       },
       error: function(err) {
       console.log("ERROR:", err);
@@ -630,46 +638,18 @@ jQuery(document).ready(function($) {
     });
   });
 
-  $("body").on("click", "#FindBot span", function(e) {
-    $("#FindBot").remove();
-
-    let geo = ($(this).text()).split(',');
-    const pos = {
-      lat: parseFloat(geo[0]),
-      lng: parseFloat(geo[1])
-    }
-    marker.setOptions( {
-      position: pos,
-      map,
-      visible: true
-    });
-
-    
-    //let t = $(this).offset().top + $(this).height() + 10;
-    
-    map.setOptions( {center: pos, zoom: 9, mapTypeId: google.maps.MapTypeId.HYBRID} );
-    $("#outer").css({top: yypos, left: xxpos, width: '500px', height: '500px'}).show();
-
-    e.stopPropagation();
-  });
-
   // ipinfo. Get gps and display the google map.
 
-  $("body").on("click", "#FindBot .location", function(e) {
+  $("body").on("click", "#FindBot .location, #FindBot .item", function(e) {
+    let t = $("#FindBot").position().top + $(this).height() + 10;
+
+    $("#FindBot").remove();
+    
     let gps = ($(this).text()).split(",");
     const pos = {
       lat: parseFloat(gps[0]),
       lng: parseFloat(gps[1])
     }
-
-    marker.setOptions( {
-      position: pos,
-      map,
-      visible: true
-    });
-
-    map.setOptions( {center: pos, zoom: 9, mapTypeId: google.maps.MapTypeId.HYBRID} );
-    let t = $(this).offset().top + $(this).height() + 10;
 
     let h, w, l;
 
@@ -689,7 +669,23 @@ jQuery(document).ready(function($) {
         l = "50%";
       }
     }
+    console.log("top="+t+", left="+l);
+
+    if($("#tracker #outer").length == 0) {
+      $("#tracker tbody").append($("#outer"));
+    }
+    
+    marker.setOptions( {
+      position: pos,
+      map,
+      visible: true
+    });
+
+
+    map.setOptions( {center: pos, zoom: 9, mapTypeId: google.maps.MapTypeId.HYBRID} );
+
     $("#outer").css({top: t, left: l, width: w, height: h}).show();
+
     e.stopPropagation();
   });
 });

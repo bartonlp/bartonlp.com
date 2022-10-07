@@ -114,9 +114,7 @@ $h->css =<<<EOF
 /* geo is the div for the google maps image */
 #geocontainer {
   width: 100%;
-  height: 99%;
-/*  margin-left: auto;
-  margin-right: auto; */
+  height: 100%;
   border: 5px solid black;
   z-index: 100;
 }
@@ -143,7 +141,6 @@ $h->css =<<<EOF
   background: white;
   z-index: 99;
   padding-bottom: 30px;
-  border: 5px solid red;
 }
 @media (max-width: 850px) {
   html { font-size: 10px; }
@@ -167,12 +164,6 @@ EOF;
 // only be used from one of my domains!
 
 $b->script = <<<EOF
-<!-- mobile for taphold -->
-<script src="https://bartonphillips.net/js/jquery.mobile.custom.js"></script>
-<!-- UI for drag and drop and touch-punch for mobile drag -->
-<script src="https://bartonphillips.net/js/jquery-ui-1.13.0.custom/jquery-ui.js"></script>
-<script src="https://bartonphillips.net/js/jquery-ui-1.13.0.custom/jquery.ui.touch-punch.js"></script>
-<link rel="stylesheet" href="https://bartonphillips.net/js/jquery-ui-1.13.0.custom/jquery-ui.css">
 <script src="https://bartonphillips.net/js/maps.js"></script>
 <script
  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async>

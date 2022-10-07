@@ -24,11 +24,11 @@ if(isset($_POST['submit'])) {
 if($DEBUG) $hrStart = hrtime(true);
 
 $_site = require_once(getenv("SITELOADNAME"));
+
 // Now set siteName to $site from the GET.
+
 $_site->siteName = $site;
-// No tracking
-//$_site->noTrack = true;
-//$_site->nofooter = true;
+
 require_once(SITECLASS_DIR . '/defines.php');
 $S = new $_site->className($_site);
 
@@ -65,7 +65,9 @@ EOF;
 
 // css for the gps location in ipinfo
 
-$h->css = ".location { cursor: pointer; }";
+$h->css = <<<EOF
+.location, #tracker td:nth-of-type(3) { cursor: pointer; }
+EOF;
 
 // **********************
 // START inlineScript
@@ -132,29 +134,46 @@ setupjava($h);
 // *******************
 
 $h->script = <<<EOF
-<!-- mobile for taphold -->
-<script src="https://bartonphillips.net/js/jquery.mobile.custom.js"></script>
-<!-- UI for drag and drop and touch-punch for mobile drag -->
-<script src="https://bartonphillips.net/js/jquery-ui-1.13.0.custom/jquery-ui.js"></script>
-<script src="https://bartonphillips.net/js/jquery-ui-1.13.0.custom/jquery.ui.touch-punch.js"></script>
-<link rel="stylesheet" href="https://bartonphillips.net/js/jquery-ui-1.13.0.custom/jquery-ui.css">
 <script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
-<script src="https://bartonphillips.net/js/webstats.js"></script>
 EOF;
 
-// Only five sights use maps.js. 
+$T = new dbTables($S); // My table class
 
-if(array_intersect([$S->siteName], ['Bartonphillips', 'Tysonweb', 'Newbernzig', 'Allnatural', 'bartonhome', 'Bonnieburch', 'Bridgeclub', 'Marathon'])[0]) {
+// Only these sights use maps.js. 
+
+if(array_intersect([$S->siteName], ['Bartonphillips', 'Tysonweb', 'Newbernzig', 'BartonlpOrg', 'BartonphillipsOrg',
+  'Allnatural', 'bartonhome', 'Bonnieburch', 'Bridgeclub', 'Marathon', 'Swam', 'Rpi', 'Bartonphillipsnet'])[0]) {
   // For these add maps.js and the maps api and key.
 
   $b->script = <<<EOF
 <script src="https://bartonphillips.net/js/maps.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async></script>
+<script src='https://bartonlp.com/otherpages/js/webstats.js'></script>
 EOF;
+    $sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo where site = '$S->siteName' order by lasttime desc";
+  [$tbl] = $T->maketable($sql, ['callback'=>'mygeofixup', 'attr'=>['id'=>'mygeo', 'border'=>'1']]);
+
+  // BLP 2021-10-12 -- add geo logic
+  $geotbl = <<<EOF
+<h2 id="table11">From table <i>geo</i></h2>
+<a href="#analysis-info">Next</a>
+<div id="geotable">
+  <div id="outer">
+    <div id="geocontainer"></div>
+    <button id="removemsg">Click to remove map image</button>
+  </div>
+  <p id="geomsg"></p>
+  $tbl
+</div>
+EOF;
+  
+  $geoTable = "<li><a href='#table11'>Goto Table: geo</a></li>";
+} else {
+  $botsnext = "<a href='#analysis-info'>Next</a>";
 }
 
 if($DEBUG) {
-  $b->inlineScript .= <<<EOF
+  $b->inlineScript = <<<EOF
 try {
   // Create the performance observer.
   const po = new PerformanceObserver((list) => {
@@ -197,8 +216,6 @@ $h->title = "Web Statistics";
 $h->banner = "<h1>Web Stats For <b>$S->siteName</b></h1>";
 
 [$top, $footer] = $S->getPageTopBottom($h, $b);
-
-$T = new dbTables($S); // My table class
 
 function blphome(&$row, &$rowdesc) {
   global $homeIp;
@@ -570,29 +587,6 @@ function mygeofixup(&$row, &$rowdesc) {
     $row['lasttime'] = "<span class='TODAY'>{$row['lasttime']}</span>";
   }
   return false;
-}
-
-if(array_intersect([$S->siteName], ['Bartonphillips', 'Tysonweb', 'Newbernzig', 'Allnatural', 'bartonhome', 'Bonnieburch', 'Bridgeclub', 'Marathon'])[0] !== null) {
-  $sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo where site = '$S->siteName' order by lasttime desc";
-  [$tbl] = $T->maketable($sql, ['callback'=>'mygeofixup', 'attr'=>['id'=>'mygeo', 'border'=>'1']]);
-
-  // BLP 2021-10-12 -- add geo logic
-  $geotbl = <<<EOF
-<h2 id="table11">From table <i>geo</i></h2>
-<a href="#analysis-info">Next</a>
-<div id="geotable">
-<div id="outer">
-<div id="geocontainer"></div>
-<button id="removemsg">Click to remove map image</button>
-</div>
-<p id="geomsg"></p>
-$tbl
-</div>
-EOF;
-  
-  $geoTable = "<li><a href='#table11'>Goto Table: geo</a></li>";
-} else {
-  $botsnext = "<a href='#analysis-info'>Next</a>";
 }
 
 // BLP 2021-06-23 -- Only bartonphillips.com has a members table.
