@@ -1,10 +1,6 @@
 <?php
 // All sites that have an "About Web Site" link should have a symlink
-// to /var/www/bartonphillipsnet/bartonlp/aboutwebsite.php and should have a modified mysitemap.json that has
-// these items in the $_site array: 1) 'copyright', 2 'className', 3 'siteName' etc.
-// The className is the name of the class for the site. Most sites just use 'SiteClass' but some
-// will have a seperate xxxClass in their 'includes' directory in which case 'className' should be
-// set to 'includes/xxxClass.php'. 'xxxClass' should be derived from 'SiteClass'.
+// to /var/www/bartonlp.com/otherpages/aboutwebsite.php
   
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new $_site->className($_site);
@@ -15,12 +11,33 @@ $S = new $_site->className($_site);
 $site = $_GET['site'];
 $webdomain = $_GET['domain'];
 
+if(empty($site) || empty($webdomain)) {
+  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) ".
+            "values('$S->ip', '$S->siteName', 'counted', 'ABOUTWEBSITE', 1, '-202', 'No site or domain provided', '$S->agent', now(), now()) ".
+            "on duplicate key update count=count+1, lasttime=now()");
+
+  error_log("aboutwebsite.php NO SITE: ip=$S->ip, '$S->siteName', agent=$S->agent");
+
+  echo <<<EOF
+<!DOCTYPE html>
+<head>
+<title>Go Away</title>
+<meta name='robots' content='noindex'>
+</head>
+<body>
+<h1>NOT AUTHORIZED</h1>
+</body>
+</html>
+EOF;
+  exit();
+}
+
 $prefix = $_SERVER['HTTPS'] == "on" ? 'https://' : 'http://';
 
 $webdomain = $prefix . $webdomain;
 
 $h->title = "About This Web Site and Server";
-$h->banner = "<h2 class='center'>About This Web Site and Server</h2>";
+$h->banner = "<h2 class='center'>About This Web Site and Server<br>($webdomain)</h2>";
 $h->css = <<<EOF
 img { border: 0; }
 /* About this web site (aboutwebsite.php)  */

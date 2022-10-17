@@ -11,6 +11,20 @@
 
 //$DEBUG = true;
 
+$_site = require_once(getenv("SITELOADNAME"));
+
+// This function does a RAW mysqli insert (or what ever is in $sql) but it does not return anything.
+
+function insertMysqli($sql):void {
+  global $_site;
+  
+  $i = $_site->dbinfo;
+  $p = require("/home/barton/database-password");
+  $mysqli = new mysqli($i->host, $i->user, $p, 'barton');
+
+  $mysqli->query($sql);
+}
+
 if($_GET['site']) {
   $site = $_GET['site'];
 }
@@ -21,16 +35,55 @@ if(isset($_POST['submit'])) {
   exit();
 }
 
-if($DEBUG) $hrStart = hrtime(true);
-
-$_site = require_once(getenv("SITELOADNAME"));
-
 // Now set siteName to $site from the GET.
 
+$xsite = $_site->siteName;
 $_site->siteName = $site;
 
+$xagent = $_SERVER['HTTP_USER_AGENT'] ?? ''; // BLP 2022-01-28 -- CLI agent is NULL so make it blank ''
+$xref = $_SERVER['HTTP_REFERER'];
+$xip = $_SERVER['REMOTE_ADDR'];
+
+if(empty($site)) {
+  error_log("webstats.php ERROR: $xip, $_site->siteName, site=NONE, ref=$xref, agent=$xagent");
+
+  // We do not have $S so we can't add this to the badplayer table.
+
+  insertMysqli("insert into badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+               "values('$xip', '$xsite', 'webstats', 'counted', 1, 'NO_SITE', -200, 'NO site', '$xagent', now(), now()) ".
+               "on duplicate key update count=count+1, lasttime=now()");
+  
+  echo <<<EOF
+<h1>GO AWAY</h1>
+EOF;
+  exit();
+}
+
+if($DEBUG) $hrStart = hrtime(true);
+
 require_once(SITECLASS_DIR . '/defines.php');
-$S = new $_site->className($_site);
+
+// Wrap this in a try to see if the constructor fails
+
+try {
+  $S = new $_site->className($_site);
+} catch(Exception $e) {
+  $errno = $e->getCode();
+  $errmsg = $e->getMessage();
+  $sql = dbMySqli::$lastQuery;
+  error_log("webstat.php ERROR: $xip, $xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg, agent=$xagent");
+
+  // We do not have $S so we can't add this to the badplayer table.
+
+  $sql = substr($sql, 0, 254); // Truncate just in case.
+  
+  insertMysqli("insert into badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+               "values('$xip', '$xsite', 'webstats', 'counted', 1, 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now()) ".
+               "on duplicate key update count=count+1, lasttime=now()");
+  
+  echo "<h1>Go Away</h1>";
+  exit();
+}
 
 // Check for magic 'blp'. If not found check if one of my recent ips. If not justs 'Go Away'
 
@@ -47,11 +100,11 @@ if(empty($_GET['blp']) || $_GET['blp'] != '8653') { // If blp is empty or set bu
 // But is it is not me who is it?
 
 if(!array_intersect([$S->ip], $S->myIp)) {
-  error_log("webstats.php $S->siteName $S->self: blp=8653 but this is not me. IP=$S->ip, agent=$S->agent, " . __LINE__);
+  error_log("webstats.php $S->siteName $S->self: blp=8653 but this is not me. IP=$S->ip, agent=$S->agent, line=" . __LINE__);
 }
 
 if($S->isBot) {
-  error_log("webstats.php $S->siteName $S->self Bot Restricted, exit: $S->foundBotAs, IP=$S->ip, agent=$S->agent, " . __LINE__);
+  error_log("webstats.php $S->siteName $S->self Bot Restricted, exit: $S->foundBotAs, IP=$S->ip, agent=$S->agent, line=" . __LINE__);
   echo <<< EOF
 <h1>This Page is Restricted</h1>
 EOF;
@@ -285,7 +338,7 @@ EOF;
   
 $sql = "select filename as Page, realcnt as 'Real', (count-realcnt) as 'Bots', lasttime as LastTime ".
 "from $S->masterdb.counter ".
-"where site='$S->siteName' order by lasttime desc";
+"where site='$S->siteName' and lasttime>=current_date() order by lasttime desc";
 
 $tbl = <<<EOF
 <table id="counter" border="1">
