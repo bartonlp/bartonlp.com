@@ -190,6 +190,8 @@ function maketable2(string $sql, dbAbstract $S):array {
         case 'bsd':
           if($mm[1] == 'android') {
             $val = 'AndroidPhone';
+          } elseif($mm[1] == 'cros') {
+            $val = 'CrOS';
           } else {
             $val = 'Unix/Linux/BSD';
           }
@@ -206,15 +208,18 @@ function maketable2(string $sql, dbAbstract $S):array {
 
     $total['os'][1] += $count;
     
-    $pat2 = "~firefox|chrome|safari|trident|msie| edge/|opera|konqueror~i";
+    $pat2 = "~ Edge/| Edg/|firefox|chrome|safari|trident|msie|opera|konqueror~i";
 
     if(preg_match_all($pat2, $agent, $m)) {
-      $mm = array_map('strtolower', $m[0]);
+       $m = array_map('strtolower', $m[0]);
+       $mm = $m[count($m)-1];
+       //echo "mm=$mm, ". print_r($m, true);
 
-      switch($mm[0]) {
+       switch($mm) {
         case 'opera':
           $name = 'Opera';
           break;
+        case ' edg/':
         case ' edge/':
           $name = 'MS-Edge';
           break;
@@ -226,7 +231,11 @@ function maketable2(string $sql, dbAbstract $S):array {
           $name = 'Chrome';
           break;
         case 'safari':
-          $name = 'Safari';
+          if($m[count($m)-2] == 'chrome') {
+            $name = 'Chrome';
+          } else {
+            $name = 'Safari';
+          }
           break;
         case 'firefox':
           $name = 'Firefox';
@@ -238,7 +247,8 @@ function maketable2(string $sql, dbAbstract $S):array {
           error_log("analysis: not in BROWSER pattern: $mm[0]");
           continue;
       }
-      $counts['browser'][$name] += $count;
+       $counts['browser'][$name] += $count;
+       //echo ", name=$name<br>";
     } else {
       $counts['browser'][$name] += $count;
     }
@@ -401,7 +411,7 @@ EOF;
   // BLP 2021-03-24 -- removed extranious divs where pure stuff was.
   
   $analysis = <<<EOF
-<h2>Analysis Information for $S->siteName</h2>
+<h2>Analysis Information for $site</h2>
 <p class="h-update">Last updated $creationDate.</p>
 $form
 <p>These tables show the number and percentage of Operating Systems and Browsers.<br>
@@ -458,33 +468,33 @@ EOF;
   // Look to see if this is BartonphillipsOrg or Rpi. These are on remote sites and we need to do
   // ftp to access the file on the server.
   
-  if(array_intersect([$S->siteName], ['BartonphillipsOrg', 'Rpi'])[0] !== null) {
+  if(array_intersect([$site], ['BartonphillipsOrg', 'Rpi'])[0] !== null) {
     // We will use ftp to access the server
     
     if(($ftp = ftp_connect("bartonphillips.net")) === false) {
       echo "ftp_connect('bartonphillips.net') Failed<br>";
-      debug("analysis $S->siteName: ftp_connect('bartonphillips.net') Failed");
+      debug("analysis $site: ftp_connect('bartonphillips.net') Failed");
     }
 
     if(ftp_login($ftp, "barton", "7098653?") === false) {
       echo "ftp_login() Failed<br>";
-      debug("analysis $S->siteName: ftp_login() Failed");
+      debug("analysis $site: ftp_login() Failed");
     }
 
     if(ftp_chdir($ftp, "www/bartonphillipsnet/analysis") === false) {
       error_log("ftp_chdir failed trying to make directory");
       if(ftp_mkdir($ftp, "www/bartonphillipsnet/analysis") === false) {
         echo "ftp_mkdir Failed</br>";
-        debug("analysis $S->siteName: ftp_mkdir('www/bartonphillipsnet/analysis') Failed");
+        debug("analysis $site: ftp_mkdir('www/bartonphillipsnet/analysis') Failed");
       }
       if(ftp_chdir($ftp, "www/bartonphillipsnet/analysis") === false) {
-        debug("analysis $S->siteName: ftp_chdir() Failed");
+        debug("analysis $site: ftp_chdir() Failed");
       }
     }
 
     if(file_put_contents("/tmp/tempfile", $analysis) === false) {
       echo "file_put_contents('/tmp/tempfile', \$analysis) Failed<br>";
-      debug("analysis $S->siteName: file_put_contents('/tmp/tempfile', \$analysis) Failed");      
+      debug("analysis $site: file_put_contents('/tmp/tempfile', \$analysis) Failed");      
     }
 
     if(file_exists("/tmp/tempfile") === false) {
@@ -492,22 +502,22 @@ EOF;
     }
     
     if(ftp_put($ftp, "$site-analysis.i.txt", "/tmp/tempfile") === false) {
-      debug("analysis $S->siteName: ftp_put(\$ftp, '$site-analysis.i.txt', '/tmp/tempfile', ...) Failed");      
+      debug("analysis $site: ftp_put(\$ftp, '$site-analysis.i.txt', '/tmp/tempfile', ...) Failed");      
     }
 
     if(unlink("/tmp/tempfile") === false) {
-      debug("analysis $S->siteName: unlink('/tmp/tempfile') Failed");
+      debug("analysis $site: unlink('/tmp/tempfile') Failed");
     }
   } else {
     if(file_exists($analysis_dir) === false) {
       if(mkdir($analysis_dir, 0770) === false) {
-        debug("analysis $S->siteName: mkdir($analysis_dir, 0770) Failed");
+        debug("analysis $site: mkdir($analysis_dir, 0770) Failed");
       }
     }
 
     if(file_put_contents("/var/www/bartonphillipsnet/analysis/$site-analysis.i.txt", $analysis) === false) {
       $e = error_get_last();
-      debug("analysis $S->siteName: file_put_content('/var/www/bartonphillipsnet/analysis/$site-analysis.i.txt') Failed err= ". print_r($e, true));
+      debug("analysis $site: file_put_content('/var/www/bartonphillipsnet/analysis/$site-analysis.i.txt') Failed err= ". print_r($e, true));
     }
   }
   

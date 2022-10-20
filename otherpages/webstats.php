@@ -76,8 +76,10 @@ try {
   // We do not have $S so we can't add this to the badplayer table.
 
   $sql = substr($sql, 0, 254); // Truncate just in case.
+
+  // We do not have a $S so use the database name here and the x* items.
   
-  insertMysqli("insert into badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+  insertMysqli("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
                "values('$xip', '$xsite', 'webstats', 'counted', 1, 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now()) ".
                "on duplicate key update count=count+1, lasttime=now()");
   
@@ -91,6 +93,10 @@ if(empty($_GET['blp']) || $_GET['blp'] != '8653') { // If blp is empty or set bu
   // BLP 2021-12-20 -- $S->myIp is always an array from SiteClass.
   
   if(!array_intersect([$S->ip], $S->myIp)) {
+    insertMysqli("insert into $S->masterdb.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+                 "values('$S->ip', '$S->siteName', 'webstats', 'counted', 1, 'ERROR_BLP', -300, 'sql=$sql', '$S->agent', now(), now()) ".
+                 "on duplicate key update count=count+1, lasttime=now()");
+    
     echo "<h1>Go Away</h1>";
     exit();
   }
@@ -190,6 +196,11 @@ $h->script = <<<EOF
 <script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
 EOF;
 
+$today = date("Y-m-d");
+
+$me = json_decode(file_get_contents("https://bartonphillips.net/myfingerprints.json"), true);
+//$me = require_once("/var/www/bartonphillipsnet/myfingerprints.php");
+
 $T = new dbTables($S); // My table class
 
 // Only these sights use maps.js. 
@@ -203,7 +214,27 @@ if(array_intersect([$S->siteName], ['Bartonphillips', 'Tysonweb', 'Newbernzig', 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async></script>
 <script src='https://bartonlp.com/otherpages/js/webstats.js'></script>
 EOF;
-    $sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo where site = '$S->siteName' order by lasttime desc";
+
+  // BLP 2021-10-08 -- add geo
+
+  function mygeofixup(&$row, &$rowdesc) {
+    global $today, $me;
+
+    foreach($me as $key=>$val) {
+      if($row['finger'] == $key) {
+        $row['finger'] .= "<span class='ME' style='color: red'> : $val</span>";
+      }
+    }
+
+    if(strpos($row['lasttime'], $today) === false) {
+      $row['lasttime'] = "<span class='OLD'>{$row['lasttime']}</span>";
+    } else {
+      $row['lasttime'] = "<span class='TODAY'>{$row['lasttime']}</span>";
+    }
+    return false;
+  }
+
+  $sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo where site = '$S->siteName' order by lasttime desc";
   [$tbl] = $T->maketable($sql, ['callback'=>'mygeofixup', 'attr'=>['id'=>'mygeo', 'border'=>'1']]);
 
   // BLP 2021-10-12 -- add geo logic
@@ -391,8 +422,6 @@ $page .= <<<EOF
 $tbl
 </div>
 EOF;
-
-$today = date("Y-m-d");
 
 // 'count' is actually the number of 'Real' vs 'Bots'. A true 'count' would be Real + Bots.
 
@@ -618,29 +647,6 @@ $form = <<<EOF
   <button type="submit" name='submit'>Submit</button>
 </form>
 EOF;
-
-// BLP 2021-10-08 -- add geo
-
-$today = date("Y-m-d");
-
-$me = json_decode(file_get_contents("https://bartonphillips.net/myfingerprints.json"));
-
-function mygeofixup(&$row, &$rowdesc) {
-  global $today, $me;
-  
-  foreach($me as $key=>$val) {
-    if($row['finger'] == $key) {
-      $row['finger'] .= "<span class='ME' style='color: red'> : $val</span>";
-    }
-  }
-  
-  if(strpos($row['lasttime'], $today) === false) {
-    $row['lasttime'] = "<span class='OLD'>{$row['lasttime']}</span>";
-  } else {
-    $row['lasttime'] = "<span class='TODAY'>{$row['lasttime']}</span>";
-  }
-  return false;
-}
 
 // BLP 2021-06-23 -- Only bartonphillips.com has a members table.
 
