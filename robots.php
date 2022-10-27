@@ -1,0 +1,1 @@
+otherpages/robots.php

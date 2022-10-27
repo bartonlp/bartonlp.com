@@ -38,7 +38,7 @@ if(!file_exists($S->path . "/robots.txt")) {
 }
 
 $robots = file_get_contents($S->path."/robots.txt");
-echo $robots;
+echo $robots . "# From robots.php\n";
 
 if($S->isMe()) return;
 

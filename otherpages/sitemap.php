@@ -14,7 +14,7 @@ if(!file_exists($S->path . "/Sitemap.xml")) {
 }
 
 $sitemap = file_get_contents($S->path."/Sitemap.xml");
-echo $sitemap;
+echo $sitemap . "# From sitemap.php\n";
 
 if($S->isMe()) return;
 

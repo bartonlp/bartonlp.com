@@ -1,0 +1,38 @@
+// Not a normal json this allows comments.
+// BLP 2021-10-29 -- No longer use password see note below
+{
+    "siteDomain": "bartonlp.com",
+    "siteName": "Bartonlp",
+    "title": "Go Away",
+    "path": "/var/www/bartonlp.com",
+    "className": "SiteClass",
+    "copyright": "Barton L. Phillips",
+    "author": "Barton L. Phillips, mailto:bartonphillips@gmail.com",
+    "address": "New Bern, North Carolina",
+    // "nodb": true,
+    "noGeo" : true, // We want this to stay cookieless so don't do the geo script
+    "masterdb": "barton",
+    "dbinfo": {
+      "host": "localhost",
+      "user": "barton",
+      "database": "barton",
+      "engine": "mysqli"
+    },
+    "errorMode": {
+      "development": false, // development automatically sets email to true.
+                         // If development is true then noEmail will be
+                         // set to true unless noEmail is set to false!
+                         // Only false not null or just missing.
+      "noEmail": null,   // Set it to null will not affect the true above which sets it to true also.
+      "noHtml": false,
+      "noOutput": false
+    },
+    "trackerImg1": "/images/blp-image.png", // /image/.. will get the image from bartonphillips.net.
+    "headFile": "/var/www/bartonphillips.com/includes/head.i.php",
+    "bannerFile": "/var/www/bartonphillips.com/includes/banner.i.php",
+    "footerFile": "/var/www/bartonphillips.com/includes/footer.i.php",
+    "count": false,  // count defaults to true.
+    "EMAILADDRESS": "bartonphillips@gmail.com",
+    "EMAILRETURN": "bartonphillips@gmail.com",
+    "EMAILFROM": "webmaster@bartonlp.com"
+}
