@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-25 - use new approach
 // BLP 2021-03-10 -- Proxy by passes all of the tracker.php and tracker.js logic. It writes a
 // special string into the 'site' field ($S->siteName . "Proxy") to identify this behavior.
 // This is a proxy for the gitHub and others. It takes the query string and logs both counter2 and
@@ -85,13 +86,13 @@ $S->query("insert into $S->masterdb.counter (filename, site, count, realcnt, las
 $agent = $S->agent;
 $ip = $S->ip;
 
-$h->title = "GOTO";
-$h->banner = $err == "OK" ? "<h1>Redirect Page</h1>" : "<h1>You Did Not Come From My Home Page</h1>";
-$h->css = "h1 { text-align: center }";
+$S->title = "GOTO";
+$S->banner = $err == "OK" ? "<h1>Redirect Page</h1>" : "<h1>You Did Not Come From My Home Page</h1>";
+$S->css = "h1 { text-align: center }";
 
 // Set up javascript. Add the variables. Do the promise then do it and ajax to this file.
 
-$h->inlineScript = <<<EOF
+$S->h_inlineScript = <<<EOF
 const tracker = "$trackersite", agent = "$agent", ip = "$ip", err = "$err", query = "$query";
 const FINGER_TOKEN = "QpC5rn4jiJmnt8zAxFWo";
 
@@ -145,7 +146,7 @@ fpPromise
 });
 EOF;
    
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top

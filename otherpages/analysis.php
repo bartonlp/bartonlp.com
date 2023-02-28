@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-25 - use new approach
 // This program is run from crontab via all-cron.sh in www/bartonlp/scripts.
 // BLP 2022-08-06 - Add isMeFalse to 'siteupdate'
 // BLP 2022-03-28 - If no $S then go away.
@@ -24,16 +25,16 @@ if($thisSite = $_GET['siteupdate']) {
 }
 
 function goaway():void {
-  global $_site, $S, $h;
+  global $_site, $S;
 
   if(!$S) {
     $S = new $_site->className($_site);
   }
   
-  //$h->banner = "<h1>You Got Here Wrongly</h1>";
-  $h->css = "<style>h1,h2 { text-align: center; }</style>";
+  //$S->banner = "<h1>You Got Here Wrongly</h1>";
+  $S->css = "h1,h2 { text-align: center; }";
   
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
 
   echo <<<EOF
 $top
@@ -55,19 +56,19 @@ if(isset($_POST['site'])) {
   
   $S = new $_site->className($_site);
 
-  $h->title = "Analysis";
+  $S->title = "Analysis";
 
   // BLP 2021-03-24 -- remove yahoo stuff added westats.css
-  $h->link = <<<EOF
+  $S->link = <<<EOF
   <link rel="stylesheet" href="https://bartonphillips.net/css/webstats.css">
   <link rel="stylesheet" href="https://bartonphillips.net/css/newtblsort.css">
 EOF;
 
-  $h->script = <<<EOF
+  $S->h_script = <<<EOF
   <script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
 EOF;
   
-  $h->inlineScript = <<<EOF
+  $S->h_inlineScript = <<<EOF
 jQuery(document).ready(function($) {
   $.tablesorter.addParser({
     id: 'strnum',
@@ -87,7 +88,7 @@ jQuery(document).ready(function($) {
 });
 EOF;
 
-  $h->css = <<<EOF
+  $S->css = <<<EOF
 body {
   margin: 1rem;
 }
@@ -102,9 +103,9 @@ EOF;
 
   $site = $_POST['site'] ?? 'ALL';
   
-  $h->banner = "<h1 id='analysis-info'>Analysis Information for $site</h1>";
+  $S->banner = "<h1 id='analysis-info'>Analysis Information for $site</h1>";
 
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
 
   $analysis = file_get_contents("https://bartonphillips.net/analysis/$site-analysis.i.txt");
 

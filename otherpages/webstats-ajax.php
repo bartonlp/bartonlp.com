@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-25 - uses Database no $h/$b
 // Does all of the AJAX for webstats.js
 // The main program is webstats.php
 

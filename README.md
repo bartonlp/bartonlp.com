@@ -1,5 +1,7 @@
 # This is the default for __www.bartonlp.com__
 
+This dirctory has *gitlog* which is created by the SiteClass framework before a push. Don't delete this file.
+
 This directory has a *index.html* file with a very sparse message.  
 It also has a sub-directory *otherpages* which contains several programs that are used by several other of my domains.  
 These are the file in the *otherpages* directory:

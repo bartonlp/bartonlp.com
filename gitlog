@@ -1,0 +1,2575 @@
+commit 56897499628e76d25e6e5a26d9c625b5ec89373e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 28 10:50:28 2023 -0500
+
+    Cosmetic
+    modified:   includes/database-engines/helper-functions.php
+    modified:   includes/siteload.php
+
+commit 72048ac7022ba4c02a3d0d9f621e378fab028b4c
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Feb 24 20:35:07 2023 -0500
+
+    Updated all of the html and md files
+            modified:   README.html
+            modified:   README.md
+            deleted:    css/hitcounter.css
+            deleted:    css/style.css
+            modified:   docs/files.html
+            modified:   docs/files.md
+            modified:   docs/siteclass.html
+            modified:   docs/siteclass.md
+            modified:   examples/aboutwebsite.php
+            modified:   examples/example1.php
+            modified:   examples/example2.php
+            modified:   examples/example3.php
+            modified:   examples/example4.php
+            modified:   examples/example5.php
+            modified:   examples/hi.php
+            modified:   examples/includes/head.i.php
+            modified:   index.html
+
+commit 6fcf3321ce9059e613924c46cd44781c45ba804d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Feb 24 19:00:03 2023 -0500
+
+    Moved logic from the SiteClass and Database constructor to the dbAbstract constructor.
+    Bumped the version.
+    
+            modified:   docs/index.html
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+
+commit 4c2c0c795abca4f0bfffbff7a66e83b8f6168d6a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Feb 24 18:49:55 2023 -0500
+
+    Moved the ip, agent, etc stuff to dbAbstract. Bumped the version.
+            modified:   includes/SiteClass.class.php
+
+commit 80290123aaf90fbacae6f776a88715268ab4f1ca
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 21 19:12:19 2023 -0500
+
+    Updated siteclass.md. Changed SiteClass.class.php so getPageTopBottom() with no argments doesn't set the $h and $b values for h_... and b_...
+            modified:   docs/siteclass.html
+            modified:   docs/siteclass.md
+            modified:   includes/SiteClass.class.php
+
+commit bba13dacd3036d16c55d552b7976753b3b5ee42f
+Merge: 056502a db6bddb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 21 13:12:18 2023 -0500
+
+    Merge branch 'master' of https://github.com/bartonlp/site-class
+
+commit 056502a66d11b5cfb41f0cd619d6824d2b168a41
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 21 13:09:59 2023 -0500
+
+    Fixed the $h->css to save the $this->css before looking to see if it has a <style in it.
+    I Have tested almost everything I can imagen and it all seems to work OK.
+            modified:   includes/SiteClass.class.php
+
+commit bebb7473a0cea57294c7658ab241d727722e5c3e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Feb 20 22:11:38 2023 -0500
+
+    Updated all of the .html files. Also modidied mk-html-gitlog.sh to do the docs directory.
+            modified:   docs/analysis.html
+            modified:   docs/analysis.md
+            modified:   docs/dbTables.html
+            modified:   docs/dbTables.md
+            modified:   docs/examplereadme.html
+            modified:   docs/files.html
+            modified:   docs/files.md
+            modified:   docs/mk-html.sh
+            modified:   docs/siteclass.html
+            modified:   mk-html-gitlog.sh
+
+commit 53dde575a5155c48d468f6ae83a17b28aa1328b7
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Feb 20 21:10:56 2023 -0500
+
+    This is a major rework of the getPage... functions. I think this approach will be better than the 'new' branch.
+    
+            modified:   README.html
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+            modified:   includes/tracker.php
+            modified:   includes/whatisloaded.class.php
+            deleted:    includes/whatisloaded.php
+
+commit db6bddb0c6948c7e2bab90882a34287bafcc5574
+Merge: acb6374 a0bb138
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Feb 15 12:44:18 2023 -0500
+
+    Merge branch 'master' of https://github.com/bartonlp/site-class
+
+commit acb6374cb7d475ceab3c119903dd6c494e3a4308
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Feb 15 12:41:49 2023 -0500
+
+    Mostly cosmetic changes.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/beacon.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/tracker.php
+
+commit a0bb138c188097328b4dd54a399ea015dcf37108
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Feb 5 11:12:29 2023 -0500
+
+    modified:   composer.json // remove phpunit
+
+commit c2dbe67f188e737094f4d43a77d3790c76eed9e8
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Jan 31 19:19:56 2023 -0500
+
+    Removed most of CHANGES.md and added a link to https://bartonlp.com/gitlog which has all of the change info. The file is generated by mk-html-gitlog.sh.
+    I run this each time I do a push to update README.html and the gitlog.
+    Further streamlined the README.md file. I only need to update the top version number. The rest is supplied by the link to
+    https://bartonphillips.com/articles/showVersions.php.
+    SiteClass just has a version update.
+    whatisloaded.class.php works the same as whatisloaded.php. I will probably remove the latter soon. This program supplies a list of version numbers
+    that can be used to test if certain thing are instantiated or not.
+            modified:   CHANGES.md
+            modified:   README.html
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+            modified:   includes/whatisloaded.class.php
+            renamed:    mk-html.sh -> mk-html-gitlog.sh
+
+commit b009e049fb0de9ea6b15dfc45864056fc059b2fb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Jan 31 18:11:40 2023 -0500
+
+    Just a test
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+            modified:   includes/beacon.php
+            modified:   includes/database-engines/dbTables.class.php
+            modified:   includes/tracker.php
+            new file:   includes/whatisloaded.class.php
+            new file:   includes/whatisloaded.php
+
+commit 83f1a39d74d5e315ddae649a92b1ee549d643129
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Jan 30 16:23:59 2023 -0500
+
+    Updated CHANGES.md, README.html and README.md
+    Database.class.php changed constructor to add global $__info, $h, $b. I use $__info for the ip and agent info when using a node program.
+    See bartonphillips.com/examples/node-programs server.js for details. $h and $b is created as \stdClass to be used by all SiteClass stuff.
+    siteload.php, removed $h and $b and added them to Database.class.php.
+    tracker.php and beacon.php, added $_site to the if statement at the top. This way if I require these file after $_site is loaded I only
+    get the version info returned (however all of the info in the program is avalable).
+    
+            modified:   CHANGES.md
+            modified:   README.html
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+            modified:   includes/beacon.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/database-engines/helper-functions.php
+            modified:   includes/siteload.php
+            modified:   includes/tracker.js
+            modified:   includes/tracker.php
+
+commit 1f86ed43ded6691c9905e12be3eaaa267a3c8233
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jan 29 17:00:48 2023 -0500
+
+    Removed tracker.php and beacon.php from composer.json. This was the wrong thing to do.
+            modified:   composer.json
+            modified:   includes/siteload.php
+            modified:   includes/tracker.php
+
+commit fefb895cdf8a2cc1073338c79c18405a6a366791
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jan 29 12:29:19 2023 -0500
+
+    Change url to the ssh keyed version
+            modified:   composer.json
+
+commit 460baf92e29914c4b3e1ad2d08bae862fb81e8e2
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jan 29 08:55:59 2023 -0500
+
+    Update README.md. Add version to tracker.js
+            modified:   README.html
+            modified:   README.md
+            modified:   includes/tracker.js
+
+commit 8cf11bf02cc6dc8e054eccc6dfbb35f3aad0f570
+Merge: 95699fb b8618d4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jan 29 07:32:55 2023 -0500
+
+    Merge branch 'master' of github.com:bartonlp/site-class into HEAD
+
+commit 95699fb3f3b1a20c4d66e251ded395c6dce60292
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jan 29 07:22:25 2023 -0500
+
+    Added tracker.php and beacon.php to autoload:files:
+            modified:   composer.json
+
+commit b8618d42a5c1ef5f434d57deb82a5158c0548499
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Jan 28 18:08:41 2023 -0500
+
+    Add $__info to SiteClass for node programs.
+    Make getVersion a static in all the files.
+    Change Exception to SqlException and add $this.
+    Add $_site->siteloadVersion and $_site->siteClassDir to siteload.php.
+    Added bot.jpg (bad bot) image instead of exiting.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/database-engines/dbTables.class.php
+            modified:   includes/database-engines/helper-functions.php
+            modified:   includes/siteload.php
+            modified:   includes/tracker.js
+            modified:   includes/tracker.php
+
+commit a01363c3d7afa20e5295a1b64768988844cc48b3
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Jan 16 07:38:56 2023 -0500
+
+    I removed bcount from table dayrecords and then changed beacon.php and tracker.php to reflect the change to the table.
+    I added $driver = new mysqli_driver(); $driver->report_mode = MYSQLI_REPORT_OFF; to cope with PHP8 change. I removed select_db().
+    I changed SqlError() to only use $self for error info. See the comments in SqlException.class.php.
+    I updated the versions of the files.
+            modified:   includes/SiteClass.class.php // cosmetic.
+            modified:   includes/beacon.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/tracker.php
+
+commit 2d66f1d8c5ddc2efa723c99cbdd0c3cd709ae222
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Dec 21 19:40:29 2022 -0500
+
+            modified:   includes/SiteClass.class.php // updated jQuery and updated version
+            modified:   includes/beacon.php
+            deleted:    includes/tracker.class.php
+            modified:   includes/tracker.js
+            modified:   includes/tracker.php
+
+commit 653c0b37d136aabeb2bcd7d8bc0e61eb01eacedc
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Dec 6 15:03:19 2022 -0500
+
+    Added rcount and bcount to the dayrecords table and therefore changed code. Version is now 3.0.1
+            modified:   includes/beacon.php
+            modified:   includes/tracker.php
+
+commit ed72799bf08db5e691440d48b2ccd616db0f4800
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Oct 31 22:05:58 2022 -0400
+
+            modified:   SiteClass.class.php
+            modified:   beacon.php
+            modified:   database-engines/Database.class.php
+            modified:   database-engines/ErrorClass.class.php
+            modified:   database-engines/SqlException.class.php
+            modified:   database-engines/dbAbstract.class.php
+            modified:   database-engines/dbMysqli.class.php
+            modified:   database-engines/dbTables.class.php
+            modified:   database-engines/helper-functions.php
+            modified:   defines.php
+            modified:   siteload.php
+            new file:   tracker.class.php
+            modified:   tracker.php
+
+commit ff6f9bfaeaa1ed66bd61d3d51f96b49a79949718
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Oct 7 12:59:37 2022 -0400
+
+    y# Please enter the commit message for your changes. Lines starting
+            modified:   includes/beacon.php // move 'insert into dayrecord' into try
+            modified:   includes/database-engines/dbAbstract.class.php // version 2.1.0. new statuc getAbstractName()
+            modified:   includes/tracker.php // added site and page to table badplayer. Changed 'insert inot badplayer' to add new fields
+
+commit 56323c58481c9f2dde631e460482d37023912ff1
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Sep 27 15:03:16 2022 -0400
+
+    Moved things from bartonphillips.net to bartonlp.com/otherpages.
+            modified:   .htaccess
+            modified:   README.md
+            modified:   docs/dbTables.md
+            new file:   examples/example5.php
+            modified:   includes/SiteClass.class.php
+            modified:   includes/beacon.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/tracker.js
+            modified:   includes/tracker.php
+
+commit 77ae2f09dc5fa047bd91f4e0e260b6c037e49b9a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Sep 6 18:24:03 2022 -0400
+
+            modified:   docs/examplereadme.html
+            modified:   docs/examplereadme.md
+            modified:   examples/README.md
+
+commit fe8cfb8af0b02f80f9f0adb73ecdd7e979a80eff
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Sep 6 18:05:44 2022 -0400
+
+            modified:   docs/examplereadme.html
+            modified:   docs/examplereadme.md
+            modified:   examples/README.md
+
+commit d5ac5ad6712a2a44aeb0be87c745badcb923e61a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Sep 6 17:51:54 2022 -0400
+
+    Added examplereadme.
+            new file:   docs/examplereadme.html
+            modified:   docs/index.html
+            modified:   docs/mk-html.sh
+
+commit 09dc79afb465d975854d8a0528d827851344ae7d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Sep 6 17:44:51 2022 -0400
+
+            new file:   docs/examplereadme.md
+            modified:   docs/index.html
+
+commit 34249717a9c519af4b5d0f39658ef1d61743daf4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Sep 6 17:40:08 2022 -0400
+
+            modified:   docs/index.html
+
+commit 6cc31a4248df0564f0099fdef927ff3ada629d94
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Sep 6 17:09:09 2022 -0400
+
+    Updated docs/index.php and added examples. Updates to SiteClass, tracker and beacon etc.
+            modified:   docs/index.html
+            modified:   examples/.htaccess
+            modified:   examples/example1.php
+            modified:   examples/example2.php
+            modified:   examples/example3.php
+            new file:   examples/example4.php
+            new file:   examples/hi.php
+            modified:   includes/SiteClass.class.php
+            modified:   includes/beacon.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/tracker.php
+            modified:   mysitemap.json
+
+commit 65501aea9a1d9ba2c6c5b3555e9cb467755a75df
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Aug 18 17:54:30 2022 -0400
+
+            modified:   .gitignore -- updated it
+            modified:   CHANGES.md -- updated it
+            modified:   includes/tracker.php  -- added more logic to $_GET to cope with funny requests.
+
+commit a24e33e0d480c501a1f697bd536d4d8568a60f29
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Aug 16 16:58:26 2022 -0400
+
+    These are the new updates to use 'examples'. I have tested this pretty well so here goes.
+            new file:   .htaccess
+            new file:   aboutwebsite.php
+            new file:   css/hitcounter.css
+            new file:   css/style.css
+            new file:   examples/.htaccess
+            modified:   examples/README.md
+            new file:   examples/aboutwebsite.php
+            new file:   examples/css/hitcounter.css
+            new file:   examples/css/style.css
+            modified:   examples/example1.php
+            new file:   examples/example2.php
+            new file:   examples/example3.php
+            new file:   examples/fonts/IBMPlexSans-Regular.otf
+            new file:   examples/images/146624.png
+            new file:   examples/images/CIRCULA.gif
+            new file:   examples/images/apache_logo.gif
+            new file:   examples/images/bestviewedwithmozillabig.gif
+            new file:   examples/images/blank.png
+            new file:   examples/images/blp-image.png
+            new file:   examples/images/digitalocean.jpg
+            new file:   examples/images/favicon.ico
+            new file:   examples/images/linux-powered.gif
+            new file:   examples/images/logo_jquery_215x53.gif
+            new file:   examples/images/msfree.png
+            new file:   examples/images/php-small-white.png
+            new file:   examples/images/powered.gif
+            new file:   examples/images/powered_by_mysql.gif
+            new file:   examples/images/shirt3-small.gif
+            new file:   examples/includes/banner.i.php
+            new file:   examples/includes/footer.i.php
+            new file:   examples/includes/head.i.php
+            new file:   examples/phpinfo.php
+            modified:   examples/schema.sql
+            deleted:    examples/setup.sh
+            modified:   includes/SiteClass.class.php
+            modified:   includes/beacon.php
+            modified:   includes/siteload.php
+            modified:   includes/tracker.js
+            modified:   includes/tracker.php
+            new file:   mysitemap.json
+
+commit 0f279183baca7afd63942556e6cfd3ce568d9fed
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Aug 16 16:36:59 2022 -0400
+
+            modified:   includes/beacon.php
+            modified:   includes/tracker.php
+
+commit 1cb2af977b741391fe44d9687b07fac3c1fdc597
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 19:57:05 2022 -0400
+
+    Added an examples directory with stuff
+            new file:   examples/README.md
+            new file:   examples/example1.php
+            new file:   examples/schema.sql
+            new file:   examples/setup.sh
+
+commit 3999baf56bc436d5e0bd164be39461d318e093fd
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 18:02:53 2022 -0400
+
+    Cosmetic
+
+commit 5e3471760ed1230d48a55e0017a40e49d12f3317
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 17:59:08 2022 -0400
+
+    I have moved beacon.php, tracker.php and tracker.js into SiteClass. They are really a part of SiteClass.
+    Now we symlink the above into https://bartonphillips.net
+    
+            modified:   README.html
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+            new file:   includes/beacon.php
+            new file:   includes/tracker.js
+            new file:   includes/tracker.php
+
+commit 79703559ee99d65e7e76666ffbeb95ce4346ef36
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 11:51:05 2022 -0400
+
+    remove id info
+
+commit 6984a25a4df56695d07280c9e1b0d4363d181b2d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 11:30:15 2022 -0400
+
+    Add Last Modified and removed testing
+            modified:   analysis.html
+            modified:   analysis.md
+            modified:   dbTables.html
+            modified:   dbTables.md
+            modified:   files.html
+            modified:   files.md
+
+commit c0a6a6d1622563a58fbb7b420d20b87cce76404a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 11:24:16 2022 -0400
+
+    update index
+
+commit 612fbfb440cca57bbbd3d081337f3a402df8a7ef
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 11:11:20 2022 -0400
+
+    Update docs. Remove testing.
+            modified:   docs/index.html
+            modified:   docs/mk-html.sh
+            modified:   docs/siteclass.html
+            modified:   docs/siteclass.md
+            deleted:    docs/testing.html
+            deleted:    docs/testing.md
+
+commit 877f23f3e819e8a56be7f2e25283a675c47f30fb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 10:44:59 2022 -0400
+
+    Small updates
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit ef1dd2bc587790d23db24e8258085fef4aaba1e4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Aug 14 10:39:58 2022 -0400
+
+    Removed the tests directory. This is outdated.
+            deleted:    tests/includes/banner.i.php
+            deleted:    tests/includes/bootstrap.php
+            deleted:    tests/includes/footer.i.php
+            deleted:    tests/includes/head.i.php
+            deleted:    tests/includes/phpunit.xml
+            deleted:    tests/topBottom.php
+            deleted:    tests/withMysql.php
+
+commit d3078df957e939ae3e6e5dd0517a799cde77d592
+Merge: 1125e2d dad8809
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Aug 1 09:04:49 2022 -0400
+
+    Merge branch 'master' of github.com:bartonlp/site-class
+
+commit 1125e2dabad6ef4eb3af4b00822d8bafa68b95e3
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Aug 1 09:03:16 2022 -0400
+
+            modified:   docs/index.html // add modified date
+
+commit dad88091802dafc8f50c04b8be62996f37da88d8
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Aug 1 08:59:52 2022 -0400
+
+    Set theme jekyll-theme-leap-day
+
+commit cb5b6fe127803b435c91b0e0b9a524049193b958
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Aug 1 08:53:07 2022 -0400
+
+    Update
+            modified:   docs/index.html
+            modified:   docs/siteclass.md
+
+commit 5e7757e0c25ab75a078f33333396c2a206d8cd2c
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Aug 1 08:45:17 2022 -0400
+
+    Added double space at the end of Update lines and regenerated html file.
+            modified:   README.html
+            modified:   README.md
+
+commit 3c8b3987d6d0571720c803d60dd9b5b1bce6ff73
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Aug 1 08:42:35 2022 -0400
+
+    Regenerated the html docs. Removed examples from the docs/hk-html.sh and mk-html.sh
+            modified:   README.html
+            modified:   docs/index.html
+            modified:   docs/mk-html.sh
+            modified:   docs/siteclass.html
+            new file:   docs/testing.html
+            modified:   mk-html.sh
+
+commit 565ab02f1e837f8b22095f7d89b65957530147ce
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jul 31 22:02:29 2022 -0400
+
+    More changes
+            modified:   CHANGES.md
+            modified:   docs/siteclass.md
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/defines.php
+            modified:   includes/siteload.php
+
+commit e90a18b6784c4e0e9d5b495f5175f9276916bf0a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jul 31 21:49:09 2022 -0400
+
+    I have removed the examples and all of the database engines except dbMysqli.class.php
+            modified:   README.md
+            deleted:    docs/examples.html
+            deleted:    docs/examples.md
+            modified:   docs/siteclass.md
+            deleted:    docs/testing.html
+            modified:   docs/testing.md
+            deleted:    examples/EXAMPLES.html
+            deleted:    examples/EXAMPLES.md
+            deleted:    examples/composer.json
+            deleted:    examples/example-insert-update.php
+            deleted:    examples/example-route.php
+            deleted:    examples/example-with-twig.php
+            deleted:    examples/example1.php
+            deleted:    examples/example2.php
+            deleted:    examples/example3.php
+            deleted:    examples/example4.php
+            deleted:    examples/example5.php
+            deleted:    examples/includes/head.i.php
+            deleted:    examples/mysitemap.json
+            deleted:    examples/route-1.template
+            deleted:    examples/route-2.template
+            deleted:    examples/sqlite.sql
+            deleted:    examples/test.sdb
+            deleted:    examples/with-twig-1.template
+            deleted:    examples/with-twig-2.template
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            deleted:    includes/database-engines/dbMysql.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            deleted:    includes/database-engines/dbPdo.class.php
+            deleted:    includes/database-engines/dbPostgres.class.php
+            deleted:    includes/database-engines/dbSqlite.class.php
+            modified:   includes/database-engines/dbTables.class.php
+            modified:   includes/database-engines/helper-functions.php
+            deleted:    includes/siteloadOld.php
+            deleted:    tests/siteclass
+            deleted:    tests/withSqlite3.php
+
+commit 8282b3dc8bbc06af4ed9bce79fe90c7bf7c77fa0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jul 31 12:02:53 2022 -0400
+
+    Moved several functions from SiteClass to Database. It make more sense to have them in Database.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+
+commit 286a4d4c673be09e64b10617a0facc39fdbdebfe
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Jun 17 12:42:29 2022 -0400
+
+            modified:   includes/SiteClass.class.php // add crowler to checkIfBot()
+            modified:   includes/database-engines/Database.class.php // removed some error_log
+
+commit 7204270b3de293d1a711690c12d86f9129e04be9
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Jun 14 17:07:32 2022 -0400
+
+    Moved setSiteCookie() to Database.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+
+commit 6abc210c6919971327f53e6daaf5279376217568
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Jun 14 12:17:07 2022 -0400
+
+    Changed the way CheckIfTableExists() is called and remove the |null.
+            modified:   includes/database-engines/Database.class.php
+
+commit 628468441857bd97388faa96997b4af91354bac5
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat May 28 17:40:43 2022 -0400
+
+    cosmetic changes
+
+commit 558234690607b4dd69b5aaff079357b93fbac8d1
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu May 26 16:56:11 2022 -0400
+
+    Major rework here and tracker.js, tracker.php, beacon.php.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+
+commit 72d67d93e18560d391eacee0389c8312fa23c195
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri May 20 19:37:15 2022 -0400
+
+    Interum commit of vendor/batonlp/sitmap. A lot has changed. Now version number.
+            modified:   CHANGES.md
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            new file:   includes/defines.php
+            modified:   includes/siteload.php
+
+commit 20de3b96423a1842e69e1299140a4d6032c45abc
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 14 15:32:58 2022 -0400
+
+    If defaultCss is === true then no value. If null then use the standard default blp.css
+            modified:   includes/SiteClass.class.php
+
+commit 3d4d63a37f44d5ef9aa1a84b116db0c381343163
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Apr 12 22:14:22 2022 -0400
+
+    Removed if($this-nodb) in all protected functions.
+            modified:   CHANGES.md
+            modified:   includes/SiteClass.class.php
+
+commit b1c204271068644cb31bd782103ca1519bd14930
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 11 12:20:05 2022 -0400
+
+    Updated README and CHANGES and some more work in SiteClass
+            modified:   CHANGES.md
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+
+commit a94c323139bbb17e817689546ca0e9865d6c89e2
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Apr 9 22:21:34 2022 -0400
+
+    New version. Major rework of getPageTopBottom(), getPageTop(), getPageHead(), getPageBanner() and getPageFooter().
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+
+commit 30520faec5eb584e4d6bbe2649fb3a1d5421b96d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Apr 9 08:37:42 2022 -0400
+
+    Added $h for headFile, bannerFile, footerFile items to getPageHead(), then uses $h instead of $this
+            modified:   includes/SiteClass.class.php
+
+commit 8c2ca849e04f51e3f3f9c85cb68bab2862bd9d89
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Mar 31 14:24:12 2022 -0400
+
+    Cosmetic changes.
+            modified:   .gitignore
+            modified:   docs/siteclass.md
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/database-engines/helper-functions.php
+
+commit 9d5c0a6be8491e662e79908e880128eed75ae837
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Mar 31 14:22:25 2022 -0400
+
+    Added jQuery to getPageHead() and added more logic to handle nojquery and using $trackerStr. Several changes to items in $debug().
+            modified:   includes/SiteClass.class.php
+
+commit 458b8b6e543ea093a8e6e4732e0ca525988ae404
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 8 21:02:24 2022 -0500
+
+    regenerated all of the file in /docs
+
+commit cd157274cd1a77ec961feabf54ec8bcd9d52c0d6
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 8 18:36:21 2022 -0500
+
+    Updating doc files
+            modified:   CHANGES.md
+            modified:   composer.json
+            modified:   docs/analysis.html
+            modified:   docs/dbTables.html
+            modified:   docs/examples.html
+            modified:   docs/files.html
+            modified:   docs/index.html
+            modified:   docs/siteclass.html
+            modified:   docs/testing.html
+
+commit dcfdc2e0487124c1c4e67c1e82c3f19a0a308853
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 8 17:09:20 2022 -0500
+
+    fix up
+
+commit 68f3ad3323a911cec89859acd582f8e4a2535fb0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 8 16:53:28 2022 -0500
+
+    make getPageWigget public
+
+commit ce9622a56990249371e64c5c93f3c0359e581a3b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 8 16:40:17 2022 -0500
+
+    fix up nullable with a default
+
+commit 488e8dadb34120a3ad681dd54c9ab8d8393d417e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 8 15:27:08 2022 -0500
+
+    Added return types and arg types to almost all fuctions.
+    Updated version to 3.1 and README.md
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+
+commit 53b98aadaefdfb8ea8ba52267717678079029dd3
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Feb 8 14:17:59 2022 -0500
+
+    ErrorClass add E_DEPRECIATED. SiteClass add id for image2 and 3 and remove alt for image2. Changed $h->desc and $h->keyword
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+
+commit ce9265fc9abb4bf2e98387e90509ede22f393184
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Feb 2 19:15:48 2022 -0500
+
+    Fixed: When getting myIp I don't want to look at noTrack.
+            modified:   includes/SiteClass.class.php
+
+commit e34d0a2fbbf2e9f12f65b8e1f193c1fad8380cc8
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Feb 2 17:16:08 2022 -0500
+
+    SiteClass fixed $mainTitle in getPageBanner(). Other two just cosmetic.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/dbTables.class.php
+
+commit 2ff4bf20c523516ae5c346a0bf00abbd9c16f8e5
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Jan 31 14:28:43 2022 -0500
+
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/siteload.php
+
+commit 65574c2b677fe2d5afde1af1e19f5ec485325060
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Jan 29 15:29:38 2022 -0500
+
+    Update README.md version. Add ?object $h=null and ?object $b=null and then $h = $h ?? new stdClass also for $b.
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+
+commit b87224afe11badd9ae6c755bd0eca3f058168bb3
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Jan 29 14:49:35 2022 -0500
+
+    Updated the version.
+            modified:   includes/SiteClass.class.php
+
+commit 6fae38df51ee2940a2594a7cbb026597c5cb3906
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Jan 28 13:12:36 2022 -0500
+
+    Mods for PHP8.1. PHP8.1 does not like passing a null. Changed siteload.php to use a class. Old siteload is now siteloadOld.php.
+            modified:   includes/SiteClass.class.php // Update the Version.
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/database-engines/helper-functions.php
+            modified:   includes/siteload.php
+            new file:   includes/siteloadOld.php
+
+commit 10b96958e5ca8ef30ed4aecbe092f5eae928bbee
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Jan 17 14:05:15 2022 -0500
+
+    Change get_debug_type() to get_class() in fetchrow. The former is only available in PHP8 which we do not have yet.
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit 0e54900ad9f01526a9a45f3f5b7c0a284d10f878
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jan 16 14:19:28 2022 -0500
+
+    update the README.md to version 3.0.11
+
+commit 211cfa5279a2f2252ff32707951589a2573f4855
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jan 16 12:50:57 2022 -0500
+
+    small adds
+
+commit 538d4dc55991052015a864014036bde7fae7e85f
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Jan 14 11:20:31 2022 -0500
+
+    See comments in the files below
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/siteload.php
+
+commit 55eb43aa17ea031c07316d5ead58568261b79bd4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Dec 30 13:08:50 2021 -0500
+
+    SiteClass:
+    Added $b->script in default footer in getPageFooter(). Put not $this->count in side not $this->noTrack
+    Add explanation of how zero gets into isJavaScript in tracker.
+    Also remove $ok and use fetchrow('num')[0] instead in table checks.
+    Also added __LINE__ to all debug messages.
+    Add just plain 'bot', 'spider' and "HeadlessChrome" to list.
+    Add tracker() makes isJavaScript = 0x8000 if it is isMe() true.
+    dbMysqli: add some more comments
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit 76234f19bf0f78e9c4cab715cf044dce6e07ff74
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Dec 23 17:24:51 2021 -0500
+
+    Add comment at top
+            modified:   includes/SiteClass.class.php
+
+commit cd2a420f7ef8005f7541bc01720967250b67a02b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Dec 23 17:22:02 2021 -0500
+
+    Add just plain 'bot' to list in checkIfBot().
+            modified:   includes/SiteClass.class.php
+
+commit 14aa7e0ed0dd44c7fa24a08389edddc13d23e4b2
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Dec 20 11:49:21 2021 -0500
+
+    setSiteCookie() add defaults for $secure, $httponly and $samesite. New version number.
+            modified:   includes/SiteClass.class.php
+
+commit 4e340398434c4d26970bb214cd6ef0ddd6de620d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Dec 17 11:28:07 2021 -0500
+
+    Fix pots2 to use which=8
+            modified:   includes/SiteClass.class.php
+
+commit 17d3853b34d15839394dd406ba2e9045f367b1e0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Dec 12 08:06:27 2021 -0500
+
+    Add an object read to fetchrow().
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit a58e621368b13f719648ef6aae032273509989eb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Dec 8 22:41:44 2021 -0500
+
+    1) update version, 2) correct constructor comments, 3) removed doctype from getPageTop(), 4) add title, desc, preheadcomment setting, 5) throw if headFile returns 1
+            modified:   includes/SiteClass.class.php
+
+commit 29a265cfaef505f353e7f7478322263c86468d7a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 14 07:40:49 2021 -0500
+
+    Add comments and fix bots2.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+
+commit b5ed2d0ab806c58199e4d0817b9d4c598dd4db43
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Nov 11 11:29:34 2021 -0500
+
+    Look at $this->dbinfo->password and if set use it else get it from /var/www/bartonphillipsnet/PASSWORDS. This is for RPI specifically.
+            modified:   includes/database-engines/Database.class.php
+
+commit a5bb09b4e69ce5c1396611eb854f349f7e9b9b69
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Oct 28 20:02:18 2021 -0400
+
+    modified:   .gitignore
+    modified:   CHANGES.md
+    modified:   README.md // set revision to 3.0.7
+    modified:   includes/SiteClass.class.php
+    modified:   includes/database-engines/Database.class.php // Database(object $args). Takes only a single object
+
+commit a62c2f9d7720e1f02d79650a6edfcd12dc61c9af
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Oct 27 18:47:51 2021 -0400
+
+    Update trackbots(), table field 'which' gets value ored in on update.
+            modified:   includes/SiteClass.class.php
+
+commit 7e83ff797bf4bce2d90bc07e6b910bf638b0430f
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Oct 27 11:56:52 2021 -0400
+
+    SiteClass: add $lastmod to pageGetFooter() so it can be used in the footer.i.php files. Set $this->agnet at top of the constructor and then
+    escape it if Database is used.
+    Database: add if(!$this->isSiteClass) and if we have not started in SiteClass get escaped agent and ip.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+
+commit 5512afb9e44875f1e37c3d583d5622fd02852dbc
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Oct 16 18:19:12 2021 -0400
+
+    modified setSiteCookie. Options have changed.
+            modified:   includes/SiteClass.class.php
+
+commit 5e6fe9ca68023a112ac9fbe80e4a72c620117986
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Oct 13 22:31:30 2021 -0400
+
+    After I removed all the commented out old code
+            modified:   includes/SiteClass.class.php
+
+commit 847e7556c46fc5710e14b78b1387daa6fda0c18a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Oct 13 20:47:43 2021 -0400
+
+    Did major rework of getPage*(). This still has the old code commented out.
+            modified:   includes/SiteClass.class.php
+
+commit 7bf97ddbd5a583f6540190f119ed97ee3ecb3b77
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Oct 1 05:44:14 2021 -0400
+
+    helper-functions.php: change ErrorGetId() to use $email instead of $id.
+    bootstrap.php: remove $_COOKIE.
+            modified:   includes/database-engines/helper-functions.php
+            modified:   tests/includes/bootstrap.php
+
+commit 1ab584ed8d61bdefd92a935167633fa90bd18c08
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Sep 27 21:43:59 2021 -0400
+
+    See comments in SiteClass.class.php
+            modified:   CHANGES.md
+            modified:   LICENSE
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+
+commit 5a76b867259c7213f2553a31e88e3c99b1de5e46
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Sep 5 07:22:38 2021 -0400
+
+    Updated version in Readme and updated changes.
+            modified:   CHANGES.md
+            modified:   README.md
+
+commit f754b735d7321cd22ea21743427632c0b308e793
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Sep 2 16:05:24 2021 -0400
+
+    Update version to 3.0.5
+            modified:   includes/SiteClass.class.php
+
+commit c32ef5dc48e31e67474ea0aa775e6773e3a52717
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Sep 2 16:04:16 2021 -0400
+
+    The PHP_MAJOR_VERSION did not work.
+            modified:   includes/SiteClass.class.php
+
+commit 86dde22fe3b25f7520f22faa5e2fc36c084686be
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Sep 2 11:29:24 2021 -0400
+
+    Version to 3.0.4. Add PHP_MAJOR_VERSION to a couple of areas so this will work on zupons.net. "??" and assiging to an array.
+    Reworked the isMe and countMe etc. logic.
+            modified:   includes/SiteClass.class.php
+
+commit c0df19ba4bd2e3b973cc5afecd7067d6d4808a3a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Aug 20 14:51:27 2021 -0400
+
+    Reworked the myUri logic in constructor. Change ?: to ?? in some cases.
+            modified:   includes/SiteClass.class.php
+
+commit e23f4ec6a3b47c2b9f795e7c5724150bb575b340
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Jul 12 16:08:08 2021 -0400
+
+    see comment 2021-07-12
+
+commit 79a91030ef1de8846f01e959887cf55495d4e0ce
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Jul 5 15:10:54 2021 -0400
+
+    added function_exists to the two functions
+
+commit 937ae142bc675cfedf1381df8c8fa03c029df729
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Apr 14 19:05:10 2021 -0400
+
+            modified:   includes/siteload.php
+
+commit ac3a1be8765a13a2fd08162549049039f0b97bb3
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Mar 27 17:35:23 2021 -0400
+
+    Added CHANGES. See BLP this date.
+            new file:   CHANGES.md
+            modified:   includes/SiteClass.class.php
+
+commit 993193d5abe34a1a0632721c457c473eb84311bb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Mar 23 12:05:54 2021 -0400
+
+            modified:   includes/SiteClass.class.php
+
+commit 5a74d86d0c6b4ea2110b9ebb9bb3253500e4ab73
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Mar 20 07:48:45 2021 -0400
+
+    update copyright
+
+commit 52324ffe7f162adbf280d8861f32714054eb7826
+Merge: dabaa46 e9c5f77
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Mar 19 20:16:37 2021 -0400
+
+    Merge branch 'master' of https://github.com/bartonlp/site-class
+
+commit dabaa4615abf78ecf9fb9b0408f58d3bcf5ef906
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Mar 19 20:14:03 2021 -0400
+
+    Try again to remove these. Update README.md to 3.0.1
+            deleted:    README.html
+            modified:   README.md
+            deleted:    mysitemap.json.php
+            deleted:    mysql.schema
+
+commit e9c5f77fabb6980f32ccba4fcd896e6e87ce1fec
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Mar 19 19:37:50 2021 -0400
+
+    Remove version
+            modified:   composer.json
+
+commit 4952a9b1a3a40b9d5754dc0d62498367d1ec3cf4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Mar 19 19:24:39 2021 -0400
+
+    deleted the three files and modified comoser.json to be 3.0
+            deleted:    README.html
+            modified:   composer.json
+            deleted:    mysitemap.json.php
+            deleted:    mysql.schema
+
+commit 0bbb1ad36e3b8434c2e8d6c0617c6995909b666c
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Mar 19 15:57:03 2021 -0400
+
+    New version number. See BLP comments in the files.
+            modified:   README.md
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+
+commit 26d694168427a9b8a47d7b80eb532a4b7a43d289
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Mar 10 14:17:10 2021 -0500
+
+    Removed logagent2 and added nodb to Database. siteload.php now removes comments form the mysitemap.json file.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/siteload.php
+
+commit 9095b101701ef0ae12ea9a2b4587a18072d04438
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Jul 2 06:26:41 2018 -0700
+
+    fixup myUrl logic and change use of isMe()
+
+commit 5504a644d48ea3f2fb33351607232a31de93ea02
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jul 1 10:01:10 2018 -0700
+
+    Added logic for myUri.json at bartonphillips.net and adding date to copyright.
+    modified:   includes/SiteClass.class.php
+
+commit 699081244f5b36a70608671ca6a1a70fd2ddcc53
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Jun 10 08:36:14 2018 -0700
+
+    Update version number. checkIfBot() now looks at myIp to see if we are in the array. If yes then we ARE NOT a bot.
+    modified:   includes/SiteClass.class.php
+
+commit 68d0ac7a879ce9b854c89df1b5904b1df87682ff
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Jun 8 09:24:10 2018 -0700
+
+    $agent was not being set in trackbots(). Also rearanged the isBot logic and also check that bots is in the database
+    modified:   includes/SiteClass.class.php
+
+commit 23be210391614766ba2474d9dd39de0256b79a11
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Apr 20 12:36:28 2018 -0700
+
+    Move init section in SiteClass constructor to top.
+    Add $__info to siteload.php so altoroute.php can update the $this variables.
+    modified:   includes/SiteClass.class.php -- // BLP 2018-04-20 -- INIT SECTION. Moved for altorouter.php
+    modified:   includes/siteload.php -- // BLP 2018-04-20 -- Add $__info so altorouter.php can change things.
+
+commit 8f0cf55faad4877fc0345e97a0d37543a1a505b1
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 16 14:39:52 2018 -0400
+
+    Add AltoRoute website
+
+commit 1a35383097eafd31a61a9dededb9ebfde2f72c3c
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Mar 10 15:46:10 2018 -0800
+
+    Added updated copyright
+    modified:   docs/index.html
+
+commit 820e931d483f860fa5e1a17d121e6344eafbc205
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Jan 20 11:37:27 2018 -0800
+
+    Add 'port' to the __constructor.
+    modified:   includes/database-engines/Database.class.php -- to dbMysqli class selection
+    modified:   includes/database-engines/dbMysqli.class.php
+
+commit f8b22da766e3c54d58d090337a12b0415511f4a2
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Dec 30 06:15:16 2017 -0800
+
+    modified:   includes/SiteClass.class.php -- remove comment after dotracker()
+
+commit cdfc9a6e002816ea845531e3049e6bb837b1177c
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Dec 23 06:34:09 2017 -0800
+
+    modified:   includes/database-engines/ErrorClass.class.php -- removed extranious ';' at start of line.
+
+commit 24ff8169cf5100c3839558d728ee5a3c58e7856d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Dec 6 06:01:41 2017 -0800
+
+    modified:   includes/SiteClass.class.php -- moved checkBot into noTrack area so I can set noTrack and not use any of the tracking tables.
+
+commit 6b60abd57582ae6b217e5cdb92a27b10d8d55cff
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Dec 5 10:10:16 2017 -0800
+
+    modified:   README.html -- remade by mk-html.sh
+    modified:   README.md -- fixed spelling error. be should be been. Changed copyright to 2017
+    modified:   examples/EXAMPLES.html -- remade by mk-html.sh
+
+commit dfcafa206c4060fcb7f1f5408556c43d3f6d070a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 18 10:40:21 2017 -0800
+
+    Update copyright and add <h2>Contact md</h2>
+    modified:   docs/index.html
+
+commit 7babe07fc09eb48ffce22e6c78ce764907a5731b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 18 10:35:15 2017 -0800
+
+    Updated copyright
+    modified:   docs/analysis.html
+    modified:   docs/analysis.md
+    modified:   docs/dbTables.html
+    modified:   docs/dbTables.md
+    modified:   docs/examples.html
+    modified:   docs/examples.md
+    modified:   docs/files.html
+    modified:   docs/files.md
+    modified:   docs/siteclass.html
+    modified:   docs/siteclass.md
+    modified:   docs/testing.html
+    modified:   docs/testing.md
+
+commit 74ab0cd8006577674dcd268a3785164c167f0a88
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 4 12:53:36 2017 -0700
+
+    add left to counter2. Update version to 2.0.3
+
+commit 0d3ee0e49be778d86f9de362833966c9711f6d4f
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Oct 21 10:03:13 2017 -0400
+
+    siteload.php strpos($_SERVER[SCRIPT_FILENAME], "/") should be === 0 not == 0
+
+commit fdfeedf7d13497a5ceb71b15d981455f629cdcb5
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Oct 20 07:53:18 2017 -0700
+
+    change to use docs for testing
+
+commit c0a75057f53174160330c200f95564790f995860
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Oct 20 10:49:02 2017 -0400
+
+    siteload.php: added error_reporting on/off so we don't get NOTICE errors
+
+commit 5dd64e6d0abe5144ac4339f58a100d55721c44bc
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon May 1 10:49:58 2017 -0400
+
+    Update index.html
+    
+    update copyright
+
+commit 8adb5c5cf297b3601c7810f61c6f88665c80691a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Mar 8 14:29:42 2017 -0800
+
+    remove nonav from everywhere
+
+commit 79d8681dbc23fe52620540986c178fc4187d52e6
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Feb 5 12:40:05 2017 -0800
+
+    added s? to check bots
+
+commit 6fab7b2181ef9f03df1f1689442e900b792fd4b8
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Feb 4 11:36:20 2017 -0800
+
+    add logic to use mysitemap.json 'ctrmsg' in footer
+
+commit b60b8f47eff3b9355cc32074206b73c4d441b30b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Feb 2 10:25:52 2017 -0800
+
+    remove reference to conejoskiclub
+
+commit 0254f180e5ba373d79c4f14400780e8aead12c77
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Jan 25 13:17:30 2017 -0800
+
+    add "How To/Examples/Tutorial"
+
+commit dbea2acc6116299dbe96c805f40c7684f8b4cd37
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Jan 12 08:45:03 2017 -0800
+
+    Added escape for refid in tracker
+
+commit 6410b41d533b7ad5dae4c04f71aa3047f6a84095
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Dec 26 12:19:34 2016 -0800
+
+    Another fix to siteload.php. From a cron we start at the home dir. So SCRIPT_FILENAME is an absolute path and that is what we want.
+    If we are in /home/barton/www or /var/www/ the SCRIPT_FILENAME is not an absolute path.
+    Maybe this is the last fix?
+
+commit 49794c3660e6018df1ae1c4006eb5761c0528858
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Dec 25 16:10:52 2016 -0800
+
+    Added logic to handle CLI programs. This is a bit of a kluge but it seems to work. See the comments.
+
+commit 8275a098f71bf00b0acd8353a9b5d675f162cd55
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Dec 23 15:01:29 2016 -0800
+
+    Added checkIfBot() to SiteClass. Modified trackbots()
+
+commit da1ea5e5782cf2b527f1f5a84c9b4da05d21b82b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Dec 20 10:56:48 2016 -0800
+
+    Added refid to the tracker() funtion.
+
+commit 74516a9f8b711d2dd5af207967172f1e54498316
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Dec 16 12:44:29 2016 -0800
+
+    Try again to get this right if we have a symlink.
+
+commit 561cb38ad2f697e3a953f5582e372b04f3380662
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Dec 6 19:42:13 2016 -0800
+
+            modified:   includes/database-engines/helper-functions.php
+
+commit 099baad22cd68a7228627d0f8ae3acc2825f2ae9
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Nov 29 16:30:39 2016 -0800
+
+    Fixed setmyip().
+            modified:   includes/SiteClass.class.php
+
+commit 1ed736992c8c0f9a3a8c38732b9ca3d76835f801
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 27 22:44:22 2016 -0800
+
+    Added the $_SERVER['VIRTUALHOST_DOCUMENT_ROOT'] to siteload.php. On Lamphost's server this is the real doc root.
+            modified:   includes/siteload.php
+
+commit b3fc93fd1e7bc858720fab1b515ff272c816224d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 27 13:28:58 2016 -0800
+
+    Changed the meaning of 'myUri' in 'mysitemap.json'. It can now be a string or an array. This impacts 'myIp' in SiteClass and the the files in
+    the docs directory. The 'myIp' can be a string or an array. The 'myIp' is checked in the 'trackbots' and 'isMe' methods.
+    beacon.php and tracker.php are from bartonlp.com/ and have changes in them.
+    tracker.js now has 'beaconUri' which is set with LocalPath if it is set.
+            modified:   docs/beacon.php
+            modified:   docs/robots.php
+            modified:   docs/sitemap.php
+            modified:   docs/tracker.js
+            modified:   docs/tracker.php
+            modified:   includes/SiteClass.class.php
+
+commit f05a2cd3314804125baa54008e489a88abac2f40
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 25 15:47:09 2016 -0800
+
+    Change PHP to 5.3
+            modified:   composer.json
+
+commit 6aba92efb811ab2eec91def9154804e12a01003e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 25 14:37:31 2016 -0800
+
+    update examples.md in docs
+            modified:   docs/analysis.html
+            modified:   docs/dbTables.html
+            modified:   docs/examples.html
+            modified:   docs/examples.md
+            modified:   docs/files.html
+            modified:   docs/siteclass.html
+            modified:   docs/testing.html
+
+commit 5acaa855c7e578920fa3d7a253558c664af7fe2e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Nov 24 07:12:25 2016 -0800
+
+    Remove echo
+            modified:   includes/siteload.php
+
+commit 8d804887968ad48967df4af7f9b2d8655d1a830e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Nov 22 09:08:16 2016 -0800
+
+    Removed the commented out doanalysis().
+
+commit 76fc013b77f0b64e69557936ed0229cf4616b0d3
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Nov 21 13:14:54 2016 -0800
+
+    siteload needs to work its way up from the current directory where the script is. That is dirname($_SERVER['SCRIPT_FILENAME']).
+            modified:   includes/siteload.php
+
+commit 03866e30967df3ddde10f366fe408b98225cabe6
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 20 21:30:29 2016 -0800
+
+    Fixed dalay problem. It turned out to be the fact the 'tracker' was very big. Still saving these just in case.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit f220390f9ce74399a0878549ee286272981ffb03
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 20 14:47:14 2016 -0800
+
+    Removed the logic in getLastInsertId() to allow multiple queries per statement. Added comments at query() to only do single queries.
+    In reality that is what I do so this will not affect anything.
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit 2428b735fd50db5cb708997c4520c3c114ad3381
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Nov 16 11:59:53 2016 -0800
+
+            modified:   docs/mk-html.sh
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/dbSqlite.class.php
+            modified:   mk-html.sh
+
+commit 7ae88c50d0175bd44669eb3598898ec4c20b5d00
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 13 23:02:44 2016 -0800
+
+    SiteClass: use getDbName() to get the database name instead of $this->dbinfo->database;
+    dbAbstract: Change getDbName() to try to get $this->db->database and if empty do $this->db->db->database;
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit 3ceba104ff1e1dae86b178daf57e31f1a9c1840e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 13 12:23:45 2016 -0800
+
+    Add space to error message.
+    remove " from setSiteCookie()
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+
+commit 4a554d3925029a30b9c32f11f2917ae8098ffcaf
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 13 12:00:12 2016 -0800
+
+    Fix error
+            modified:   includes/SiteClass.class.php
+
+commit 8510d3255e4bac2b167bcb7b4b52f7593afb6c44
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 13 11:56:24 2016 -0800
+
+    setSiteCookie() returns true or false if failure.
+    daycount() if setSiteCookie() fails logs an error but continues.
+            modified:   includes/SiteClass.class.php
+
+commit 1e8079a6e1198b50057cae970ad9cf44c92049cb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 13:20:26 2016 -0800
+
+    Add cr after Class: ... start new line with Exception
+            modified:   includes/database-engines/ErrorClass.class.php
+
+commit 9058eaad4505c5ef2b67c82f8ccc74033539f975
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 13:10:08 2016 -0800
+
+    SiteClass: changed $this->dbinfo->database to {$this->dbinfo->database}. Without the curly brackets it generates an error.
+
+commit 96e53de09b45f9116c9dfc23d271240ad01add92
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 08:13:18 2016 -0800
+
+    Still more docs mods
+
+commit 21f1d611b9f595ac954911f58efcf11c02c45aee
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 08:05:21 2016 -0800
+
+    mod to siteclass.md
+
+commit 7a373b952b767f3a33905c2123f6576b8f5a9e50
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 08:01:49 2016 -0800
+
+    A couple more mods to docs
+
+commit 79a135b16408667f0ece8a5abcc6c7ee33e1973e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 07:54:25 2016 -0800
+
+    More changes to docs. Moved tests/README.md to docs as 'testing.md'. Changed the # heading to just the names.
+
+commit f68b9dfb92f815c4e9e9eb3eba44a6206b52f3c0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 06:57:06 2016 -0800
+
+    Add tests link to docs/index.html
+
+commit 95348d62c348dfb8b55cf0bf043912187039278b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 12 06:43:21 2016 -0800
+
+    Updated README. Removed all of the documentation and just have a link to docs.
+
+commit cc6b7b55eddf294af26383b317f58da60b7b4874
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 11 14:01:37 2016 -0800
+
+    Add error logging and html message to siteload.php if there is NO mysitemap.json.
+
+commit f9926b1773b1c97da505967c702be5389586befc
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 11 13:41:26 2016 -0800
+
+    Add docs/counter to the analysis.md
+            modified:   docs/analysis.html
+            modified:   docs/analysis.md
+            new file:   docs/counter.png
+            modified:   includes/database-engines/ErrorClass.class.php
+
+commit 5aa8992ee1093c10fb7975c5acbfccdcdab915a6
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 11 09:08:41 2016 -0800
+
+    Further docs work.
+
+commit 69f0c0494b6bc0482170f3b9d68ac374188b3e0e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 11 07:44:06 2016 -0800
+
+    Updated docs/ using the 1.16 pandoc on bartonlp.org!
+
+commit 6c241becaab5ab5d97b57f94cfb47df62c01c333
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 11 07:06:56 2016 -0800
+
+    Quick update. I need to do the pandoc on bartonlp.org
+
+commit 551eb4baa29aa769a45ffe78567f268eeffde247
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Nov 10 14:05:21 2016 -0800
+
+    Work on Error handlers.
+    Remove error_reporting() as set_error_handler() overrides it.
+    Clean up error messages logged. Remove all html and entities.
+    Move ErrorGetId() from SiteClass to helper-functions.php.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/helper-functions.php
+
+commit 87029eb81446d1ed780618dba483dc9a012102c8
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Nov 8 12:44:04 2016 -0800
+
+    Update the examples and tests docs
+            modified:   README.html
+            modified:   examples/EXAMPLES.html
+            modified:   examples/EXAMPLES.md
+            modified:   examples/example-with-twig.php
+            modified:   examples/test.sdb
+            modified:   index.html
+            modified:   tests/README.html
+
+commit c1f6ec39bb12e13f6fd5e5af9fc99dd47d65189b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Nov 8 08:18:27 2016 -0800
+
+    Add link to dbTables docs.
+            modified:   README.html
+            modified:   README.md
+            modified:   mk-html.sh
+
+commit c50cf869732a4447691c5e7c2c78af38e9698ed0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Nov 7 21:07:35 2016 -0800
+
+    Changed 'siteload' to walk up to document root looking for a mysitemap.json file. This way I don't have to have one in every dir.
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/siteload.php
+
+commit a5dee1983be2494ea403dbf83514cfbe7a359a4d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Nov 7 11:48:33 2016 -0800
+
+    Update files for new Database($_site) logic in SiteClass and Database.
+    This is after the merge of 'testing'
+            modified:   docs/beacon.php
+            modified:   docs/robots.php
+            modified:   docs/sitemap.php
+            modified:   docs/tracker.js
+            modified:   docs/tracker.php
+
+commit 109913dff798ff152b7d2561e1825186e21cb69a
+Merge: 08c2e11 0c176e4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Nov 7 11:29:52 2016 -0800
+
+    Merge branch 'master' of https://github.com/bartonlp/site-class
+    Merged the testing with master
+
+commit 08c2e11040f1e0549abcc1a653e0ec87d51c9398
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Nov 7 11:27:54 2016 -0800
+
+    Branch testing
+    Will merge with master
+            modified:   tests/withMysql.php
+            modified:   tests/withSqlite3.php
+
+commit f033e6a75e7c8fe6f8c3e07520d0ae42b35fa8b9
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 6 23:40:17 2016 -0800
+
+    Testing branch.
+    Changed the Database and SiteClass to now pass $this to Database. Database will take $_site, $_site->dbinfo or string.
+
+commit 0c176e4a5e3d76b8f5740fc33e0748e649bc95ab
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Nov 6 12:15:34 2016 -0800
+
+    Update README add link to bartonlp.github.io/site-class for additional Documentation
+
+commit 875191981d15cbb541114e68140980909ed43286
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 5 14:27:09 2016 -0700
+
+    Fix the json section
+
+commit 82b89416ba41a780f9ba8da341cd77c109e1b87f
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 5 13:53:19 2016 -0700
+
+    Fixed examples.md and added the real examples.
+            modified:   analysis.html
+            modified:   analysis.md
+            modified:   examples.html
+            modified:   examples.md
+
+commit c440740c803fa0aececabb0099d31329e7621ca6
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Nov 5 12:22:32 2016 -0700
+
+    Still working on docs
+
+commit ef75dc72933c78186c42ce8cc6e856622a2dc295
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 4 14:25:05 2016 -0700
+
+    Added robots.php, sitemap.php, tracker.php, tracker.js, beacon.php.
+
+commit 01b3836564c62ada6117a02c8e42ceff6cce29f4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 4 13:19:08 2016 -0700
+
+    Change the index stylesheet to do <a> underlines and blue/green.
+
+commit ccd4f33ba308a64085312ddd807ee6225d086006
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 4 13:04:37 2016 -0700
+
+    Expand the /docs directory and add dbTables.html and md and examples.html and md. Also add mk-html.sh
+
+commit eb8895cfd3a1cd4644d10a15d99580219c818522
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 4 03:27:33 2016 -0700
+
+    Populate the /docs directory with initial stuff
+            new file:   docs/README.html
+            new file:   docs/dbTables.html
+            new file:   docs/fonts/copse-regular-webfont.eot
+            new file:   docs/fonts/copse-regular-webfont.svg
+            new file:   docs/fonts/copse-regular-webfont.ttf
+            new file:   docs/fonts/copse-regular-webfont.woff
+            new file:   docs/fonts/quattrocentosans-bold-webfont.eot
+            new file:   docs/fonts/quattrocentosans-bold-webfont.svg
+            new file:   docs/fonts/quattrocentosans-bold-webfont.ttf
+            new file:   docs/fonts/quattrocentosans-bold-webfont.woff
+            new file:   docs/fonts/quattrocentosans-bolditalic-webfont.eot
+            new file:   docs/fonts/quattrocentosans-bolditalic-webfont.svg
+            new file:   docs/fonts/quattrocentosans-bolditalic-webfont.ttf
+            new file:   docs/fonts/quattrocentosans-bolditalic-webfont.woff
+            new file:   docs/fonts/quattrocentosans-italic-webfont.eot
+            new file:   docs/fonts/quattrocentosans-italic-webfont.svg
+            new file:   docs/fonts/quattrocentosans-italic-webfont.ttf
+            new file:   docs/fonts/quattrocentosans-italic-webfont.woff
+            new file:   docs/fonts/quattrocentosans-regular-webfont.eot
+            new file:   docs/fonts/quattrocentosans-regular-webfont.svg
+            new file:   docs/fonts/quattrocentosans-regular-webfont.ttf
+            new file:   docs/fonts/quattrocentosans-regular-webfont.woff
+            new file:   docs/images/background.png
+            new file:   docs/images/body-background.png
+            new file:   docs/images/bullet.png
+            new file:   docs/images/code.png
+            new file:   docs/images/hr.gif
+            new file:   docs/images/octocat-logo.png
+            new file:   docs/images/pattern.png
+            new file:   docs/images/tar.png
+            new file:   docs/images/top.png
+            new file:   docs/images/zip.png
+            new file:   docs/index.html
+            new file:   docs/javascripts/main.js
+            new file:   docs/javascripts/script.js
+            new file:   docs/params.json
+            new file:   docs/stylesheets/github-dark.css
+            new file:   docs/stylesheets/github-light.css
+            new file:   docs/stylesheets/normalize.css
+            new file:   docs/stylesheets/styles.css
+            new file:   docs/stylesheets/stylesheet.css
+            new file:   docs/test.html
+            deleted:    docs/testit.html
+
+commit cf99d871b6efa18c51572ee2b8452d6012bd85fb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 4 03:10:38 2016 -0700
+
+    Add /docs remove Gemfile
+
+commit 98c00ee5f83b79d938f4953213c5a1ebcd66b4cb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Nov 4 03:05:31 2016 -0700
+
+    Add docs directory. Add Gemfile.
+
+commit d1cf06777e185328c67b40a33f0df49960cc91ac
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Nov 2 12:50:55 2016 -0700
+
+    Test to see what user saves this
+
+commit c46ee5b71f9b65599b7ddacf6147064fdafe23fa
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Nov 2 12:20:11 2016 -0700
+
+    Try again to remove HOME only do it right
+            modified:   includes/siteload.php
+
+commit 6c1ed8e938421186a6b99d715ee6ad294c6409de
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Nov 2 11:09:25 2016 -0700
+
+    Remove requirement fot 'HOME' and use relative path up to autoload.php
+            modified:   includes/siteload.php
+
+commit 4f051aee7d323e9779dedf947c129e068535451e
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Nov 1 11:48:30 2016 -0700
+
+    Final 2.0.testing update.
+    Will merge this into master
+            modified:   composer.json
+            modified:   examples/composer.json
+            deleted:    gulpfile.js
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysql.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/database-engines/dbPdo.class.php
+            modified:   includes/database-engines/dbPostgres.class.php
+            modified:   includes/database-engines/dbSqlite.class.php
+            modified:   includes/database-engines/dbTables.class.php
+            modified:   includes/database-engines/helper-functions.php
+            deleted:    includes/siteautoload.class.php
+            deleted:    json_minify.php
+
+commit aa315c46a4b1037983b9c92aa5945cb6384f6822
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Oct 31 14:06:21 2016 -0700
+
+    Mods to examples and tests.
+    Mods to .md files.
+    mk-html.sh added pandoc -V variables and -s to do syntax etc.
+            modified:   README.html
+            new file:   examples/EXAMPLES.html
+            modified:   examples/EXAMPLES.md
+            modified:   examples/example-route.php
+            modified:   examples/example5.php
+            modified:   examples/test.sdb
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbSqlite.class.php
+            modified:   includes/database-engines/helper-functions.php
+            modified:   includes/siteload.php
+            modified:   mk-html.sh
+            new file:   tests/README.html
+            new file:   tests/README.md
+            deleted:    tests/README.txt
+            modified:   tests/includes/banner.i.php
+            modified:   tests/includes/footer.i.php
+            modified:   tests/includes/head.i.php
+            modified:   tests/siteclass
+            modified:   tests/topBottom.php
+            modified:   tests/withMysql.php
+            deleted:    tests/withPdo.php
+            deleted:    tests/withPostgres.php
+            modified:   tests/withSqlite3.php
+
+commit 778d47e0f66c4af10f0ad660a13a9c5aaa3991ae
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Sat Oct 29 14:27:09 2016 -0700
+
+    End of day
+            renamed:    README.new.md -> README.md
+            modified:   examples/EXAMPLES.md
+
+commit c460db05c86dca12572ed82740c872dbce32255f
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Sat Oct 29 01:33:51 2016 -0700
+
+    Changed all of the examples to use the composer autoload logic.
+
+commit 84872086e62e740b7d8196a473b8c23d7369f1c4
+Merge: 8b638cf b39503b
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Fri Oct 28 14:59:40 2016 -0700
+
+    Merge branch 'master' of https://github.com/bartonlp/site-class
+    
+            includes/SiteClass.class.php
+    
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/helper-functions.php
+
+commit 8b638cf03febd216f4bcf9d5b3f083af0bce60eb
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Fri Oct 28 14:48:57 2016 -0700
+
+    added mysitemap.json.php, mysql.schema, README.new.md
+    Removed Exception from my_exception_handler.
+    
+            new file:   README.new.md
+            modified:   composer.json
+            deleted:    dot-sitemap.php.example
+            deleted:    examples/.sitemap.php
+            new file:   examples/mysitemap.json
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            new file:   includes/siteload.php
+            new file:   json_minify.php
+            new file:   mysitemap.json.php
+            new file:   mysql.schema
+
+commit b39503b8ad9f37e02ace76aa9e5d692a4796720d
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Oct 26 13:17:45 2016 -0700
+
+    Remove anything to do with 'membertable'. This should be in a child class if needed.
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/helper-functions.php
+
+commit e255d68c97247b24a44e4c930395832db6ace308
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Sat Oct 22 11:33:50 2016 -0700
+
+    Made tag: v1.2.0.
+    Updated README.html and examles/EXAMPLES.html by running mk-html.sh
+            modified:   README.html
+            modified:   examples/EXAMPLES.html
+
+commit 878b4d95495b2eedccc4cae00a63b70b6d8623f2
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Oct 20 12:41:09 2016 -0700
+
+    Changed the timezone to PST8PDT from Los_Angeles/...
+            modified:   includes/database-engines/dbMysqli.class.php
+
+commit 080db53bc4bafa3d437191e5d5078ce89eedb4bf
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Oct 19 14:38:36 2016 -0700
+
+    SiteClass: removed getWhosbeenheretoday(). This is something that gets overridden by a super class if needed.
+      Added getHitCount().
+    ErrorClass: made changes for mysitemap.json and the added EMAIL... items. These are not available in the error handler so I had to
+    do $S = $GLOBALS['S'] and if not available set the EMAIL... to bartonphillips@gmail.com.
+    
+     Changes to be committed:
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+
+commit 9c5f35465e3314312e3732b83038a388ed30c5ef
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Oct 18 20:25:42 2016 -0700
+
+    Upgraded the .sitemap.php file. Added EMAIL* to siteinfo array and updated items.
+    Changed examples to use ErrorClass instead of Error.
+    Some other edits.
+            modified:   dot-sitemap.php.example
+            modified:   examples/.sitemap.php
+            modified:   examples/EXAMPLES.md
+            modified:   examples/composer-insert-update.php
+            modified:   examples/composer-test2.php
+            modified:   examples/composer-test3.php
+            modified:   examples/composer-test4.php
+            modified:   examples/composer-test5.php
+            modified:   examples/composer-with-twig.php
+            modified:   examples/includes/head.i.php
+            modified:   examples/insert-update.php
+            modified:   examples/test.php
+            modified:   examples/test2.php
+            modified:   examples/test3.php
+            modified:   examples/test4.php
+            modified:   examples/test5.php
+            modified:   gulpfile.js
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/dbTables.class.php
+            modified:   index.html
+
+commit 9e3151408e23c857840cbc508c4dffa19bdd565c
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Oct 17 22:32:01 2016 -0700
+
+    remove tags 1.1 and 1.0.0
+
+commit a56007134e674be0a04bb61b4b75be92d7391719
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Oct 17 21:12:26 2016 -0700
+
+    Version 1.2
+            modified:   composer.json
+
+commit 902dc674eba5c045943cbe01c14f7d333aa9fb0d
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Oct 17 21:06:37 2016 -0700
+
+    Version 1.2
+
+commit f8dbda293a66e128c97ee33f0f519c40dee719ed
+Author: Barton Phillips <barton@bartonlp.org>
+Date:   Mon Oct 17 14:03:31 2016 -0700
+
+     Changes to be committed:
+            modified:   README.md
+            modified:   composer.json
+
+commit 328bc8d2574ddc96c5c4c5f58d63e452d1332695
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Oct 17 13:38:17 2016 -0700
+
+    Update composer.json
+    
+    change to 'git' from 'vcs'
+
+commit 38a618e65483695e230665dd0ca3f164df171047
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Oct 17 12:48:19 2016 -0700
+
+     Changes to be committed:
+            modified:   README.md
+
+commit 504d805d76a0505c79b0dbe692d37e506f130466
+Merge: 25a8854 f87f2fe
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Oct 17 12:36:31 2016 -0700
+
+    Merge branch 'master' of github.com:bartonlp/site-class
+
+commit 25a8854418495d28a85e72ca9e762083aa138434
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Oct 17 12:24:29 2016 -0700
+
+    Updated includes
+     Changes to be committed:
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            renamed:    includes/database-engines/Error.class.php -> includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/SqlException.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysql.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/database-engines/dbPdo.class.php
+            deleted:    includes/database-engines/dbPostgreSql.class.php
+            new file:   includes/database-engines/dbPostgres.class.php
+            modified:   includes/database-engines/dbSqlite.class.php
+            modified:   includes/database-engines/dbTables.class.php
+            modified:   includes/database-engines/helper-functions.php
+            modified:   includes/siteautoload.class.php
+
+commit f87f2fec01bec0fbef0d28e7bd13d0eafd9cc550
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Oct 17 12:05:13 2016 -0700
+
+    Update README.md
+    
+    Changed ``` to `
+    Removed space between ``` php
+
+commit 2d8ff472a6d78dcc263d9202eb16effe09119d84
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Fri Oct 16 09:34:48 2015 -0700
+
+    modified:   includes/siteautoload.class.php
+    Add MySitemap.php as another .sitemap.php
+    Return the $sitemap so we can use it as a return value.
+
+commit 6e213854121bb30930e6c9c765961d55c92da1e6
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Sun Sep 13 11:13:21 2015 -0700
+
+    Changed Database to add extends dbAbatract. Added tests
+
+commit b5f0decc44303b44a773fc1c9b4e09ef52ee0270
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Fri Apr 24 12:42:59 2015 -0600
+
+    Changed path to autoload.php in examples. Added tests directory but not yet complete. Update items in database-engines
+
+commit 95cf198dc329e8e072f2c2b7d0e1ef631cf80dda
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Apr 16 13:55:19 2015 -0600
+
+    fix lines in md and regenerate html. Remove pdf as it did not work
+
+commit e008bcf14f343865fc2dee6c69c8a3625198d019
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Apr 16 13:54:15 2015 -0600
+
+    Add EXAMPLE
+
+commit fa1147b7b30c89c770fd63f1e55a45ce91388304
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Apr 16 13:33:00 2015 -0600
+
+    make md lines unbroken. Regenerate html
+
+commit b2cf6176543105e8eeda26843861c8234e8636a8
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Apr 16 13:32:14 2015 -0600
+
+    add overflow: auto
+
+commit 430978c772b2a8dec8a8677e8f47697ef1a5fcad
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Apr 16 13:00:36 2015 -0600
+
+    remove $db for engines. Add getDb and getResult and protected $db, and $host etc. to dbAbstract.
+
+commit 58cc245cef27d86532f275d89214f4738e103906
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Apr 16 12:58:36 2015 -0600
+
+    gulpfile makes README.html and watches
+
+commit 1ebb7c74c55431dc3799dd988c51455c1502b974
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 16 08:05:38 2015 -0600
+
+    Delete README.pdf
+    
+    PDF did not work out
+
+commit dcfae01f9ba3db7c80127d7c55a987ae1b81206c
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Fri Apr 10 17:36:26 2015 -0600
+
+    Cleaned up the dbPod and dbPostgreSql and tested them. test.php has code to help test.
+    
+    .sitemap.php has code to select $dbinfo arrays for different engines.
+    test4, test5 and insert-update have logic to select ../includes or ../vendor for development
+    testing.
+
+commit f24ba505fe11a9ec18c4d667c4527a561189ecd2
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Fri Apr 10 10:12:32 2015 -0600
+
+    SiteClass, if count is not true do not put the counter widget in footer
+
+commit 1415a3a067ebc9af9997eccf4e546b12a13a8d4a
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Fri Apr 10 00:33:31 2015 -0600
+
+    Added route examples. Fixed SiteClass.class.php to add DOCTYPE correctly
+
+commit 6ceec087b1d8eeafad7fa49489e2f9332cc950e5
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Thu Apr 9 11:00:40 2015 -0600
+
+    update
+
+commit f691d3c9559f0f872c36fb1e5bd3fa52592f4414
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 9 10:34:02 2015 -0600
+
+    Update README.md
+    
+    Add to initial description.
+
+commit 17f746a3734fbb7f05fb124a930775569e7ad4bb
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 9 09:50:03 2015 -0600
+
+    Update README.md
+    
+    more edits
+
+commit 83eb6b9d896722abe9ed63f84c634d7d80be1a4f
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 9 09:46:07 2015 -0600
+
+    Update README.md
+    
+    more editing
+
+commit e221f0bdc2fd3bb678bd3123cf325038f4b2760d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Apr 8 19:07:50 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 762b3169a79cf39b3ac88fa07174874e71966cce
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Apr 8 18:53:22 2015 -0600
+
+    again
+
+commit ca71bfc0eaa1ee16d394026e1e61abfc4a2aec3d
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Apr 8 18:38:47 2015 -0600
+
+    add installer
+
+commit 6f5f683ebbe971f54cebd9a37189ebc07d2551d6
+Merge: 066abe0 849bb05
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Apr 8 16:02:05 2015 -0600
+
+    Merge branch 'master' of github.com:bartonlp/site-class
+
+commit 066abe02142dcb6f1b2c3efcf6d90b864db6319b
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Wed Apr 8 16:01:42 2015 -0600
+
+    added pdf files
+
+commit 849bb056df89d9a2b33f2d8faf3f2cf3a771bced
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Apr 7 15:44:55 2015 -0600
+
+    Update composer.json
+    
+    ok
+
+commit bac7964801761ed631559e791bf42334acaa4974
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 15:14:44 2015 -0600
+
+    again
+
+commit 05255178fdfc1d132458bd74e526963c88b58c68
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 12:51:19 2015 -0600
+
+    added mk-html.sh. more README
+
+commit 748f4f0ab96321b4c60af112accb3312a5c50fc3
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 12:41:32 2015 -0600
+
+    more
+
+commit c9da8a413e9a04b7b4959cea832e38beb66c2d56
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 12:25:48 2015 -0600
+
+    more
+
+commit bf398d4815637c04203427e8f15c7321a4ceab81
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 12:22:18 2015 -0600
+
+    more
+
+commit 09ac91f7a69eca41c98305d107c4d03d3c727406
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 12:18:56 2015 -0600
+
+    more
+
+commit 4cf72dbab3de36145799f2996fde5dc018210156
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 12:12:34 2015 -0600
+
+    more
+
+commit 960ec65da7bdae5d67ec3b1fae0371623468f133
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 11:29:03 2015 -0600
+
+    add
+
+commit 744a3e4b33fea6ea5c81b83960ad4b4746bd6830
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 11:26:08 2015 -0600
+
+    more doc.
+
+commit 75bb6d058d46f945267fb773ef62aa361b6d4ca3
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 10:14:46 2015 -0600
+
+    add comments, change count default false.
+
+commit a6057a2dde67d2d8c67870d023c9c072a319f350
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Tue Apr 7 09:28:06 2015 -0600
+
+    tests to examples, change in README, change path in testN.php etc.
+
+commit 2ef13b30dbd1c9c1f4e84caeed6d2b7cdf8807eb
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Apr 6 17:01:17 2015 -0600
+
+    added more tests and EXAMPLES.md and html
+
+commit ab5e4b314d8e77a89204b8c87e2079a8c9f86ec3
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Apr 6 13:46:58 2015 -0600
+
+    again
+
+commit 9af959a4e50a372af5380a1c01b18e06133f1d4d
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Apr 6 13:37:41 2015 -0600
+
+    more change
+
+commit e958354f75ab901211c253a782277cd701ae0590
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Apr 6 12:51:27 2015 -0600
+
+    symlink
+
+commit 9b301cf5ceb075f571733116d1719b87047077d0
+Author: Barton Phillips <barton@bartonphillips.com>
+Date:   Mon Apr 6 12:26:43 2015 -0600
+
+    add scripts.
+
+commit 02ac1c62c8b24b7f650af0f14bcff0a765fb0ff0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 6 10:07:55 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 5c0273b164e262062fc53d3997c842422242efea
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 6 10:04:00 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 60a0ef3151086475119907326e1c0605132889d4
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 6 10:02:51 2015 -0600
+
+    Update composer.json
+    
+    add files.
+
+commit 68b4811cdae8f98c7e2a3946e2df21eec2e33f12
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 6 09:52:11 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 2d2bb92f18d080d360f46e67b2c35b95749b8fcf
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 6 09:48:24 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit b15baab845351f17821d414ab159c9f8bb180445
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Mon Apr 6 09:43:59 2015 -0600
+
+    Update composer.json
+    
+    Add autoload classmap.
+
+commit c5a7fdaf27b51782d626240842419cf6571cf4ef
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 16:45:31 2015 -0600
+
+    Update test2.php
+    
+    count => false
+
+commit 1e00e2c4833e51489074dfb09a469da09e2c5eff
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 16:41:10 2015 -0600
+
+    Update test2.php
+    
+    fix test2
+
+commit 7dbf49baa4e77ddb92b42f01dc41057edcad4c1f
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 16:07:27 2015 -0600
+
+    Update composer.json
+    
+    no
+
+commit f300bf2c478a0e30ce2ade617b75a7dace40803c
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 16:01:47 2015 -0600
+
+    Update composer.json
+    
+    yes
+
+commit b0358c58f1df70cf2918a2c1ea8dd2614fe4cfdf
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 14:56:52 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 6390a20e26ece64fe59603fad885ebc64be706ac
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 14:43:42 2015 -0600
+
+    Update composer.json
+    
+    psr-4
+
+commit 8db23307f3e1b7e6030c1e2d20c362d7220536bd
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 14:34:00 2015 -0600
+
+    Update composer.json
+    
+    one more try
+
+commit 446c16f6e02cefeebfd1ffaee038ded147610203
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 13:48:02 2015 -0600
+
+    Update composer.json
+    
+    more
+
+commit ed881236304f99a1eb7a40bad2a003cc1d369cc3
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 12:35:36 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 1d2c0526eca6bf2ff5a1e4ca91e0e71ef2f59250
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 12:17:36 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 2379438cdf6e6ceb4ff826ffcf1523cf0c3a15a8
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 12:10:35 2015 -0600
+
+    Update composer.json
+    
+    again
+
+commit 60db7de0895aa5d074b5cd05fcd954dba6f75f6a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 12:09:23 2015 -0600
+
+    Update composer.json
+    
+    can't get this right
+
+commit 648037d20e2ba2ae9636e3b0d0288ab070b82d98
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 12:07:38 2015 -0600
+
+    Update composer.json
+    
+    change
+
+commit 79b44becdec84f788ad61e932a27b9a825271328
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 11:21:38 2015 -0600
+
+    Update composer.json
+    
+    change require
+
+commit e40973a48b244584b66cdfd50a13b73b73c2d731
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 10:56:50 2015 -0600
+
+    Update composer.json
+    
+    Name changed from SiteClass to site-class
+
+commit c14a671bd0c59f308ac7ef464351068bc080a3d6
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 10:36:12 2015 -0600
+
+    Update composer.json
+    
+    Fix up indentation
+
+commit ca81f77fe44e6fa3daae4113e07a5b3f59c44fac
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 10:19:19 2015 -0600
+
+    Update .gitignore
+    
+    Ignore LOGFILEs and test.sdb.db whatever that is.
+
+commit 75bc1a27e522979fda925fc006592c93607aa45a
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 10:18:17 2015 -0600
+
+    Delete test.sdb.db
+    
+    delete
+
+commit 4fc8778f8e6836f03b5672600b82f90577bdad05
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sun Apr 5 10:17:57 2015 -0600
+
+    Delete LOGFILE
+    
+    delete
+
+commit 198fbe76ab016e37f2d8b063ce06c2adc8aa6e65
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Sat Apr 4 16:32:06 2015 -0600
+
+    Delete README.txt
+    
+    Need to redo this but for now just delete it!
+
+commit a702b69500034de84bc2a5db5c8122b13cf9be2b
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Apr 3 12:37:03 2015 -0600
+
+    added more info to README
+
+commit a592229ac206291d58f8953aed12d0e9031aea01
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Apr 3 11:57:46 2015 -0600
+
+    added more info to README
+
+commit 0f1505f35195e392a75ad3af0b1286b8c87da7b7
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Fri Apr 3 10:55:10 2015 -0600
+
+    added more info to README
+
+commit 0c9ef0f7b3c1f04b0bbc5b08872ed05c2873fa49
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 2 18:04:17 2015 -0600
+
+    Change src to include. Add the tests directory and tests
+
+commit 71ed38ec5577c93a1543fc038df42e74d98e476d
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 2 11:48:54 2015 -0600
+
+    rename .sitemap.php to dot-sitemap.php.example
+
+commit e24bb7d2b48e0c13ecd96cf29ef516fb30a657bd
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 2 10:36:23 2015 -0600
+
+    change json, move siteautoload to src
+
+commit 03c0fff5e17212ccd6ef71c309b13c681ff1c768
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Apr 2 10:28:59 2015 -0600
+
+    add src and put code there
+
+commit 8f9ed54fc8ba7eca4ed600e4f8a16f8b8a17d96e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Apr 1 19:07:25 2015 -0600
+
+    more readme
+
+commit 73e4490560e58bea73fce1a729d422cb600c2cf0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Apr 1 18:21:40 2015 -0600
+
+    Filled out README.md and .sitemap.php
+
+commit 9e35d1a81fe0b867d03c77fb4350511380355037
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Apr 1 16:22:37 2015 -0600
+
+    add siteautoload.class.php and .sitemap.php example
+
+commit 9741efae1d48f82453b3e2bc24535a1dfba6adaa
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Apr 1 16:19:18 2015 -0600
+
+    add README and LICENCE
+
+commit da71907aa2c205db69a85cc0828ce37d80fa1632
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Apr 1 16:11:54 2015 -0600
+
+    Initial commit
+            new file:   SiteClass.class.php
+            new file:   database-engines/Database.class.php
+            new file:   database-engines/Error.class.php
+            new file:   database-engines/SqlException.class.php
+            new file:   database-engines/dbAbstract.class.php
+            new file:   database-engines/dbMysql.class.php
+            new file:   database-engines/dbMysqli.class.php
+            new file:   database-engines/dbPdo.class.php
+            new file:   database-engines/dbPostgres.class.php
+            new file:   database-engines/dbSqlite.class.php
+            new file:   database-engines/dbTables.class.php
+            new file:   database-engines/helper-functions.php

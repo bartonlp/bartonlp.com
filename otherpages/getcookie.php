@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-25 - use new approach
 // BLP 2022-05-05 - IMPORTANT this DOES need to be a symlink because we need to get the cookie.
 // Reset Cookie. Show the member, myip and geo tables. Show a map of geo lat/long.
 // This file needs to be symlinked into the local directories.
@@ -63,18 +64,18 @@ if(isset($_POST['submit'])) {
   exit();
 } 
 
-$h->banner = <<<EOF
+$S->banner = <<<EOF
 <h1>Reset Cookie<br>
 $S->siteName</h1>
 EOF;
 
 // Uncomment this to see an analysis of the head section.
-//$h->link = "<link rel='stylesheet' href='https://csswizardry.com/ct/ct.css' class='ct' />";
+//$S->link = "<link rel='stylesheet' href='https://csswizardry.com/ct/ct.css' class='ct' />";
 
 // I could change the scale
-//$h->meta = '<meta name=viewport content="width=device-width initial-scale=.7">';
+//$S->meta = '<meta name=viewport content="width=device-width initial-scale=.7">';
 
-$h->css =<<<EOF
+$S->css =<<<EOF
 #members {
   margin: 10px 0;
 }
@@ -163,16 +164,16 @@ EOF;
 // Therefore even though this file is on GitHub and the key is being leaked to the public it can
 // only be used from one of my domains!
 
-$b->script = <<<EOF
+$S->b_script = <<<EOF
 <script src="https://bartonphillips.net/js/maps.js"></script>
 <script
  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async>
 </script>
 EOF;
 
-$h->title = "GetCookie";
+$S->title = "GetCookie";
 
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 // Get the two tables
 

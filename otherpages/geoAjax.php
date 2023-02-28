@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-25 - no $h/$b
 // This is the Ajax for webstats.js and geo.js
 // **** INPORTANT: This needs to be symlinked into each directory where it will be run along with getcookie.php.
 // The symlink is needed so $S will have the information form the local

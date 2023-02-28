@@ -1,5 +1,6 @@
 <?php
-// BLP 2022-05-01 - Major rework. This now is in https://bartonphillips.net/webstats.php. I no
+// BLP 2023-02-25 - use new approach
+// BLP 2022-05-01 - Major rework. This now is in https://bartonlp.com/otherpages/webstats.php. I no
 // longer use symlinks and the cumbersom rerouting logic is gone. Now webstats.php is called with
 // ?blp=8653&site={sitename}. The GET grabs the site and puts it into $site. The post is called via
 // the <select> and grabs the site a location header call which in turn does a new GET.
@@ -49,7 +50,7 @@ if(empty($site)) {
 
   // We do not have $S so we can't add this to the badplayer table.
 
-  insertMysqli("insert into badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+  insertMysqli("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
                "values('$xip', '$xsite', 'webstats', 'counted', 1, 'NO_SITE', -200, 'NO site', '$xagent', now(), now()) ".
                "on duplicate key update count=count+1, lasttime=now()");
   
@@ -117,14 +118,14 @@ EOF;
   exit();  
 }
 
-$h->link = <<<EOF
+$S->link = <<<EOF
   <link rel="stylesheet" href="https://bartonphillips.net/css/newtblsort.css">
   <link rel="stylesheet" href="https://bartonphillips.net/css/webstats.css"> 
 EOF;
 
 // css for the gps location in ipinfo
 
-$h->css = <<<EOF
+$S->css = <<<EOF
 .location, #tracker td:nth-of-type(3) { cursor: pointer; }
 EOF;
 
@@ -140,15 +141,15 @@ $mask = TRACKER_BOT | TRACKER_SCRIPT | TRACKER_NORMAL | TRACKER_NOSCRIPT | TRACK
 
 // Set up the javascript variables it needs from PHP
 
-function setupjava($h) {
-  global $myIp, $homeIp, $mask; //, $S;
+function setupjava() {
+  global $myIp, $homeIp, $mask, $S;
   
   $robots = BOTS_ROBOTS;
   $sitemap = BOTS_SITEMAP;
   $siteclass = BOTS_SITECLASS;
   $zero = BOTS_CRON_ZERO;
 
-  $h->inlineScript = <<<EOF
+  $S->h_inlineScript = <<<EOF
     var myIp = "$myIp"; 
     var homeIp = "$homeIp"; // my home ip
     //var doState = true; // This can be set to show the State info. See tracker.js and tracker.php.
@@ -175,7 +176,9 @@ function setupjava($h) {
   $goto = TRACKER_GOTO; // Proxy
   $goaway = TRACKER_GOAWAY; // unusal tracker.
 
-  $h->inlineScript .= <<<EOF
+  // Add to inlineScript
+
+  $S->h_inlineScript .= <<<EOF
     const tracker = {
   "$start": "Start", "$load": "Load", "$script": "Script", "$normal": "Normal",
   "$noscript": "NoScript", "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
@@ -187,12 +190,12 @@ function setupjava($h) {
   EOF;
 }
 
-setupjava($h);  
+setupjava();  
 
 // FINISH inlineScript
 // *******************
 
-$h->script = <<<EOF
+$S->h_script = <<<EOF
 <script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
 EOF;
 
@@ -295,11 +298,11 @@ EOF;
 }
 // END $DEBUG
 
-$h->title = "Web Statistics";
+$S->title = "Web Statistics";
 
-$h->banner = "<h1>Web Stats For <b>$S->siteName</b></h1>";
+$S->banner = "<h1>Web Stats For <b>$S->siteName</b></h1>";
 
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 function blphome(&$row, &$rowdesc) {
   global $homeIp;
@@ -449,6 +452,8 @@ $sql = "select sum(`real`+bots) as Count, sum(`real`) as 'Real', sum(bots) as 'B
 "from $S->masterdb.daycounts ".
 "where site='$S->siteName' and date >= current_date() - interval 6 day";
 
+// Because these are the sums there is only one record.
+
 $S->query($sql);
 [$Count, $Real, $Bots, $Visits] = $S->fetchrow('num');
 
@@ -473,10 +478,14 @@ $S->query("select date(starttime) ".
 // There should be ONE UNIQUE ip per row. So count them into the date.
 
 $Visitors = 0;
+$BotsCnt = 0;
 $visitorsAr = [];
+$botsAr = [];
 
 while([$date] = $S->fetchrow('num')) {
   ++$visitorsAr[$date];
+  ++$botsAr[$date];
+  ++$BotsCnt;
   ++$Visitors;
 }
 
@@ -510,12 +519,12 @@ while([$date] = $S->fetchrow('num')) {
 // select for ip & date which is made into Visitors.
 // jsenabled is from the select with the mask.
 
-$ftr = "<tr><th>Totals</th><th>$Visitors</th><th>$Count</th><th>$Real</th>".
-"<th>$jsvalue</th><th>$Bots</th><th>$Visits</th></tr>";
+$ftr = "<tr><th>Totals</th><th>$Visitors</th><th>$Real+$BotsCnt</th><th>$Real</th>".
+"<th>$jsvalue</th><th>$BotsCnt</th><th>$Visits</th></tr>";
 
 // Get the table lines
   
-$sql = "select `date` as Date, 'Visitors', `real`+bots as Count, `real` as 'Real', 'AJAX', ".
+$sql = "select `date` as Date, 'Visitors', `real`+$BotsCnt as Count, `real` as 'Real', 'AJAX', ".
 "bots as 'Bots', visits as Visits ".
 "from $S->masterdb.daycounts where site='$S->siteName' and ".
 "date >= current_date() - interval 6 day order by date desc";
@@ -538,6 +547,12 @@ if(!$tbl) {
   $tbl = "<h3 class='noNewData'>No New Data Today</h2>";
 }
 
+// BLP 2023-02-10 - test
+$S->query("select sum(count) from $S->masterdb.bots2 where site='$S->siteName' and date=current_date() and (which=4 or which=0x100)");
+$bots2cnt1 = $S->fetchrow('num')[0];
+$S->query("select sum(count) from $S->masterdb.bots2 where site='$S->siteName' and date=current_date() - interval 1 day and (which=4 or which=0x100)");
+$bots2cnt2 = $S->fetchrow('num')[0];
+
 if($S->siteName == "Bartonphillipsnet") {
   $page .= <<<EOF
 <h2 id="table6">We Do Not Count <i>daycount</i> For $S->siteName</h2>
@@ -549,6 +564,8 @@ EOF;
 <a href="#table7">Next</a>
 
 <h4>Showing $S->siteName for seven days</h4>
+<p>bots2cnt today: $bots2cnt1<br>
+bots2cnt yesterday: $bots2cnt2</p>
 <p>Webmaster (me) is not counted.</p>
 <ul>
 <li>'Visitors' is the number of distinct (NON Bot) IP addresses (via 'tracker' table).
