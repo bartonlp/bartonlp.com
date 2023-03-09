@@ -212,7 +212,7 @@ if(array_intersect([$S->siteName], ['Bartonphillips', 'Tysonweb', 'Newbernzig', 
   'Allnatural', 'bartonhome', 'Bonnieburch', 'Bridgeclub', 'Marathon', 'Swam', 'Rpi', 'Bartonphillipsnet'])[0]) {
   // For these add maps.js and the maps api and key.
 
-  $b->script = <<<EOF
+  $S->b_script = <<<EOF
 <script src="https://bartonphillips.net/js/maps.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async></script>
 <script src='https://bartonlp.com/otherpages/js/webstats.js'></script>
@@ -260,7 +260,7 @@ EOF;
 }
 
 if($DEBUG) {
-  $b->inlineScript = <<<EOF
+  $S->b_inlineScript = <<<EOF
 try {
   // Create the performance observer.
   const po = new PerformanceObserver((list) => {

@@ -1,3 +1,67 @@
+commit 6c90ea8b15ee75d1cacc69209d0713b37d42e906
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Mar 7 15:55:08 2023 -0500
+
+    Changed the passing convetion from strings to $dbinfo with most of the date. The password if not pressent comes from a file at /home/barton/database-pasword.
+    Cosmetic changes. Added stripComments() to helper-functions.
+            modified:   CHANGES.md
+            modified:   examples/.htaccess
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/dbMysqli.class.php
+            modified:   includes/database-engines/helper-functions.php
+            modified:   includes/siteload.php
+
+commit 3de9aa893c4abc3ca78d72aa49f95fba537b76d0
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Mar 7 13:24:39 2023 -0500
+
+    Small change to README.md
+            modified:   README.md
+
+commit 289b4ef9506954eec6500c4fb0a2360a349f606e
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Tue Mar 7 13:22:23 2023 -0500
+
+    Redid whatisloaded.class.php in branch newstuff.
+            modified:   includes/whatisloaded.class.php
+
+commit 428baae0bf58195f70fb4dae65ff9feab81e8b07
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Mar 2 18:09:06 2023 -0500
+
+    Added null safe operator in ErrorClass and chenged noEmailErrs to noEmail.
+    Changed the return array names to better show the version numbers.
+            modified:   includes/database-engines/ErrorClass.class.php
+            modified:   includes/whatisloaded.class.php
+
+commit bbd9cd33a82c5e46a918daac920dd41a72912e72
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Thu Mar 2 11:31:40 2023 -0500
+
+    Readme and tracker. tracker.php changed error_log msg.
+            modified:   README.md
+            modified:   includes/tracker.php
+
+commit c07d07af5a18a0ac88d3ebeb54d646e92ea9bfb9
+Author: Barton Phillips <bartonphillips@gmail.com>
+Date:   Wed Mar 1 22:07:30 2023 -0500
+
+    This is a new branch which seems to be working OK.
+    I have moved a lot of things from SiteClass to Database and dbAbstract.
+            modified:   README.html
+            modified:   README.md
+            modified:   docs/analysis.html
+            modified:   docs/analysis.md
+            modified:   docs/siteclass.html
+            modified:   docs/siteclass.md
+            modified:   includes/SiteClass.class.php
+            modified:   includes/database-engines/Database.class.php
+            modified:   includes/database-engines/dbAbstract.class.php
+            modified:   includes/database-engines/helper-functions.php
+
 commit 56897499628e76d25e6e5a26d9c625b5ec89373e
 Author: Barton Phillips <bartonphillips@gmail.com>
 Date:   Tue Feb 28 10:50:28 2023 -0500

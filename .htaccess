@@ -2,6 +2,7 @@ Header set Access-Control-Allow-Origin "*"
 Require all granted
 
 SetEnv SITELOADNAME /var/www/vendor/bartonlp/site-class/includes/siteload.php
+setEnv SITECLASS_DIR /var/www/vendor/bartonlp/site-class/includes
 
 RewriteEngine on
 RewriteRule ^csstest-(.*)\.css$ tracker.php?id=$1&page=csstest [L,QSA]
