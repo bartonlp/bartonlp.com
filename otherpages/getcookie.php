@@ -1,5 +1,4 @@
 <?php
-// BLP 2023-02-25 - use new approach
 // BLP 2022-05-05 - IMPORTANT this DOES need to be a symlink because we need to get the cookie.
 // Reset Cookie. Show the member, myip and geo tables. Show a map of geo lat/long.
 // This file needs to be symlinked into the local directories.
@@ -241,6 +240,7 @@ $sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo whe
 
 $cookies = $_COOKIE;
 
+//vardump("cookies", $cookies);
 // This is the standard bottom message
 
 $bottom =<<<EOF
@@ -279,7 +279,7 @@ $all = '';
   
 foreach($cookies as $key=>$cookie) {
   if($key == "mytime") {
-    $cookie = date("Y-m-d H:i:s", strtotime($cookie));
+    $cookie = $cookie;
   }
   $all .= "<li><button class='reset'>Reset: <span>$key</span></button>$cookie</li>";
 }

@@ -1,0 +1,42 @@
+robots.php:if(!file_exists($S->path . "/robots.txt")) {
+robots.php:  echo "<h1>404 - FILE NOT FOUND</h1>";
+robots.php:$robots = file_get_contents($S->path."/robots.txt");
+robots.php:if($S->isMe()) return;
+robots.php:$agent = $S->agent;
+robots.php:$ip = $S->ip;
+robots.php:  // BLP 2021-12-26 -- robots is 1 if we do an insert or robots=robots|2 
+robots.php:  $S->query("insert into $S->masterdb.bots (ip, agent, count, robots, site, creation_time, lasttime) ".
+robots.php:            "values('$ip', '$agent', 1, " . BOTS_ROBOTS . ", '$S->siteName', now(), now())");
+robots.php:  if($e->getCode() == 1062) { // duplicate key
+robots.php:    $S->query("select site from $S->masterdb.bots where ip='$ip'");
+robots.php:    list($who) = $S->fetchrow('num');
+robots.php:      $who = $S->siteName;
+robots.php:    if(strpos($who, $S->siteName) === false) {
+robots.php:      $who .= ", $S->siteName";
+robots.php:    $S->query("update $S->masterdb.bots set robots=robots|" . BOTS_ROBOTS . ", count=count +1, site='$who', lasttime=now() ".
+robots.php:// BLP 2021-11-12 -- 2 is for seen by robots.php.
+robots.php:// BLP 2021-12-26 -- bots2 primary key is 'ip, agent, date, site, which'
+robots.php:$S->query("insert into $S->masterdb.bots2 (ip, agent, date, site, which, count, lasttime) ".
+robots.php:          "values('$ip', '$agent', now(), '$S->siteName', " . BOTS_ROBOTS . ", 1, now()) ".
+robots.php:$S->query("insert into $S->masterdb.logagent (site, ip, agent, count, created, lasttime) values('$S->siteName', '$ip', '$agent', 1, now(), now()) ".
+sitemap.php:if(!file_exists($S->path . "/Sitemap.xml")) {
+sitemap.php:  echo "<h1>404 - FILE NOT FOUND</h1>";
+sitemap.php:$sitemap = file_get_contents($S->path."/Sitemap.xml");
+sitemap.php:if($S->isMe()) return;
+sitemap.php:$ip = $S->ip;
+sitemap.php:$agent = $S->agent;
+sitemap.php:  // BLP 2021-12-26 -- robots is 4 for insert and robots=robots|8 for update.
+sitemap.php:  $S->query("insert into $S->masterdb.bots (ip, agent, count, robots, site, creation_time, lasttime) ".
+sitemap.php:            "values('$ip', '$agent', 1, " . BOTS_SITEMAP . ", '$S->siteName', now(), now())");
+sitemap.php:  if($e->getCode() == 1062) { // duplicate key
+sitemap.php:    $S->query("select site from $S->masterdb.bots where ip='$ip'");
+sitemap.php:    list($who) = $S->fetchrow('num');
+sitemap.php:      $who = $S->siteName;
+sitemap.php:    if(strpos($who, $S->siteName) === false) {
+sitemap.php:      $who .= ", $S->siteName";
+sitemap.php:    $S->query("update $S->masterdb.bots set robots=robots|" . BOTS_SITEMAP . ", count=count+1, site='$who', lasttime=now() ".
+sitemap.php:// BLP 2021-11-12 -- 4 for sitemap
+sitemap.php:// BLP 2021-12-26 -- bots2 primary key is 'ip, agent, date, site, which'.
+sitemap.php:$S->query("insert into $S->masterdb.bots2 (ip, agent, date, site, which, count, lasttime) ".
+sitemap.php:          "values('$ip', '$agent', now(), '$S->siteName', " . BOTS_SITEMAP . ", 1, now()) ".
+sitemap.php:$S->query("insert into $S->masterdb.logagent (site, ip, agent, count, created, lasttime) values('$S->siteName', '$ip', '$agent', 1, now(), now()) ".

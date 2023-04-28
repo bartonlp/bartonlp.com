@@ -13,6 +13,7 @@
 //$DEBUG = true;
 
 $_site = require_once(getenv("SITELOADNAME"));
+ErrorClass::setDevelopment(true);
 
 // This function does a RAW mysqli insert (or what ever is in $sql) but it does not return anything.
 
@@ -104,7 +105,7 @@ if(empty($_GET['blp']) || $_GET['blp'] != '8653') { // If blp is empty or set bu
 } 
 
 // At this point I know that blp was not empty and it equaled 8653.
-// But is it is not me who is it?
+// But is it is not me, who is it?
 
 if(!array_intersect([$S->ip], $S->myIp)) {
   error_log("webstats.php $S->siteName $S->self: blp=8653 but this is not me. IP=$S->ip, agent=$S->agent, line=" . __LINE__);
@@ -149,13 +150,6 @@ function setupjava() {
   $siteclass = BOTS_SITECLASS;
   $zero = BOTS_CRON_ZERO;
 
-  $S->h_inlineScript = <<<EOF
-    var myIp = "$myIp"; 
-    var homeIp = "$homeIp"; // my home ip
-    //var doState = true; // This can be set to show the State info. See tracker.js and tracker.php.
-    const robots = {"$robots": "Robots", "$siteclass": "BOT", "$sitemap": "Sitemap", "$zero": "Zero"};
-  EOF;
-
   $start = TRACKER_START;
   $load = TRACKER_LOAD;
   $script = TRACKER_SCRIPT;
@@ -176,9 +170,13 @@ function setupjava() {
   $goto = TRACKER_GOTO; // Proxy
   $goaway = TRACKER_GOAWAY; // unusal tracker.
 
-  // Add to inlineScript
+  // Add to inlineScript. BLP 2023-03-10 - consolidated h_inlineScript.
 
-  $S->h_inlineScript .= <<<EOF
+  $S->h_inlineScript = <<<EOF
+    var myIp = "$myIp"; 
+    var homeIp = "$homeIp"; // my home ip
+    //var doState = true; // This can be set to show the State info. See tracker.js and tracker.php.
+    const robots = {"$robots": "Robots", "$siteclass": "BOT", "$sitemap": "Sitemap", "$zero": "Zero"};
     const tracker = {
   "$start": "Start", "$load": "Load", "$script": "Script", "$normal": "Normal",
   "$noscript": "NoScript", "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
@@ -186,7 +184,6 @@ function setupjava() {
   "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway"
   };
     const mask = $mask;
-    //var thepage = '$S->self', theip = '$S->ip', thesite = '$S->siteName';
   EOF;
 }
 
@@ -445,113 +442,101 @@ $page .= <<<EOF
 $tbl
 EOF;
 
-// Get the footer line for daycounts.
-  
-$sql = "select sum(`real`+bots) as Count, sum(`real`) as 'Real', sum(bots) as 'Bots', ".
-"sum(visits) as Visits " .
-"from $S->masterdb.daycounts ".
-"where site='$S->siteName' and date >= current_date() - interval 6 day";
+/**** START NEW */
 
-// Because these are the sums there is only one record.
-
-$S->query($sql);
-[$Count, $Real, $Bots, $Visits] = $S->fetchrow('num');
-
-// Use 'tracker' to get the number of Visitors ie unique ip accesses.
+$mask1 = TRACKER_START | TRACKER_LOAD | TRACKER_TIMER | BEACON_VISIBILITYCHANGE | BEACON_PAGEHIDE | BEACON_UNLOAD | BEACON_BEFOREUNLOAD;
 
 $meIp = null;
+$ipAr = $S->myIp;
 
-foreach($S->myIp as $v) { // myIp is always an IP.
+foreach($ipAr as $v) {
   $meIp .= "'$v',";
 }
-$meIp .= "'" . DO_SERVER . "'"; // 157.245.129.4
-$meIp = " and ip not in ($meIp)";
+$meIp = rtrim($meIp, ',');
 
-// Get all of the dates from tracker grouped by ip and date(lasttime).
+$real = 0;
+$bots = 0;
+$ajax = 0;
+$countTot = 0;
+$strAr = [];
 
-$S->query("select date(starttime) ".
-          "from $S->masterdb.tracker where starttime>=current_date() - interval 6 day ".
-          "and site='$S->siteName' and not isJavaScript & ". TRACKER_BOT .
+for($i=0; $i<7; ++$i) {
+  $cntBots = 0;
+  $cntReal = 0;
+  $cntAjax = 0;
+
+  $hdr =<<<EOF
+<table id='daycount' border='1'>
+<thead>
+<tr><th>Date</th><th>Count</th><th>Real</th><th>Bots</th><th>Ajax</th><th>Visitors</th><th>Visits</th></tr>
+</thead>
+<tbody>
+EOF;
+  
+  $S->query("select difftime, date(lasttime), id, ip, isJavaScript from $S->masterdb.tracker where site='$S->siteName' ".
+  "and ip not in($meIp) and date(lasttime)=current_date() - interval $i day order by ip desc");
+
+  while([$diff, $d, $id, $ip, $java] = $S->fetchrow('num')) {
+    $dd = $d; // NOTE: save $d in $dd because when $S->fetchrow('num') returns NULL all of the array items are zero.
+    
+    if($java & $mask1) {
+      ++$cntAjax; // Ajax for date
+      ++$ajax; // Total Ajax
+    }
+    if(!$diff) {
+      ++$cntBots;
+      ++$bots;
+    } else {
+      ++$cntReal;
+      ++$real;
+    }
+  }
+
+  $count = $cntBots + $cntReal;
+  $countTotal += $count;
+  $strAr[] = "<tr><td>$dd</td><td>$count</td><td>$cntReal</td><td>$cntBots</td><td>$cntAjax</td>";
+}
+
+$S->query("select date(lasttime) ".
+          "from $S->masterdb.tracker ".
+          "where starttime>=current_date() - interval 6 day ".
+          "and site='$S->siteName' and not isJavaScript & ". TRACKER_BOT . // 0x2000
           " and isJavaScript != 0 ". // TRACKER_ZERO
-          "$meIp group by ip,date(starttime)"); // $meIp is ' and is not in($meIp)'
+          "and ip not in($meIp) group by ip,date(lasttime)");
 
 // There should be ONE UNIQUE ip per row. So count them into the date.
 
 $Visitors = 0;
-$BotsCnt = 0;
 $visitorsAr = [];
-$botsAr = [];
 
 while([$date] = $S->fetchrow('num')) {
   ++$visitorsAr[$date];
-  ++$botsAr[$date];
-  ++$BotsCnt;
   ++$Visitors;
 }
 
-// I am looking for the number of 'AJAX'. The mask will be zero if these are the only things in
-// isJavaScript or isJavaScript == 0.
-// Looking for isJavaScript that does not have the bots, script, normal, noscript and csstest bits
-// set.
+$i = 0;
+$visitsTotal = 0;
 
-// What is left is 'start', 'load', beacon exits, tracker exits, and timer.
+$S->query("select date, visits from $S->masterdb.daycounts where site='$S->siteName' and date>=current_date() - interval 6 day order by date desc");
 
-$sql = "select date(starttime)".
-       "from $S->masterdb.tracker ".
-       "where starttime>=current_date() - interval 6 day and site='$S->siteName' ".
-       "and (isJavaScript&~$mask)!=0". // Not just the above bits.
-       "$meIp"; // $meIp is ' and is not in($meIp)'
-  
-$S->query($sql);
-
-$jsvalue = 0;
-$jsEnabled = [];
-
-// For each date that has some AJAX info in isJavaScript add 1 to the $jsEnabled[$date] and add
-// 1 to $jsvalue1 (the accumulator).
-
-while([$date] = $S->fetchrow('num')) {
-  ++$jsEnabled[$date]; // total per date
-  ++$jsvalue; // grand total
+while([$date, $visits] = $S->fetchrow('num')) {
+  $strAr[$i++] .= "<td>$visitorsAr[$date]</td><td>$visits</td></tr>";
+  $visitsTotal += $visits;
 }
 
-// Count, Real, Bots, Visits are from select for the footer. Visitors is from the
-// select for ip & date which is made into Visitors.
-// jsenabled is from the select with the mask.
+$str = implode("\n", $strAr);
 
-$ftr = "<tr><th>Totals</th><th>$Visitors</th><th>$Real+$BotsCnt</th><th>$Real</th>".
-"<th>$jsvalue</th><th>$BotsCnt</th><th>$Visits</th></tr>";
+$ftr =<<<EOF
+</tbody>
+<tfoot>
+<tr><th>Totals</th><td>$countTotal</td><td>$real</td><td>$bots</td><td>$ajax</td><td>$Visitors</td><td>$visitsTotal</td></tr>
+</tfoot>
+</table>
+EOF;
 
-// Get the table lines
-  
-$sql = "select `date` as Date, 'Visitors', `real`+$BotsCnt as Count, `real` as 'Real', 'AJAX', ".
-"bots as 'Bots', visits as Visits ".
-"from $S->masterdb.daycounts where site='$S->siteName' and ".
-"date >= current_date() - interval 6 day order by date desc";
+$tbl = $hdr . $str . $ftr;
 
-// callback for maketable daycounts.
-
-function visit(&$row, &$rowdesc) { // callback from maketable()
-  global $visitorsAr, $jsEnabled;
-  $row['Visitors'] = $visitorsAr[$row['Date']];
-  $row['AJAX'] = $jsEnabled[$row['Date']];
-}
-
-// $tbl is the full table with header and footer. The return is an array 0-3 and 'table', 'result',
-// 'num' and 'header'. We only need the zero element which is table. We could have done ['table']
-// just as well.
-
-$tbl = $T->maketable($sql, array('callback'=>'visit', 'footer'=>$ftr, 'attr'=>array('border'=>"1", 'id'=>"daycount")))[0];
-
-if(!$tbl) {
-  $tbl = "<h3 class='noNewData'>No New Data Today</h2>";
-}
-
-// BLP 2023-02-10 - test
-$S->query("select sum(count) from $S->masterdb.bots2 where site='$S->siteName' and date=current_date() and (which=4 or which=0x100)");
-$bots2cnt1 = $S->fetchrow('num')[0];
-$S->query("select sum(count) from $S->masterdb.bots2 where site='$S->siteName' and date=current_date() - interval 1 day and (which=4 or which=0x100)");
-$bots2cnt2 = $S->fetchrow('num')[0];
+/* END NEW ****/
 
 if($S->siteName == "Bartonphillipsnet") {
   $page .= <<<EOF
@@ -564,11 +549,9 @@ EOF;
 <a href="#table7">Next</a>
 
 <h4>Showing $S->siteName for seven days</h4>
-<p>bots2cnt today: $bots2cnt1<br>
-bots2cnt yesterday: $bots2cnt2</p>
 <p>Webmaster (me) is not counted.</p>
 <ul>
-<li>'Visitors' is the number of distinct (NON Bot) IP addresses (via 'tracker' table).
+<li>'Visitors' is the number of distinct (AJAX) IP addresses (via 'tracker' table).
 <li>'Count' is the sum of 'Real' and 'Bots', the total number of HITS.
 <li>'Real' is the number of non-robots.
 <li>'AJAX' is the number of accesses with AJAX via tracker.js (from the 'tracker' table).

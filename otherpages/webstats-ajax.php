@@ -207,7 +207,7 @@ if($_POST['page'] == 'gettracker') {
     $row['difftime'] = sprintf("%u:%02u:%02u", $hr, $min, $sec);
   } // End callback
 
-  $sql = "select ip, page, finger, agent, starttime, endtime, difftime, isJavaScript as js, id, botAs ".
+  $sql = "select ip, page, finger, agent, botAs, starttime, endtime, difftime, isJavaScript as js, id ".
          "from $S->masterdb.tracker " .
          "where site='$site' and lasttime >= current_date() " .
          "order by lasttime desc";

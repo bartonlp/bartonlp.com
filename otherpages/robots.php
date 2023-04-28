@@ -32,6 +32,8 @@ require_once(SITECLASS_DIR . "/defines.php");
 
 $S = new Database($_site);
 
+$rob = BOTS_ROBOTS;
+
 if(!file_exists($S->path . "/robots.txt")) {
   echo "<h1>404 - FILE NOT FOUND</h1>";
   exit();
@@ -49,12 +51,12 @@ try {
   // BLP 2021-12-26 -- robots is 1 if we do an insert or robots=robots|2 
 
   $S->query("insert into $S->masterdb.bots (ip, agent, count, robots, site, creation_time, lasttime) ".
-            "values('$ip', '$agent', 1, " . BOTS_ROBOTS . ", '$S->siteName', now(), now())");
+            "values('$ip', '$agent', 1, $rob, '$S->siteName', now(), now())");
 }  catch(Exception $e) {
   if($e->getCode() == 1062) { // duplicate key
-    $S->query("select site from $S->masterdb.bots where ip='$ip'");
+    $S->query("select site from $S->masterdb.bots where ip='$ip' and agent='$agent'");
 
-    list($who) = $S->fetchrow('num');
+    $who = $S->fetchrow('num')[0];
 
     if(!$who) {
       $who = $S->siteName;
@@ -63,7 +65,7 @@ try {
       $who .= ", $S->siteName";
     }
 
-    $S->query("update $S->masterdb.bots set robots=robots|" . BOTS_ROBOTS . ", count=count +1, site='$who', lasttime=now() ".
+    $S->query("update $S->masterdb.bots set robots=robots|$rob, count=count +1, site='$who', lasttime=now() ".
               "where ip='$ip'");
   } else {
     error_log("robots: ".print_r($e, true));
@@ -74,7 +76,7 @@ try {
 // BLP 2021-12-26 -- bots2 primary key is 'ip, agent, date, site, which'
 
 $S->query("insert into $S->masterdb.bots2 (ip, agent, date, site, which, count, lasttime) ".
-          "values('$ip', '$agent', now(), '$S->siteName', " . BOTS_ROBOTS . ", 1, now()) ".
+          "values('$ip', '$agent', now(), '$S->siteName', $rob, 1, now()) ".
           "on duplicate key update count=count+1, lasttime=now()");
 
 // Insert or update logagent

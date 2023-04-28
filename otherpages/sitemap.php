@@ -8,6 +8,8 @@ require_once(SITECLASS_DIR . "/defines.php");
 
 $S = new Database($_site);
 
+$map = BOTS_SITEMAP;
+
 if(!file_exists($S->path . "/Sitemap.xml")) {
   echo "<h1>404 - FILE NOT FOUND</h1>";
   exit();
@@ -28,12 +30,12 @@ try {
   // BLP 2021-12-26 -- robots is 4 for insert and robots=robots|8 for update.
 
   $S->query("insert into $S->masterdb.bots (ip, agent, count, robots, site, creation_time, lasttime) ".
-            "values('$ip', '$agent', 1, " . BOTS_SITEMAP . ", '$S->siteName', now(), now())");
+            "values('$ip', '$agent', 1, $map, '$S->siteName', now(), now())");
 } catch(Exception $e) {
   if($e->getCode() == 1062) { // duplicate key
     $S->query("select site from $S->masterdb.bots where ip='$ip'");
 
-    list($who) = $S->fetchrow('num');
+    $who = $S->fetchrow('num')[0];
 
     if(!$who) {
       $who = $S->siteName;
@@ -41,8 +43,8 @@ try {
     if(strpos($who, $S->siteName) === false) {
       $who .= ", $S->siteName";
     }
-    $S->query("update $S->masterdb.bots set robots=robots|" . BOTS_SITEMAP . ", count=count+1, site='$who', lasttime=now() ".
-              "where ip='$ip'");
+    $S->query("update $S->masterdb.bots set robots=robots|$map, count=count+1, site='$who', lasttime=now() ".
+              "where ip='$ip' and agent='$agent'");
   } else {
     error_log("robots: ".print_r($e, true));
   }
@@ -52,7 +54,7 @@ try {
 // BLP 2021-12-26 -- bots2 primary key is 'ip, agent, date, site, which'.
 
 $S->query("insert into $S->masterdb.bots2 (ip, agent, date, site, which, count, lasttime) ".
-          "values('$ip', '$agent', now(), '$S->siteName', " . BOTS_SITEMAP . ", 1, now()) ".
+          "values('$ip', '$agent', now(), '$S->siteName', $map, 1, now()) ".
           "on duplicate key update count=count+1, lasttime=now()");
 
 // Insert or update logagent

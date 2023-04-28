@@ -64,7 +64,7 @@ function calcAv() {
 
   let av = 0, cnt = 0;
 
-  $("#tracker tbody :not(:hidden) td:nth-child(7)").each(function(i, v) {
+  $("#tracker tbody :not(:hidden) td:nth-child(8)").each(function(i, v) { // 8 is difftime
     let t = $(this).text();
     if(t == '' || t == 0 || (typeof t == 'undefined')) {
       //console.log("t:", t);
@@ -166,7 +166,7 @@ function dotracker() {
 
   // Set class webmaster colors.
   
-  $("#tracker tbody td:nth-child(1) span.co-ip").each(function(i, v) {
+  $("#tracker tbody td:nth-child(1) span.co-ip").each(function(i, v) { // 1 is ip
     if(myIp.indexOf($(v).text()) !== -1) { // myIp was set in webstats.php in inlineScript
       if(homeIp === ($(v).text())) { // homeIp was set in webstats.php in inlineScript
         $(v).parent().css({ "color":"white", "background":"green"}).parent().addClass("webmaster").hide();
@@ -208,7 +208,7 @@ function ipaddress(e, self) {
       } else {
         flags.ip = true;
         let ip = $(self).text();
-        $("#tracker td:first-child").each(function(i, v) {
+        $("#tracker td:first-child").each(function(i, v) { // 1 is ip
           if($(v).text() == ip) {
             $(v).parent().addClass('ip');
           }
@@ -345,7 +345,7 @@ function gettracker() {
       // Ip6only
 
       $("#ip6only").on("click", function(e) {
-        $("#tracker tbody tr td:nth-child(1)").each(function(i, v) {
+        $("#tracker tbody tr td:nth-child(1)").each(function(i, v) { // 1 is id
           if($(this).text().match(/:/) != null ) {
             if(flags.ip6 === true) {
               $(this).parent().show();
@@ -383,7 +383,7 @@ function gettracker() {
 
       // Second field 'page' dbl clicked
 
-      $("body").on('dblclick', '#tracker td:nth-child(2)', function() { // This is 'page'
+      $("body").on('dblclick', '#tracker td:nth-child(2)', function() { // 2 is 'page'
         let msg;
         
         if(flags.page) { // if true
@@ -401,7 +401,7 @@ function gettracker() {
         } else {
           flags.page = true;
           let page = $(this).text();
-          $("#tracker td:nth-child(2)").each(function(i, v) {
+          $("#tracker td:nth-child(2)").each(function(i, v) { // 2 is page
             if($(v).text() == page) {
               $(v).parent().addClass('page');
             }
@@ -520,7 +520,7 @@ jQuery(document).ready(function($) {
 
   // Popup a human version of 'isJavaScript'
 
-  $("body").on("click", "#tracker td:nth-child(8), #robots td:nth-child(4)", function(e) {
+  $("body").on("click", "#tracker td:nth-child(9), #robots td:nth-child(4)", function(e) { // 9 is isJavaScript
     let js = parseInt($(this).text(), 16),
     h = '', ypos, xpos;
     let human;
@@ -577,7 +577,7 @@ jQuery(document).ready(function($) {
 
   // BLP 2021-12-24 -- tracker agent field look for http: or https:
 
-  $("body").on("click", "#tracker td:nth-child(4)", function(e) {
+  $("body").on("click", "#tracker td:nth-child(4)", function(e) { // 4 is agent
     if($(this).css("color") == "rgb(255, 0, 0)") {
       const txt = $(this).text();
       const pat = /(http.?:\/\/.*)[)]/;
@@ -592,7 +592,7 @@ jQuery(document).ready(function($) {
   // Get the finger and use ajax to get the lat, log from the gps table
   // if the finger exists.
   
-  $("body").on("click", "#tracker tbody tr td:nth-of-type(3)", function(e) {
+  $("body").on("click", "#tracker tbody tr td:nth-of-type(3)", function(e) { // 3 is finger
     let finger = ($(this).text()).split(' :')[0];
     let ip = $(this).closest('tr').find('.co-ip').text();
     let pos = $(this).position();
