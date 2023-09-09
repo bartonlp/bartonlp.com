@@ -1,5 +1,4 @@
 <?php
-// BLP 2023-02-25 - use new approach
 // BLP 2022-05-01 - Major rework. This now is in https://bartonlp.com/otherpages/webstats.php. I no
 // longer use symlinks and the cumbersom rerouting logic is gone. Now webstats.php is called with
 // ?blp=8653&site={sitename}. The GET grabs the site and puts it into $site. The post is called via
@@ -73,7 +72,7 @@ try {
   $errno = $e->getCode();
   $errmsg = $e->getMessage();
   $sql = dbMySqli::$lastQuery;
-  error_log("webstat.php ERROR: $xip, $xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg, agent=$xagent");
+  error_log("webstat.php constructor FAILED: $xip, $xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg, agent=$xagent");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -90,6 +89,7 @@ try {
 }
 
 // Check for magic 'blp'. If not found check if one of my recent ips. If not justs 'Go Away'
+// The magic comes only from adminsites.php or aboutwebsite.php
 
 if(empty($_GET['blp']) || $_GET['blp'] != '8653') { // If blp is empty or set but not '8653' then check $S->myIp
   // BLP 2021-12-20 -- $S->myIp is always an array from SiteClass.
@@ -105,7 +105,7 @@ if(empty($_GET['blp']) || $_GET['blp'] != '8653') { // If blp is empty or set bu
 } 
 
 // At this point I know that blp was not empty and it equaled 8653.
-// But is it is not me, who is it?
+// But is it is not me, who is it? (probably someone who followed the link to aboutwebsite.php)
 
 if(!array_intersect([$S->ip], $S->myIp)) {
   error_log("webstats.php $S->siteName $S->self: blp=8653 but this is not me. IP=$S->ip, agent=$S->agent, line=" . __LINE__);
@@ -136,9 +136,9 @@ EOF;
 
 $myIp = implode(",", $S->myIp); // BLP 2022-07-18 - $S->myIp is ALWAYS an array!
 
-$homeIp = gethostbyname("bartonphillips.dyndns.org");
+$homeIp = gethostbyname("bartonphillips.org");
 
-$mask = TRACKER_BOT | TRACKER_SCRIPT | TRACKER_NORMAL | TRACKER_NOSCRIPT | TRACKER_CSS | TRACKER_ME | TRACKER_GOTO | TRACKER_GOAWAY;
+$mask = TRACKER_BOT | TRACKER_NORMAL | TRACKER_NOSCRIPT | TRACKER_CSS | TRACKER_ME | TRACKER_GOTO | TRACKER_GOAWAY;
 
 // Set up the javascript variables it needs from PHP
 
@@ -152,17 +152,12 @@ function setupjava() {
 
   $start = TRACKER_START;
   $load = TRACKER_LOAD;
-  $script = TRACKER_SCRIPT;
   $normal = TRACKER_NORMAL;
   $noscript = TRACKER_NOSCRIPT;
   $bvisibilitychange = BEACON_VISIBILITYCHANGE;
   $bpagehide = BEACON_PAGEHIDE;
   $bunload = BEACON_UNLOAD;
   $bbeforeunload = BEACON_BEFOREUNLOAD;
-  $tbeforeunload = TRACKER_BEFOREUNLOAD;
-  $tunload = TRACKER_UNLOAD;
-  $tpagehide = TRACKER_PAGEHIDE;
-  $tvisibilitychange = TRACKER_VISIBILITYCHANGE;
   $timer = TRACKER_TIMER;
   $bot = TRACKER_BOT;
   $css = TRACKER_CSS;
@@ -178,9 +173,8 @@ function setupjava() {
     //var doState = true; // This can be set to show the State info. See tracker.js and tracker.php.
     const robots = {"$robots": "Robots", "$siteclass": "BOT", "$sitemap": "Sitemap", "$zero": "Zero"};
     const tracker = {
-  "$start": "Start", "$load": "Load", "$script": "Script", "$normal": "Normal",
-  "$noscript": "NoScript", "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
-  "$tbeforeunload": "T-BeforeUnload", "$tunload": "T-Unload", "$tpagehide": "T-PageHide", "$tvisibilitychange": "T-VisChange",
+  "$start": "Start", "$load": "Load", "$normal": "Normal", "$noscript": "NoScript",
+  "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
   "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway"
   };
     const mask = $mask;
@@ -206,7 +200,7 @@ $T = new dbTables($S); // My table class
 // Only these sights use maps.js. 
 
 if(array_intersect([$S->siteName], ['Bartonphillips', 'Tysonweb', 'Newbernzig', 'BartonlpOrg', 'BartonphillipsOrg',
-  'Allnatural', 'bartonhome', 'Bonnieburch', 'Bridgeclub', 'Marathon', 'Swam', 'Rpi', 'Bartonphillipsnet'])[0]) {
+  'Allnatural', 'bartonhome', 'Bonnieburch', 'Bridgeclub', 'Marathon', 'Swam', 'Rpi', 'Bartonphillipsnet', 'JT-Lawnservice'])[0]) {
   // For these add maps.js and the maps api and key.
 
   $S->b_script = <<<EOF
@@ -378,32 +372,8 @@ $tbl = <<<EOF
 </thead>
 <tbody>
 EOF;
-  
-if($S->siteName == 'Tysonweb') {
-  $g = glob("*.php");
 
-  $del = ['analysis.php', 'phpinfo.php', 'robots.php', 'sitemap.php']; 
-  $S->query($sql);
-
-  while([$filename, $count, $bots, $lasttime] = $S->fetchrow('num')) {
-    $ar[trim($filename, '/')] = [$count, $bots, $lasttime];
-  }
-
-  foreach($g as $name) {
-    if(array_intersect([$name], $del)) {
-      continue;
-    }
-    $a = $ar[$name];
-    $tbl .= "<tr><td>$name</td><td>$a[0]</td><td>$a[1]</td><td>$a[2]</td></tr>";
-  }
-
-  $tbl .= <<<EOF
-<tbody>
-</table>
-EOF;
-} else {
-  $tbl = $T->maketable($sql, array('attr'=>array('border'=>'1', 'id'=>'counter')))[0];
-}
+$tbl = $T->maketable($sql, array('attr'=>array('border'=>'1', 'id'=>'counter')))[0];
 
 if(!$tbl) {
   $tbl = "<h3 class='noNewData'>No New Data Today</h2>";
@@ -642,6 +612,7 @@ $form = <<<EOF
     <option>Bridgeclub</option>
     <option>Marathon</option>
     <option>Bartonphillipsnet</option>
+    <option>JT-Lawnservice</option>
   </select>
 
   <button type="submit" name='submit'>Submit</button>
@@ -710,16 +681,15 @@ $page
 <div>'js' is hex.
 <ul>
 <li>1=Start, 2=Load : via javascript
-<li>4=Script, 8=Normal, 0x10=NoScript : via javascript (image in header)
-<li>0x20=B-PageHide, 0x40=B-Unload, 0x80=B-BeforeUnload : via javascript (beacon)
-<li>0x100=T-BeforeUnload, 0x200=T-Unload, 0x400=T-PageHide, 0x800=T-VisChange : via javascript (tracker)
-<li>0x1000=Timer hits once every 10 seconds via ajax : via javascript
-<li>0x2000=BOT : via SiteClass
-<li>0x4000=Csstest : via .htaccess RewriteRule (tracker)
-<li>0x8000=isMe : via SiteClass
-<li>0x10000=Proxy : via goto.php
-<li>0x20000=GoAway (Unexpected Tracker) : via tracker
-<li>0x40000=B-VisChange : 'visablilitychange', via javascript<br>
+<li>4=Normal, 8=NoScript : via javascript (image in header)
+<li>0x10=B-PageHide, 0x20=B-Unload, 0x40=B-BeforeUnload : via javascript (beacon), 0x80=B-VisChange
+<li>0x100=Timer hits once every 10 seconds via ajax : via javascript
+<li>0x200=BOT : via SiteClass
+<li>0x400=Csstest : via .htaccess RewriteRule (tracker)
+<li>0x800=isMe : via SiteClass
+<li>0x1000=Proxy : via goto.php
+<li>0x2000=GoAway (Unexpected Tracker) : via tracker
+
 This happens when the user moves to another tab or closes the site.
 </ul>
 <p>All of the items marked (via javascript) are events.<br>

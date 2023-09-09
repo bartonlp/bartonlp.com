@@ -1,0 +1,8 @@
+// BLP 2023-09-07 - It looks like this is the tracker image item with the page=script.
+[07-Sep-2023 06:24:25] tracker Switch Error: 114.96.199.24, Bartonlp, type=script, time=06:24:25:330
+[07-Sep-2023 06:24:25] tracker: 6579551 114.96.199.24, Bartonlp, /otherpages/tracker.php, GOAWAY, $S->agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36, agent= finger=KjBl2snIADDgeQgNo7zY, $_REQUEST: Array
+(
+    [page] => script
+    [id] => 6579551
+    [image] => https://www.newbern-nc.info/images/tysongroup-logo.jpg
+)

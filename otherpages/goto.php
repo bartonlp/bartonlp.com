@@ -25,7 +25,8 @@ if($_POST['page'] == 'finger') {
   // Put info into tracker.
 
   $java = TRACKER_GOTO;
-  
+
+  error_log("goto.php visitor=$visitor");
   if($visitor) { // This could be a finger or '' if a bot.
     if($S->isBot) {
       $java |= TRACKER_BOT;
@@ -94,18 +95,9 @@ $S->css = "h1 { text-align: center }";
 
 $S->h_inlineScript = <<<EOF
 const tracker = "$trackersite", agent = "$agent", ip = "$ip", err = "$err", query = "$query";
-const FINGER_TOKEN = "QpC5rn4jiJmnt8zAxFWo";
 
-const fpPromise = new Promise((resolve, reject) => {
-  const script = document.createElement('script');
-  script.onload = resolve;
-  script.onerror = reject;
-  script.async = true;
-  script.src = 'https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs-pro@3/dist/fp.min.js';                 
-  //               + '@fingerprintjs/fingerprintjs@3/dist/fp.min.js';
-  document.head.appendChild(script)
-})
-.then(() => FingerprintJS.load({ token: FINGER_TOKEN, endpoint: 'https://fp.bartonphillips.com'}));
+const fpPromise = import('https://openfpcdn.io/fingerprintjs/v3')
+.then(FingerprintJS => FingerprintJS.load());
 
 // Get the visitor identifier (fingerprint) when you need it.
 

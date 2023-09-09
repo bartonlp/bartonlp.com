@@ -49,10 +49,10 @@ if(isset($_POST['submit'])) {
     case 'Allnatural':
       header("Location: https://www.allnaturalcleaningcompany.com/getcookie.php");
       break;
-// Remove until I figure out how to do this.
-//    case 'bartonhome':
-//      header("Location: https://www.bartonphillips.org/getcookie.php");
-//      break;
+    // BLP 2023-08-12 - not sure if this will work?  
+    case 'bartonhome':
+      header("Location: https://www.bartonphillips.org/getcookie.php");
+      break;
     case 'Bonnieburch':
       header("Location: https://www.bonnieburch.com/getcookie.php");
       break;
@@ -70,9 +70,6 @@ EOF;
 
 // Uncomment this to see an analysis of the head section.
 //$S->link = "<link rel='stylesheet' href='https://csswizardry.com/ct/ct.css' class='ct' />";
-
-// I could change the scale
-//$S->meta = '<meta name=viewport content="width=device-width initial-scale=.7">';
 
 $S->css =<<<EOF
 #members {
@@ -302,7 +299,7 @@ $top
     <option>Newbernzig</option>
     <option>Allnatural</option>
     <option>Bonnieburch</option>
-<!--    <option>bartonhome</option> -->
+    <option>bartonhome</option>
   </select>
 
   <button type="submit" name='submit'>Submit</button>

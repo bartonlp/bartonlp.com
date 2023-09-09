@@ -1,15 +1,8 @@
 <?php
-// BLP 2023-02-25 - use new approach
 // This program is run from crontab via all-cron.sh in www/bartonlp/scripts.
-// BLP 2022-08-06 - Add isMeFalse to 'siteupdate'
-// BLP 2022-03-28 - If no $S then go away.
-// BLP 2021-03-24 -- removed links to yahoo pure stuff. Added webstats.css which has the pure
-// stuff we need. Removed extranious divs also.
 // NOTE: this file is not usually called directly by anything other than a cron. All of the
 // info in webstats.php comes from https:bartonphillips.net/analysis/ where we have the
 // $site-analysis.i.txt files that this program creates.
-// BLP 2017-11-01 -- all-cron.sh runs update-analysis.sh
-// BLP 2016-09-03 -- change ftp password to '7098653?' note without single quotes
 
 $_site = require_once(getenv("SITELOADNAME"));
 
@@ -396,6 +389,7 @@ EOF;
     <option>Marathon</option>
     <option>BartonphillipsOrg</option>
     <option>Rpi</option>
+    <option>JT-lawnservice</option>
     <option>ALL</option>
   </select>
   <input type="hidden" name="blp" value="8653">

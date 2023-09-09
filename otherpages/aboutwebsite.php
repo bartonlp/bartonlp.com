@@ -17,7 +17,8 @@ if(empty($site) || empty($webdomain)) {
             "values('$S->ip', '$S->siteName', 'counted', 'ABOUTWEBSITE', 1, '-202', 'No site or domain provided', '$S->agent', now(), now()) ".
             "on duplicate key update count=count+1, lasttime=now()");
 
-  error_log("aboutwebsite.php NO SITE: ip=$S->ip, '$S->siteName', agent=$S->agent");
+  $tmp = "$site, $webdomain";
+  error_log("aboutwebsite.php NO_SITE_OR_WEBDOMAIN: ip=$S->ip, \$S->sitename='$S->siteName', site/webdomain=$tmp, agent=$S->agent");
 
   echo <<<EOF
 <!DOCTYPE html>

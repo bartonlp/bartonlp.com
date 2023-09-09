@@ -1,17 +1,18 @@
 <?php
 // BLP 2023-02-25 - no $h/$b
 // This is the Ajax for webstats.js and geo.js
-// **** INPORTANT: This needs to be symlinked into each directory where it will be run along with getcookie.php.
-// The symlink is needed so $S will have the information form the local
-// mysitemap.json. This is needed for setSiteCookie().
+// BLP 2023-08-12 - We do not need to symlink this file!
+
 // *** Remember, this does not happen untill the entire page has been rendored so the
 // fingerprint and tracker info are not available for the PHP files!
 
-$_site = require_once(getenv("SITELOADNAME"));
+//$_site = require_once(getenv("SITELOADNAME")); // BLP 2023-08-12 - removed
+require_once(getenv("SITELOADNAME")); // BLP 2023-08-12 - This gets mysitemap and all of the classes.
+
+$_site = json_decode(stripComments(file_get_contents($_POST['mysitemap']))); // BLP 2023-08-12 - get $_site from the parent's dir.
+
 $_site->noTrack = true;
 $S = new $_site->className($_site);
-
-//error_log("geoAjax.php \$S: " . print_r($S, true));
 
 //$DEBUG = true;
 
@@ -27,7 +28,7 @@ if($_POST['page'] == 'reset') {
     //error_log("geoAjax.php: remove cookie OK");
     echo "geoAjax.php: remove cookie OK";
   }
-  //error_log("cookie: $cookie");
+ 
   exit();
 }
 
@@ -120,9 +121,9 @@ if($_POST['page'] == 'geoFail') {
 if($_POST['page'] == 'finger') {
   $visitor = $_POST['visitor'];
   $id = $_POST['id'];
-
-  $exp = time() + 60*60*24*365;
   
+  $exp = time() + 60*60*24*365;
+
   if($S->setSiteCookie("BLP-Finger", $visitor, $exp) === false) {
     error_log("geoAjax: setSiteCookie Finger Error");
     echo "geoAjax: setSiteCookie Finger Error"; // This is returned to the javascript that called this.
@@ -133,7 +134,9 @@ if($_POST['page'] == 'finger') {
   
   $S->query("select ip, site, agent from $S->masterdb.tracker where id=$id");
   [$ip, $site, $agent] = $S->fetchrow('num');
-  
+
+  //error_log("geoAjax.php: setSiteCookie BLP-Finger=$visitor, id=$id, ip=$ip, site=$site");
+    
   // tracker table was created in SiteClass
 
   $sql = "update $S->masterdb.tracker set finger='$visitor' where id=$id";

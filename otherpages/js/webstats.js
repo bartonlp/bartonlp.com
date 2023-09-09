@@ -2,9 +2,8 @@
  * webstats.js for http://www.bartonphillips.net/webstats.php. Uses
  * webstats-ajax.php for AJAX calls.
  */
-// BLP 2021-10-25 -- Maps and geo logic moved to geo.js
-// BLP 2021-03-24 -- see comments this date.
-// BLP 2016-11-27 -- see comments this date.
+
+'use strict';
 
 const flags = {all: false, webmaster: false, bots: false, ip6: true};
 const path = document.location.pathname;
@@ -302,7 +301,7 @@ function gettracker() {
       getcountry();
       dotracker();
 
-      for(f in flags) {
+      for(let f in flags) {
         if(flags[f]) { // if true
           switch(f) {
             case 'all':

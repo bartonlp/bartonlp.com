@@ -28,11 +28,14 @@
       "noOutput": false
     },
     "meta" : "<meta name='robots' content='noindex'>", // don't index anything in bartonphillips.net
+
     "trackerImg1": "/images/blp-image.png", // /image/.. will get the image from bartonphillips.net.
+
     "headFile": "/var/www/bartonphillips.com/includes/head.i.php",
     "bannerFile": "/var/www/bartonphillips.com/includes/banner.i.php",
     "footerFile": "/var/www/bartonphillips.com/includes/footer.i.php",
     "count": false,  // count defaults to true.
+
     "EMAILADDRESS": "bartonphillips@gmail.com",
     "EMAILRETURN": "bartonphillips@gmail.com",
     "EMAILFROM": "webmaster@bartonlp.com"
