@@ -3,17 +3,11 @@
 // NOTE: this file is not usually called directly by anything other than a cron. All of the
 // info in webstats.php comes from https:bartonphillips.net/analysis/ where we have the
 // $site-analysis.i.txt files that this program creates.
-// BLP 2023-09-18 - Removed the ftp stuff for BarotnphillipsOrg and Rpi and replaced it with
-// phpseclib3 to do ssh2.
-// I have placed my id_rsa private key in the /home/barton/www directory. This may not be completly
-// safe but it is probalby OK.
+// BLP 2023-09-10 - Removed the ftp stuff for BarotnphillipsOrg and Rpi and replaced it with ssh2
+// logic. NOTE, I had to change the /etc/ssh/sshd_config file. I commented out
+// 'PasswordAuthentication no' and placed a '#BLP' at the place.
 
 $_site = require_once(getenv("SITELOADNAME"));
-
-// BLP 2023-09-18 - Use the phpseclib3
-
-use phpseclib3\Net\SSH2;
-use phpseclib3\Crypt\PublicKeyLoader;
 
 // Ajax from CRON job /var/www/bartonlp/scrits/update-analysis.sh which is run via all-cron.sh
 
@@ -469,25 +463,42 @@ EOF;
 
   $analysis_dir = "/var/www/bartonphillipsnet/analysis/";
 
-  // BLP 2023-09-18 - Look to see if this is BartonphillipsOrg or Rpi. These are on remote sites and we need to do
-  // ssh to access the file on the server.
-  // 
+  // Look to see if this is BartonphillipsOrg or Rpi. These are on remote sites and we need to do
+  // ftp to access the file on the server.
+
+  // BLP 2023-09-10 - The ssh2 logic is all new.
   
   if(array_intersect([$site], ['BartonphillipsOrg', 'Rpi'])[0] !== null) {
-    $key = PublicKeyLoader::load(file_get_contents('../id_rsa')); // BLP 2023-09-18 - This is at /var/www which is just above this.
+    // BLP 2023-09-10 - use ssh2. The remote files use a local analysis.php that does an eval() to
+    // a symlink in bartonlp.com/otherpages to analysis.eval. It is a bit confusing.
 
-    $ssh = new SSH2('bartonlp.org', 2222); // BLP 2023-09-18 - use port 2222 for the server
-
-    if (!$ssh->login('barton', $key)) {
-      error_log("RPI analysis: Login failed");
-      throw new \Exception('Login failed');
+    if(($session = ssh2_connect('bartonlp.org', 2222)) === false) {
+      debug("analysis $site: Connect failed");
     }
 
-    $analysis = escapeshellarg($analysis); // BLP 2023-09-18 - 
+    // BLP 2023-09-10 - Get the site password form my home directory.
+    
+    $pass = trim(file_get_contents("/home/barton/password"));
+    
+    if(ssh2_auth_password($session, 'barton', "$pass") === false) {
+      debug("analysis $site: Auth failed");
+    }
 
-    $ssh->exec("cd www/bartonphillipsnet/analysis; echo " .$analysis. " > $site-analysis.i.txt;");
+    if(file_put_contents("/tmp/tempfile", $analysis) === false) {
+      debug("analysis $site: file_put_contents('/tmp/tempfile', \$analysis) Failed");
+    }
 
-    error_log("RPI analysis DONE: " . date("Y-m-d H:i:s"));
+    if(file_exists("/tmp/tempfile") === false) {
+      debug("analysis $site: Can't find /tmp/tempfile");
+    }
+
+    if(ssh2_scp_send($session, "/tmp/tempfile", "www/bartonphillipsnet/analysis/$site-analysis.i.txt") === false) {
+      debug("analysis $site: Send failed");
+    }
+
+    if(unlink("/tmp/tempfile") === false) {
+      debug("analysis $site: unlink('/tmp/tempfile') Failed");
+    }
   } else {
     if(file_exists($analysis_dir) === false) {
       if(mkdir($analysis_dir, 0770) === false) {
@@ -500,6 +511,8 @@ EOF;
       debug("analysis $site: file_put_content('/var/www/bartonphillipsnet/analysis/$site-analysis.i.txt') Failed err= ". print_r($e, true));
     }
   }
+  
+  //return $analysis;
 }
 
 // Debug function. send message to error_log() and exit.

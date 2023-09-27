@@ -3,23 +3,14 @@
 // NOTE: this file is not usually called directly by anything other than a cron. All of the
 // info in webstats.php comes from https:bartonphillips.net/analysis/ where we have the
 // $site-analysis.i.txt files that this program creates.
-// BLP 2023-09-18 - Removed the ftp stuff for BarotnphillipsOrg and Rpi and replaced it with
-// phpseclib3 to do ssh2.
-// I have placed my id_rsa private key in the /home/barton/www directory. This may not be completly
-// safe but it is probalby OK.
 
 $_site = require_once(getenv("SITELOADNAME"));
-
-// BLP 2023-09-18 - Use the phpseclib3
-
-use phpseclib3\Net\SSH2;
-use phpseclib3\Crypt\PublicKeyLoader;
 
 // Ajax from CRON job /var/www/bartonlp/scrits/update-analysis.sh which is run via all-cron.sh
 
 if($thisSite = $_GET['siteupdate']) {
   //error_log("_site: " . print_r($_site, true));
-
+  error_log("thisSite: $thisSite");
   $S = new Database($_site);
   $S->isMeFalse = true; // BLP 2022-08-06 - This is because isBot() does an isMe()
   getAnalysis($S, $thisSite);
@@ -469,25 +460,49 @@ EOF;
 
   $analysis_dir = "/var/www/bartonphillipsnet/analysis/";
 
-  // BLP 2023-09-18 - Look to see if this is BartonphillipsOrg or Rpi. These are on remote sites and we need to do
-  // ssh to access the file on the server.
-  // 
+  // Look to see if this is BartonphillipsOrg or Rpi. These are on remote sites and we need to do
+  // ftp to access the file on the server.
   
   if(array_intersect([$site], ['BartonphillipsOrg', 'Rpi'])[0] !== null) {
-    $key = PublicKeyLoader::load(file_get_contents('../id_rsa')); // BLP 2023-09-18 - This is at /var/www which is just above this.
-
-    $ssh = new SSH2('bartonlp.org', 2222); // BLP 2023-09-18 - use port 2222 for the server
-
-    if (!$ssh->login('barton', $key)) {
-      error_log("RPI analysis: Login failed");
-      throw new \Exception('Login failed');
+    // We will use ftp to access the server
+    
+    if(($ftp = ftp_connect("bartonphillips.net")) === false) {
+      echo "ftp_connect('bartonphillips.net') Failed<br>";
+      debug("analysis $site: ftp_connect('bartonphillips.net') Failed");
     }
 
-    $analysis = escapeshellarg($analysis); // BLP 2023-09-18 - 
+    if(ftp_login($ftp, "barton", "7098653?") === false) {
+      echo "ftp_login() Failed<br>";
+      debug("analysis $site: ftp_login() Failed");
+    }
 
-    $ssh->exec("cd www/bartonphillipsnet/analysis; echo " .$analysis. " > $site-analysis.i.txt;");
+    if(ftp_chdir($ftp, "www/bartonphillipsnet/analysis") === false) {
+      error_log("ftp_chdir failed trying to make directory");
+      if(ftp_mkdir($ftp, "www/bartonphillipsnet/analysis") === false) {
+        echo "ftp_mkdir Failed</br>";
+        debug("analysis $site: ftp_mkdir('www/bartonphillipsnet/analysis') Failed");
+      }
+      if(ftp_chdir($ftp, "www/bartonphillipsnet/analysis") === false) {
+        debug("analysis $site: ftp_chdir() Failed");
+      }
+    }
 
-    error_log("RPI analysis DONE: " . date("Y-m-d H:i:s"));
+    if(file_put_contents("/tmp/tempfile", $analysis) === false) {
+      echo "file_put_contents('/tmp/tempfile', \$analysis) Failed<br>";
+      debug("analysis $site: file_put_contents('/tmp/tempfile', \$analysis) Failed");      
+    }
+
+    if(file_exists("/tmp/tempfile") === false) {
+      debug("Can't find /tmp/tempfile");
+    }
+
+    if(ftp_put($ftp, "$site-analysis.i.txt", "/tmp/tempfile") === false) {
+      debug("analysis $site: ftp_put(\$ftp, '$site-analysis.i.txt', '/tmp/tempfile', ...) Failed");      
+    }
+
+    if(unlink("/tmp/tempfile") === false) {
+      debug("analysis $site: unlink('/tmp/tempfile') Failed");
+    }
   } else {
     if(file_exists($analysis_dir) === false) {
       if(mkdir($analysis_dir, 0770) === false) {
@@ -500,6 +515,8 @@ EOF;
       debug("analysis $site: file_put_content('/var/www/bartonphillipsnet/analysis/$site-analysis.i.txt') Failed err= ". print_r($e, true));
     }
   }
+  
+  //return $analysis;
 }
 
 // Debug function. send message to error_log() and exit.

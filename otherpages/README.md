@@ -62,5 +62,10 @@ These files are for this directory:
     Sitemap.xml
 ```
 
+// BLP 2021-10-22 -- To Remotely debug from my Tablet:  
+// On my desktop browser: chrome://inspect/#devices  
+// Plug the tablet into the USB port. You should see "Chrome" and each of the domains that are open on the tablet.  
+// You can then debug the tablet if you click on "inspect". It will open the dev-tools.
+
 Contact Me at [bartonphillips@gmail.com](mailto:bartonphillips@gmail.com)
 

@@ -34,6 +34,7 @@ function Dot2LongIP($IPaddr) {
       }
       $bits--;
     }
+
     $ipv6long = gmp_strval(gmp_init($ipv6long, 2), 10);
     return $ipv6long;
   }
@@ -44,6 +45,7 @@ function Dot2LongIP($IPaddr) {
 
 if($list = $_POST['list']) {
   $S = new Database($_site);
+ 
   $list = json_decode($list); // turn json string backinto an array.
 
   $ar = array();

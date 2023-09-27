@@ -1,17 +1,25 @@
 <?php
-// BLP 2023-02-25 - no $h/$b
 // This is the Ajax for webstats.js and geo.js
 // BLP 2023-08-12 - We do not need to symlink this file!
+// BLP 2023-09-10 - IMPORTANT: This file does noTrack=true so we do not do tracker.js and therefore
+// no tracker.php or beacon.php.
 
 // *** Remember, this does not happen untill the entire page has been rendored so the
 // fingerprint and tracker info are not available for the PHP files!
 
-//$_site = require_once(getenv("SITELOADNAME")); // BLP 2023-08-12 - removed
-require_once(getenv("SITELOADNAME")); // BLP 2023-08-12 - This gets mysitemap and all of the classes.
+if(!$_POST['mysitemap']) {
+  error_log("geoAjax: No 'mysitemap' this is probably someone trying to run this by itself: {$_SERVER['REMOTE_ADDR']}");
+  echo "<h1>Not Authorized</h1><p>This file is not to be run standalone.</p>";
+  exit();
+}
+
+$host = (require_once(getenv("SITELOADNAME")))->dbinfo->host; // Get the dbinfo->host for this machine
 
 $_site = json_decode(stripComments(file_get_contents($_POST['mysitemap']))); // BLP 2023-08-12 - get $_site from the parent's dir.
+$_site->dbinfo->host = $host;
 
-$_site->noTrack = true;
+$_site->noTrack = true; // BLP 2023-09-10 - DO NOT TRACK. We will not load tracker.js and therefore not do tracker.php or beacon.php
+
 $S = new $_site->className($_site);
 
 //$DEBUG = true;

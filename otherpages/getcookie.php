@@ -50,9 +50,9 @@ if(isset($_POST['submit'])) {
       header("Location: https://www.allnaturalcleaningcompany.com/getcookie.php");
       break;
     // BLP 2023-08-12 - not sure if this will work?  
-    case 'bartonhome':
-      header("Location: https://www.bartonphillips.org/getcookie.php");
-      break;
+    //case 'bartonhome':
+    //  header("Location: https://www.bartonphillips.org/getcookie.php");
+    //  break;
     case 'Bonnieburch':
       header("Location: https://www.bonnieburch.com/getcookie.php");
       break;
@@ -63,6 +63,7 @@ if(isset($_POST['submit'])) {
   exit();
 } 
 
+$S->title = "GetCookie";
 $S->banner = <<<EOF
 <h1>Reset Cookie<br>
 $S->siteName</h1>
@@ -167,8 +168,6 @@ $S->b_script = <<<EOF
 </script>
 EOF;
 
-$S->title = "GetCookie";
-
 [$top, $footer] = $S->getPageTopBottom();
 
 // Get the two tables
@@ -189,7 +188,9 @@ $sql = "select myIp, createtime, lasttime from $S->masterdb.myip";
 
 // Get my home IP
 
-$home = gethostbyname("bartonphillips.dyndns.org");
+// BLP 2023-09-27 - I now have a static ip from Metronet so the IP is always the same
+//$home = gethostbyname("bartonphillips.dyndns.org");
+$home = '195.252.232.86'; // This is gethostbyname("bartonphillips.org");
 
 // callback for maketable below. Check $home against row
 
@@ -205,11 +206,15 @@ function myipfixup(&$row, &$rowdesc) {
 
 $today = date("Y-m-d");
 
-// BLP 2021-11-11 -- Get the list of know fingerprints                                                    
-//$me = require_once("/var/www/bartonphillipsnet/myfingerprints.php"); // NOTE require can't work
-//on HP or Rpi so do a json. Note this is REAL json so NO COMMENTS!
+// BLP 2021-11-11 -- Get the list of know fingerprints. I would normally do:
+// $me = require_once("/var/www/bartonphillipsnet/myfingerprints.php");
+// BUT NOTE, require can't work on HP or Rpi so do use file_get_contents() and get
+// this little file that requires myfingerprints.php and then truns the array into json.
+// This is a bit of a workaround but it works.
 
-$me = json_decode(file_get_contents("https://bartonphillips.net/myfingerprints.json"));
+$me = json_decode(file_get_contents("https://bartonphillips.net/getfinger.php"));
+
+//vardump("me", $me);
 
 function mygeofixup(&$row, &$rowdesc) {
   global $today, $me;
