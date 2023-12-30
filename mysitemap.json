@@ -16,7 +16,7 @@
       "host": "localhost",
       "user": "barton",
       "database": "barton",
-      "engine": "mysqli"
+      "engine": "mysql"
     },
     "errorMode": {
       "development": false, // development automatically sets email to true.

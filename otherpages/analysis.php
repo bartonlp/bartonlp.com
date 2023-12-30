@@ -3,12 +3,15 @@
 // NOTE: this file is not usually called directly by anything other than a cron. All of the
 // info in webstats.php comes from https:bartonphillips.net/analysis/ where we have the
 // $site-analysis.i.txt files that this program creates.
+// BLP 2023-10-03 - added crios to check for browser.
 // BLP 2023-09-18 - Removed the ftp stuff for BarotnphillipsOrg and Rpi and replaced it with
 // phpseclib3 to do ssh2.
 // I have placed my id_rsa private key in the /home/barton/www directory. This may not be completly
 // safe but it is probalby OK.
 
 $_site = require_once(getenv("SITELOADNAME"));
+$_site->noTrack = true;
+$_site->noGeo = true;
 
 // BLP 2023-09-18 - Use the phpseclib3
 
@@ -125,11 +128,11 @@ goaway();
 
 // BLP 2022-03-27 - New version of maketable.
 
-function maketable2(string $sql, dbAbstract $S):array {
+function maketable2(string $sql, Database $S):array {
   $total = [];
   $counts = [];
   
-  $n = $S->query($sql);
+  $n = $S->sql($sql);
   $r = $S->getResult();
 
   // Look at the records from logagent. This is done two time first with ALL of the records and
@@ -145,7 +148,9 @@ function maketable2(string $sql, dbAbstract $S):array {
     $total['os'][0] += $count; // these are the total counts
     $total['browser'][0] += $count;
 
-    if($S->isBot($agent)) {
+    // BLP 2023-10-29 - if there is NO AGENT then this is a bot.
+    
+    if(empty($agent) || $S->isBot($agent)) {
       // Yes so this is a bot.
 
       $counts['os']['ROBOT'] += $count;
@@ -210,8 +215,8 @@ function maketable2(string $sql, dbAbstract $S):array {
     }
 
     $total['os'][1] += $count;
-    
-    $pat2 = "~ Edge/| Edg/|firefox|chrome|safari|trident|msie|opera|konqueror~i";
+
+    $pat2 = "~ Edge/| Edg/|firefox|chrome|crios|safari|trident|msie|opera|konqueror~i";
 
     if(preg_match_all($pat2, $agent, $m)) {
        $m = array_map('strtolower', $m[0]);
@@ -234,7 +239,8 @@ function maketable2(string $sql, dbAbstract $S):array {
           $name = 'Chrome';
           break;
         case 'safari':
-          if($m[count($m)-2] == 'chrome') {
+          // BLP 2023-10-03 - add crios. If it says safari but says crios it is chrome.
+          if(($m[count($m)-2] == 'chrome') || ($m[count($m)-2] == 'crios')) {
             $name = 'Chrome';
           } else {
             $name = 'Safari';
@@ -263,10 +269,11 @@ function maketable2(string $sql, dbAbstract $S):array {
 
 // Main function to get analysis
 
-function getAnalysis(dbAbstract $S, string $site='ALL'):void {
+function getAnalysis(Database $S, string $site='ALL'):void {
   $ips = implode(",", preg_replace("~(\S+)~", "'$1'", $S->myIp));
   //echo "<p>*****IPs: $ips</p>";
-
+  //echo "site=$site<br>";
+  
   $where1 = '';
 
   if($site && $site != 'ALL') {
@@ -275,7 +282,7 @@ function getAnalysis(dbAbstract $S, string $site='ALL'):void {
 
   // get startDate. Limit 1 will get the OLDEST date
   
-  $S->query("select created from $S->masterdb.logagent ".
+  $S->sql("select created from $S->masterdb.logagent ".
             "where ip not in ($ips)$where1 order by created limit 1");
 
   $startDate = $S->fetchrow('num')[0];
@@ -284,6 +291,8 @@ function getAnalysis(dbAbstract $S, string $site='ALL'):void {
   // This gets all of the records since the last time the table was truncated. Now it is truncated
   // in cleanuptables.php which is run from cron. See crontab -l and
   // /var/www/bartonlp/scripts/cleanuptables.php for details.
+
+  //echo "where=$where1<br>";
   
   $sql = "select agent, count, ip from $S->masterdb.logagent where ip not in($ips)$where1";
   
@@ -293,7 +302,7 @@ function getAnalysis(dbAbstract $S, string $site='ALL'):void {
   
   $days = 60;
 
-  $S->query("select created from $S->masterdb.logagent ".
+  $S->sql("select created from $S->masterdb.logagent ".
             "where created >= current_date() - interval $days day ".
             "and ip not in ($ips)$where1 order by created limit 1");
   
@@ -399,6 +408,7 @@ EOF;
     <option>BartonphillipsOrg</option>
     <option>Rpi</option>
     <option>JT-lawnservice</option>
+    <option>Littlejohnplumbing</option>
     <option>ALL</option>
   </select>
   <input type="hidden" name="blp" value="8653">
@@ -471,9 +481,12 @@ EOF;
 
   // BLP 2023-09-18 - Look to see if this is BartonphillipsOrg or Rpi. These are on remote sites and we need to do
   // ssh to access the file on the server.
-  // 
   
   if(array_intersect([$site], ['BartonphillipsOrg', 'Rpi'])[0] !== null) {
+    // BLP 2023-10-01 - For these two 'remote' sites the 'analysis.php' file has an 'eval()' that
+    // runs the 'analysis.eval' on the server which is a symlink to this file. Why 'analysis.eval'?
+    // Well file_get_contents() evaluates the file if it is '.php'.
+    
     $key = PublicKeyLoader::load(file_get_contents('../id_rsa')); // BLP 2023-09-18 - This is at /var/www which is just above this.
 
     $ssh = new SSH2('bartonlp.org', 2222); // BLP 2023-09-18 - use port 2222 for the server
@@ -489,9 +502,12 @@ EOF;
 
     error_log("RPI analysis DONE: " . date("Y-m-d H:i:s"));
   } else {
+    // BLP 2023-10-01 - The site lives on my server and not on a remote site.
+    // If the directory does not exist create it.
+    
     if(file_exists($analysis_dir) === false) {
       if(mkdir($analysis_dir, 0770) === false) {
-        debug("analysis $site: mkdir($analysis_dir, 0770) Failed");
+        debug("analysis.php $site: mkdir($analysis_dir, 0770) Failed");
       }
     }
 

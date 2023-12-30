@@ -34,7 +34,7 @@ if($_POST['page'] == 'finger') {
     $visitor = $visitor ?? "BOT";
   } 
 
-  $S->query("insert into $S->masterdb.tracker (site, page, finger, ip, agent, isJavaScript, starttime, lasttime) ".
+  $S->sql("insert into $S->masterdb.tracker (site, page, finger, ip, agent, isJavaScript, starttime, lasttime) ".
           "values('$S->siteName', '$tracker', '$visitor', '$ip', '$agent', $java, now(), now())");
 
   error_log("GOTO-$err: siteName: $S->siteName, trackerSite: $tracker, finger: $visitor, isJavaScript: " . dechex($java) . ", ip: $ip, query: $query, agent: $agent");
@@ -76,11 +76,11 @@ $site = $S->siteName . "Proxy"; // Add Proxy to the site name.
 
 $trackersite = substr($_SERVER['REQUEST_URI'], 0, 250); // This is the site that called this.
 
-$S->query("insert into $S->masterdb.counter2 (site, date, filename, `real`, bots, lasttime) ".
+$S->sql("insert into $S->masterdb.counter2 (site, date, filename, `real`, bots, lasttime) ".
           "values('$site', now(), '$trackersite', $real, $bot, now()) ".
           "on duplicate key update `real`=`real`+$real, bots=bots+$bot, lasttime=now()");
 
-$S->query("insert into $S->masterdb.counter (filename, site, count, realcnt, lasttime) ".
+$S->sql("insert into $S->masterdb.counter (filename, site, count, realcnt, lasttime) ".
           "values('$trackersite', '$site', 1, $bot, now()) ".
           "on duplicate key update count=count+1, realcnt=realcnt+$real, lasttime=now()");
 

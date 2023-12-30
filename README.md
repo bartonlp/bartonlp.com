@@ -1,7 +1,16 @@
 # This is the default for __www.bartonlp.com__
 
-This directory has a *index.html* file with a very sparse message.  
-It also has a sub-directory *otherpages* which contains several programs that are used by several other of my domains.  
+This directory has a *index.html* file with a very sparse message.
+There are two other directories, *usingpdo* and *otherpages*.
+
+The *usingpdo* drectory has a number of examples using my **SimpleSiteClass** with the **SimpledbPdo** class. The subdirectory
+*simple-site-class* has an *examples* directory with two additional subdirectories, *IfComposer* and *IfDownloadedZip*.
+These directories run the **SimpleSiteClass** using the standard *composer* setup (IfComposer), or a version that can be run
+from a downloaded zip file (IfDownloadedZip). The downloaded examples can be run via *php -S localhost:&lt;port&gt;*. Or if they were 
+downloaded into a real active **Apache** domain, from that domain. There are examples that use the *mysql* and the *sqlite* PDO drivers.
+The *sqlite* driver uses a file database (mysqlite.db).
+
+The second sub-directory *otherpages* contains several programs that are used by my other domains.  
 These are the file in the *otherpages* directory:
 ```
     aboutwebsite.eval* -> aboutwebsite.php
@@ -34,14 +43,5 @@ These are the file in the *otherpages* directory:
     Sitemap.xml
 ```
 
-The files <code>/etc/apache2/sites-enabled/{bartonlp.conf | bartonlp-le-ssl.conf}</code>
-both have a rewrite rule as follows:
-<pre>
-  RewriteEngine on
-  RewriteRule ^/(otherpages/.*)$ "/$1" [L]
-  RewriteRule ^/.\*/.\*$ /WHAT.html [L]
-  RewriteRule "^/(PHP_ERRORS.\*|composer.*|package-lock.*)$"  "/WHAT.html" [L]
-</pre>
-This keeps visitors from looking into our other directories or important files. They can still see my _README.md_ file.
 
 Our server IP Address is __157.245.129.4__. 

@@ -1,5 +1,6 @@
 user-agent: *
 allow: /index.php
+allow: /usingpdo/
 disallow: /
 
 Sitemap: http://www.bartonphillips.com/Sitemap.xml

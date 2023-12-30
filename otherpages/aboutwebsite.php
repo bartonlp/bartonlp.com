@@ -1,6 +1,6 @@
 <?php
 // BLP 2023-02-25 - use new approach
-// All sites that have an "About Web Site" link should have a symlink
+// All sites that have an "About Website" link should have a symlink
 // to /var/www/bartonlp.com/otherpages/aboutwebsite.php
   
 $_site = require_once(getenv("SITELOADNAME"));
@@ -13,7 +13,7 @@ $site = $_GET['site'];
 $webdomain = $_GET['domain'];
 
 if(empty($site) || empty($webdomain)) {
-  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) ".
+  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) ".
             "values('$S->ip', '$S->siteName', 'counted', 'ABOUTWEBSITE', 1, '-202', 'No site or domain provided', '$S->agent', now(), now()) ".
             "on duplicate key update count=count+1, lasttime=now()");
 
@@ -38,11 +38,11 @@ $prefix = $_SERVER['HTTPS'] == "on" ? 'https://' : 'http://';
 
 $webdomain = $prefix . $webdomain;
 
-$S->title = "About This Web Site and Server";
-$S->banner = "<h2 class='center'>About This Web Site and Server<br>($webdomain)</h2>";
+$S->title = "About This Website and Server";
+$S->banner = "<h2 class='center'>About This Website and Server<br>($webdomain)</h2>";
 $S->css = <<<EOF
 img { border: 0; }
-/* About this web site (aboutwebsite.php)  */
+/* About this website (aboutwebsite.php)  */
 #aboutWebSite {
         margin-left: auto;
         margin-right: auto;

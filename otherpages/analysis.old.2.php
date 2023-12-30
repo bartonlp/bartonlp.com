@@ -123,7 +123,7 @@ function maketable2(string $sql, dbAbstract $S):array {
   $total = [];
   $counts = [];
   
-  $n = $S->query($sql);
+  $n = $S->sql($sql);
   $r = $S->getResult();
 
   // Look at the records from logagent. This is done two time first with ALL of the records and
@@ -269,7 +269,7 @@ function getAnalysis(dbAbstract $S, string $site='ALL'):void {
 
   // get startDate. Limit 1 will get the OLDEST date
   
-  $S->query("select created from $S->masterdb.logagent ".
+  $S->sql("select created from $S->masterdb.logagent ".
             "where ip not in ($ips)$where1 order by created limit 1");
 
   $startDate = $S->fetchrow('num')[0];
@@ -287,7 +287,7 @@ function getAnalysis(dbAbstract $S, string $site='ALL'):void {
   
   $days = 60;
 
-  $S->query("select created from $S->masterdb.logagent ".
+  $S->sql("select created from $S->masterdb.logagent ".
             "where created >= current_date() - interval $days day ".
             "and ip not in ($ips)$where1 order by created limit 1");
   

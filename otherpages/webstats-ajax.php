@@ -8,7 +8,7 @@
 use ipinfo\ipinfo\IPinfo; 
 
 $_site = require_once(getenv("SITELOADNAME"));
-require_once(SITECLASS_DIR . "/defines.php");
+$_site->noTrack = $_site->noGeo = true;
 
 // Turn an ip address into a long. This is for the country lookup
 
@@ -60,7 +60,7 @@ if($list = $_POST['list']) {
     $sql = "select countryLONG from $S->masterdb.$table ".
            "where '$iplong' between ipFROM and ipTO";
 
-    $S->query($sql);
+    $S->sql($sql);
     
     list($name) = $S->fetchrow('num');
     
@@ -101,7 +101,7 @@ if($_POST['page'] == 'findbot') {
   $human = [BOTS_ROBOTS=>"robots", BOTS_SITECLASS=>"BOT",
             BOTS_SITEMAP=>"sitemap", BOTS_CRON_ZERO=>"Zero"];
 
-  $S->query("select agent, site, robots, count, creation_time from $S->masterdb.bots where ip='$ip'");
+  $S->sql("select agent, site, robots, count, creation_time from $S->masterdb.bots where ip='$ip'");
 
   $ret = '';
 
@@ -162,7 +162,8 @@ if($_POST['page'] == 'gettracker') {
   $T = new dbTables($S);
   $site = $_POST['site'];
   $mask = $_POST['mask'];
-
+  $thedate = $_POST['thedate'];
+  
   $mask = (int)$mask; // This is passed as a string
 
   // Callback function for maketable()
@@ -208,9 +209,15 @@ if($_POST['page'] == 'gettracker') {
     $row['difftime'] = sprintf("%u:%02u:%02u", $hr, $min, $sec);
   } // End callback
 
-  $sql = "select ip, page, finger, agent, botAs, starttime, endtime, difftime, isJavaScript as js, id ".
+   if(empty($thedate)) {
+    $thedate = "current_date()";
+  } else {
+     $thedate = "'$thedate'";
+  }
+    
+  $sql = "select ip, page, finger, agent, botAs, starttime, endtime, difftime, isJavaScript as js, id, browser ".
          "from $S->masterdb.tracker " .
-         "where site='$site' and lasttime >= current_date() " .
+         "where site='$site' and lasttime >=$thedate " .
          "order by lasttime desc";
 
   $tracker = $T->maketable($sql, array('callback'=>'callback1', 'attr'=>array('id'=>'tracker', 'border'=>'1')))[0];
@@ -224,7 +231,7 @@ if($_POST['page'] == "fingerToGps") {
   $ip = $_POST['ip'];
   $site = $_POST['site'];
 
-  if($S->query("select lat, lon from $S->masterdb.geo where finger='$finger' and site='$site' and ip='$ip' order by lasttime")) {
+  if($S->sql("select lat, lon from $S->masterdb.geo where finger='$finger' and site='$site' and ip='$ip' order by lasttime")) {
     while([$lat, $lon] = $S->fetchrow('num')) {
       $ar[] = "$lat,$lon";
     }

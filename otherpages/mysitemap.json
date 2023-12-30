@@ -1,5 +1,4 @@
 // Not a normal json this allows comments.
-// BLP 2021-10-29 -- No longer use password see note below
 {
     "siteDomain": "bartonlp.com",
     "siteName": "Bartonlp",
@@ -10,13 +9,14 @@
     "author": "Barton L. Phillips, mailto:bartonphillips@gmail.com",
     "address": "New Bern, North Carolina",
     // "nodb": true,
-    "noGeo" : true, // We want this to stay cookieless so don't do the geo script
+    // "noTrack": true, // We don't want these to track themselves.
+    "noGeo": true, // We want this to stay cookieless so don't do the geo script
     "masterdb": "barton",
     "dbinfo": {
       "host": "localhost",
       "user": "barton",
       "database": "barton",
-      "engine": "mysqli"
+      "engine": "mysql" // Only used by PDO
     },
     "errorMode": {
       "development": false, // development automatically sets email to true.

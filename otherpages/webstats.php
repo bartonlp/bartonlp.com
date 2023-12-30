@@ -5,6 +5,8 @@
 // the <select> and grabs the site a location header call which in turn does a new GET.
 // Once the site is setup by the GET we get $_site and set $_site->siteName to $site.
 // This file still uses webstats.js and webstats-ajax.php.
+// BLP 2023-10-20 - This uses setupjava.i.php to pass the variable needed to the javascript.
+// setupjava.i.php loads defines.php which has all the defines.
 
 // IMPORTANT: mysitemap.json sets 'noGeo' true so we do not load it in SiteClass::getPageHead()
 // We use map.js instead of geo.js
@@ -23,12 +25,18 @@ function insertMysqli($sql):void {
   $p = require("/home/barton/database-password");
   $mysqli = new mysqli($i->host, $i->user, $p, 'barton');
 
-  $mysqli->query($sql);
+  $mysqli->sql($sql);
 }
+
+// The GET is set by the POST below or from another of my sites that calls
+// webstats.php?site=sitename.
 
 if($_GET['site']) {
   $site = $_GET['site'];
+  $specialDate = $_GET['date'];
 }
+
+// If someone does a <select> below of a siteName it comes here. I then do a GET with the sitename.
 
 if(isset($_POST['submit'])) {
   $site = $_POST['site'];
@@ -38,15 +46,17 @@ if(isset($_POST['submit'])) {
 
 // Now set siteName to $site from the GET.
 
-$xsite = $_site->siteName;
 $_site->siteName = $site;
 
+// Gather info in case of an error.
+
+$xsite = $_site->siteName;
 $xagent = $_SERVER['HTTP_USER_AGENT'] ?? ''; // BLP 2022-01-28 -- CLI agent is NULL so make it blank ''
 $xref = $_SERVER['HTTP_REFERER'];
 $xip = $_SERVER['REMOTE_ADDR'];
 
 if(empty($site)) {
-  error_log("webstats.php ERROR: $xip, $_site->siteName, site=NONE, ref=$xref, agent=$xagent");
+  error_log("webstats.php ERROR: $xip, $xsite, site=NONE, ref=$xref, agent=$xagent");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -62,12 +72,17 @@ EOF;
 
 if($DEBUG) $hrStart = hrtime(true);
 
-require_once(SITECLASS_DIR . '/defines.php');
-
 // Wrap this in a try to see if the constructor fails
 
+$_site->noTrack = $_site->noGeo = true; // BLP 2023-11-22 - Don't track or do geolocation.
+
 try {
-  $S = new $_site->className($_site);
+  $S = new SiteClass($_site);
+  // BLP 2023-10-18 - This require sets up the constants needed by webstats.js.
+  // It requires the defines.php
+
+  require_once("./setupjava.i.php");
+  $S->h_inlineScript .= "var thedate = '$specialDate';";
 } catch(Exception $e) {
   $errno = $e->getCode();
   $errmsg = $e->getMessage();
@@ -84,7 +99,7 @@ try {
                "values('$xip', '$xsite', 'webstats', 'counted', 1, 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now()) ".
                "on duplicate key update count=count+1, lasttime=now()");
   
-  echo "<h1>Go Away</h1>";
+  echo "<h1><i>This Page is Restricted.</i></h1>"; // These are all different so I can find them.
   exit();
 }
 
@@ -93,29 +108,27 @@ try {
 
 if(empty($_GET['blp']) || $_GET['blp'] != '8653') { // If blp is empty or set but not '8653' then check $S->myIp
   // BLP 2021-12-20 -- $S->myIp is always an array from SiteClass.
-  
+
   if(!array_intersect([$S->ip], $S->myIp)) {
+    error_log("*** webstats.php: $S->ip, $S->siteName, ERROR Not in myIp, blp={$_GET['blp']}"); // BLP 2023-11-11 - 
     insertMysqli("insert into $S->masterdb.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
                  "values('$S->ip', '$S->siteName', 'webstats', 'counted', 1, 'ERROR_BLP', -300, 'sql=$sql', '$S->agent', now(), now()) ".
                  "on duplicate key update count=count+1, lasttime=now()");
     
-    echo "<h1>Go Away</h1>";
+    echo "<h1>This Page is Restricted (myIp)</h1>"; // These are all different so I can find them.
     exit();
   }
 } 
 
-// At this point I know that blp was not empty and it equaled 8653.
-// But is it is not me, who is it? (probably someone who followed the link to aboutwebsite.php)
+// BLP 2023-11-11 - Not sure how this can happen?
 
-if(!array_intersect([$S->ip], $S->myIp)) {
-  error_log("webstats.php $S->siteName $S->self: blp=8653 but this is not me. IP=$S->ip, agent=$S->agent, line=" . __LINE__);
-}
+if($_GET['blp'] != '8653') error_log("*** webstats.php: ip=$S->ip, site=$S->siteName, page=$S->self -- \$S->ip is in \$S->myIp but blp={$_GET['blp']}");
+
+// At this point I know that blp was not empty. It does not have 8653 but but the ip is one of my ips (in $S->myIp).
 
 if($S->isBot) {
-  error_log("webstats.php $S->siteName $S->self Bot Restricted, exit: $S->foundBotAs, IP=$S->ip, agent=$S->agent, line=" . __LINE__);
-  echo <<< EOF
-<h1>This Page is Restricted</h1>
-EOF;
+  error_log("webstats.php: $S->siteName $S->self Bot Restricted, blp={$_GET['blp']} exit: $S->foundBotAs, IP=$S->ip, agent=$S->agent, line=" . __LINE__);
+  echo "<h1>This Page is Restricted</h1>"; // These are all different so I can find them.
   exit();  
 }
 
@@ -128,111 +141,62 @@ EOF;
 
 $S->css = <<<EOF
 .location, #tracker td:nth-of-type(3) { cursor: pointer; }
+#tracker td:nth-of-type(2),#tracker td:nth-of-type(3),#tracker td:nth-of-type(4) {
+  overflow-x: auto;
+  max-width: 150px;
+  white-space: pre;
+}
 EOF;
 
-// **********************
-// START inlineScript
-// Set up the JavaScript
-
-$myIp = implode(",", $S->myIp); // BLP 2022-07-18 - $S->myIp is ALWAYS an array!
-
-$homeIp = gethostbyname("bartonphillips.org");
-
-$mask = TRACKER_BOT | TRACKER_NORMAL | TRACKER_NOSCRIPT | TRACKER_CSS | TRACKER_ME | TRACKER_GOTO | TRACKER_GOAWAY;
-
-// Set up the javascript variables it needs from PHP
-
-function setupjava() {
-  global $myIp, $homeIp, $mask, $S;
-  
-  $robots = BOTS_ROBOTS;
-  $sitemap = BOTS_SITEMAP;
-  $siteclass = BOTS_SITECLASS;
-  $zero = BOTS_CRON_ZERO;
-
-  $start = TRACKER_START;
-  $load = TRACKER_LOAD;
-  $normal = TRACKER_NORMAL;
-  $noscript = TRACKER_NOSCRIPT;
-  $bvisibilitychange = BEACON_VISIBILITYCHANGE;
-  $bpagehide = BEACON_PAGEHIDE;
-  $bunload = BEACON_UNLOAD;
-  $bbeforeunload = BEACON_BEFOREUNLOAD;
-  $timer = TRACKER_TIMER;
-  $bot = TRACKER_BOT;
-  $css = TRACKER_CSS;
-  $me = TRACKER_ME;
-  $goto = TRACKER_GOTO; // Proxy
-  $goaway = TRACKER_GOAWAY; // unusal tracker.
-
-  // Add to inlineScript. BLP 2023-03-10 - consolidated h_inlineScript.
-
-  $S->h_inlineScript = <<<EOF
-    var myIp = "$myIp"; 
-    var homeIp = "$homeIp"; // my home ip
-    //var doState = true; // This can be set to show the State info. See tracker.js and tracker.php.
-    const robots = {"$robots": "Robots", "$siteclass": "BOT", "$sitemap": "Sitemap", "$zero": "Zero"};
-    const tracker = {
-  "$start": "Start", "$load": "Load", "$normal": "Normal", "$noscript": "NoScript",
-  "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
-  "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway"
-  };
-    const mask = $mask;
-  EOF;
-}
-
-setupjava();  
-
-// FINISH inlineScript
-// *******************
+// BLP 2023-10-17 - add these in the <head>
 
 $S->h_script = <<<EOF
 <script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
 EOF;
 
+// BLP 2023-10-17 - add these after <footer>
+
+$S->b_script = <<<EOF
+<script src='https://bartonlp.com/otherpages/js/webstats.js'></script>
+<script src="https://bartonphillips.net/js/maps.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async></script>
+EOF;
+
 $today = date("Y-m-d");
 
-$me = json_decode(file_get_contents("https://bartonphillips.net/myfingerprints.json"), true);
-//$me = require_once("/var/www/bartonphillipsnet/myfingerprints.php");
+// Get the fingerprints from the myfingerprints.php file.
+// BLP 2023-10-18 - because webstats.php runs from bartonlp.com/otherpages and does not need
+// symlinks, I can use a require_once here. In other places, like getcookie.php which do need to be
+// symlinked into the director (and server) I use getfinger.php also in bartonphillips.net.
+
+$myfingerprints = require_once("/var/www/bartonphillipsnet/myfingerprints.php");
 
 $T = new dbTables($S); // My table class
 
-// Only these sights use maps.js. 
+// BLP 2021-10-08 -- add geo
 
-if(array_intersect([$S->siteName], ['Bartonphillips', 'Tysonweb', 'Newbernzig', 'BartonlpOrg', 'BartonphillipsOrg',
-  'Allnatural', 'bartonhome', 'Bonnieburch', 'Bridgeclub', 'Marathon', 'Swam', 'Rpi', 'Bartonphillipsnet', 'JT-Lawnservice'])[0]) {
-  // For these add maps.js and the maps api and key.
+function mygeofixup(&$row, &$rowdesc) {
+global $today, $myfingerprints;
 
-  $S->b_script = <<<EOF
-<script src="https://bartonphillips.net/js/maps.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async></script>
-<script src='https://bartonlp.com/otherpages/js/webstats.js'></script>
-EOF;
-
-  // BLP 2021-10-08 -- add geo
-
-  function mygeofixup(&$row, &$rowdesc) {
-    global $today, $me;
-
-    foreach($me as $key=>$val) {
-      if($row['finger'] == $key) {
-        $row['finger'] .= "<span class='ME' style='color: red'> : $val</span>";
-      }
-    }
-
-    if(strpos($row['lasttime'], $today) === false) {
-      $row['lasttime'] = "<span class='OLD'>{$row['lasttime']}</span>";
-    } else {
-      $row['lasttime'] = "<span class='TODAY'>{$row['lasttime']}</span>";
-    }
-    return false;
+foreach($myfingerprints as $key=>$val) {
+  if($row['finger'] == $key) {
+    $row['finger'] .= "<span class='ME' style='color: red'> : $val</span>";
   }
+}
 
-  $sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo where site = '$S->siteName' order by lasttime desc";
-  [$tbl] = $T->maketable($sql, ['callback'=>'mygeofixup', 'attr'=>['id'=>'mygeo', 'border'=>'1']]);
+if(strpos($row['lasttime'], $today) === false) {
+  $row['lasttime'] = "<span class='OLD'>{$row['lasttime']}</span>";
+} else {
+  $row['lasttime'] = "<span class='TODAY'>{$row['lasttime']}</span>";
+}
+return false;
+}
 
-  // BLP 2021-10-12 -- add geo logic
-  $geotbl = <<<EOF
+$sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo where site = '$S->siteName' order by lasttime desc";
+[$tbl] = $T->maketable($sql, ['callback'=>'mygeofixup', 'attr'=>['id'=>'mygeo', 'border'=>'1']]);
+
+// BLP 2021-10-12 -- add geo logic
+$geotbl = <<<EOF
 <h2 id="table11">From table <i>geo</i></h2>
 <a href="#analysis-info">Next</a>
 <div id="geotable">
@@ -244,50 +208,8 @@ EOF;
   $tbl
 </div>
 EOF;
-  
-  $geoTable = "<li><a href='#table11'>Goto Table: geo</a></li>";
-} else {
-  $botsnext = "<a href='#analysis-info'>Next</a>";
-}
 
-if($DEBUG) {
-  $S->b_inlineScript = <<<EOF
-try {
-  // Create the performance observer.
-  const po = new PerformanceObserver((list) => {
-    //console.log("list: ", list);
-  
-    for(const entry of list.getEntries()) {
-      // Logs all server timing data for this response
-      //console.log("entry: ", entry);
-      let date = entry.serverTiming[0];
-      let time = entry.serverTiming[1];
-      console.log('Server Timing: date='+ date.description + ', time=' + time.duration / 1e6);
-    }
-  });
-  // Start listening for navigation entries to be dispatched.
-  
-  po.observe({type: 'navigation', buffered: true});
-} catch (e) {
-  // Do nothing if the browser doesn't support this API.
-  console.log("ERROR: ", e);
-}
-try {
-  const po1 = new PerformanceObserver(list => {
-    for(const entry of list.getEntries()) {
-      console.log("Name: " + entry.name + `
-  Type: `
-                  + entry.entryType +
-                  ", Start: " + entry.startTime +
-                  ", Duration: " + entry.duration
-                 );
-    }
-  });
-  po1.observe({type: 'resource', buffered: true});
-} catch(e) {}
-EOF;
-}
-// END $DEBUG
+$geoTable = "<li><a href='#table11'>Goto Table: geo</a></li>";
 
 $S->title = "Web Statistics";
 
@@ -412,9 +334,10 @@ $page .= <<<EOF
 $tbl
 EOF;
 
-/**** START NEW */
+/**** Start make daycount */
+// mask are the things that are done via AJAX.
 
-$mask1 = TRACKER_START | TRACKER_LOAD | TRACKER_TIMER | BEACON_VISIBILITYCHANGE | BEACON_PAGEHIDE | BEACON_UNLOAD | BEACON_BEFOREUNLOAD;
+$mask = TRACKER_START | TRACKER_LOAD | TRACKER_TIMER | BEACON_VISIBILITYCHANGE | BEACON_PAGEHIDE | BEACON_UNLOAD | BEACON_BEFOREUNLOAD;
 
 $meIp = null;
 $ipAr = $S->myIp;
@@ -424,35 +347,32 @@ foreach($ipAr as $v) {
 }
 $meIp = rtrim($meIp, ',');
 
-$real = 0;
-$bots = 0;
-$ajax = 0;
-$countTot = 0;
+$real = $bots = $ajax = $countTot = 0; // Total accumulators.
 $strAr = [];
 
-for($i=0; $i<7; ++$i) {
-  $cntBots = 0;
-  $cntReal = 0;
-  $cntAjax = 0;
+// Make the daycount.
 
-  $hdr =<<<EOF
-<table id='daycount' border='1'>
-<thead>
-<tr><th>Date</th><th>Count</th><th>Real</th><th>Bots</th><th>Ajax</th><th>Visitors</th><th>Visits</th></tr>
-</thead>
-<tbody>
-EOF;
+for($i=0; $i<7; ++$i) {
+  $cntBots = $cntReal = $cntAjax = 0; // Local accumulators are reset each iteration.
+
+  // Get the info for day number $i.
   
-  $S->query("select difftime, date(lasttime), id, ip, isJavaScript from $S->masterdb.tracker where site='$S->siteName' ".
-  "and ip not in($meIp) and date(lasttime)=current_date() - interval $i day order by ip desc");
+  $sql = "select difftime, date(lasttime), id, ip, isJavaScript from $S->masterdb.tracker where site='$S->siteName' ".
+         "and ip not in($meIp) and date(lasttime)=current_date() - interval $i day order by ip desc";
+  
+  $S->sql($sql);
 
   while([$diff, $d, $id, $ip, $java] = $S->fetchrow('num')) {
     $dd = $d; // NOTE: save $d in $dd because when $S->fetchrow('num') returns NULL all of the array items are zero.
     
-    if($java & $mask1) {
+    if($java & $mask) {
       ++$cntAjax; // Ajax for date
       ++$ajax; // Total Ajax
     }
+
+    // If $diff then count as real else count as bot.
+    // $bots and $real are the footer totals.
+    
     if(!$diff) {
       ++$cntBots;
       ++$bots;
@@ -467,12 +387,12 @@ EOF;
   $strAr[] = "<tr><td>$dd</td><td>$count</td><td>$cntReal</td><td>$cntBots</td><td>$cntAjax</td>";
 }
 
-$S->query("select date(lasttime) ".
+$S->sql("select date(lasttime) ".
           "from $S->masterdb.tracker ".
           "where starttime>=current_date() - interval 6 day ".
-          "and site='$S->siteName' and not isJavaScript & ". TRACKER_BOT . // 0x2000
-          " and isJavaScript != 0 ". // TRACKER_ZERO
-          "and ip not in($meIp) group by ip,date(lasttime)");
+          "and site='$S->siteName' and not isJavaScript & ". TRACKER_BOT . // 0x200
+          " and isJavaScript != ".  TRACKER_ZERO . // 0
+          " and ip not in($meIp) group by ip,date(lasttime)");
 
 // There should be ONE UNIQUE ip per row. So count them into the date.
 
@@ -487,14 +407,25 @@ while([$date] = $S->fetchrow('num')) {
 $i = 0;
 $visitsTotal = 0;
 
-$S->query("select date, visits from $S->masterdb.daycounts where site='$S->siteName' and date>=current_date() - interval 6 day order by date desc");
+// Get visits from daycounts. This is actually the only thing we get from that table. 'visits' is
+// updated in tracker.js as the 'mytime' cookie (see tracker.js)
+
+$S->sql("select date, visits from $S->masterdb.daycounts where site='$S->siteName' and date>=current_date() - interval 6 day order by date desc");
 
 while([$date, $visits] = $S->fetchrow('num')) {
   $strAr[$i++] .= "<td>$visitorsAr[$date]</td><td>$visits</td></tr>";
   $visitsTotal += $visits;
 }
 
-$str = implode("\n", $strAr);
+$str = implode("\n", $strAr); // Turn the array into a string seperated by cr. This is the body of daycount.
+
+$hdr =<<<EOF
+<table id='daycount' border='1'>
+<thead>
+<tr><th>Date</th><th>Count</th><th>Real</th><th>Bots</th><th>Ajax</th><th>Visitors</th><th>Visits</th></tr>
+</thead>
+<tbody>
+EOF;
 
 $ftr =<<<EOF
 </tbody>
@@ -504,9 +435,11 @@ $ftr =<<<EOF
 </table>
 EOF;
 
+// Make the table from the head, body, and footer.
+
 $tbl = $hdr . $str . $ftr;
 
-/* END NEW ****/
+/**** End make daycount */
 
 if($S->siteName == "Bartonphillipsnet") {
   $page .= <<<EOF
@@ -523,10 +456,10 @@ EOF;
 <ul>
 <li>'Visitors' is the number of distinct (AJAX) IP addresses (via 'tracker' table).
 <li>'Count' is the sum of 'Real' and 'Bots', the total number of HITS.
-<li>'Real' is the number of non-robots.
+<li>'Real' is the number of accesses that actually spent some time on our site (\$diff not empty).
 <li>'AJAX' is the number of accesses with AJAX via tracker.js (from the 'tracker' table).
 <li>'Bots' is the number of robots.
-<li>'Visits' are the number of non-robots outside of a 10 minutes window.
+<li>'Visits' is the number of non-robots outside of a 10 minutes window.
 </ul>
 
 <p>So if you come to the site from two different IP addresses you would be two 'Visitors'.<br>
@@ -613,6 +546,7 @@ $form = <<<EOF
     <option>Marathon</option>
     <option>Bartonphillipsnet</option>
     <option>JT-Lawnservice</option>
+    <option>Littlejohnplumbing</option>
   </select>
 
   <button type="submit" name='submit'>Submit</button>
@@ -652,7 +586,8 @@ if($DEBUG) {
   header("Server-Timing: time;desc=Test_Timing;dur=" . ($hrEnd - $hrStart), false);
 }
 
-// Render page
+// At this point $page has everything up to tracker info.
+// Render the page.
 
 echo <<<EOF
 $top
@@ -689,12 +624,24 @@ $page
 <li>0x800=isMe : via SiteClass
 <li>0x1000=Proxy : via goto.php
 <li>0x2000=GoAway (Unexpected Tracker) : via tracker
-
-This happens when the user moves to another tab or closes the site.
+<li>0x8000=ADDED by the cron checktracker2.php
 </ul>
 <p>All of the items marked (via javascript) are events.<br>
-The 'starttime' is done by SiteClass (PHP) when the file is loaded.<br>
-Rows with 'js' zero (0) are <b>curl</b> or something like <b>curl</b> (wget, lynx, etc) and counted as 'bots'</b>.
+The 'starttime' field is done by SiteClass (PHP) when the file is loaded.<br>
+The 'botAs' field has the following values:</p>
+<ul>
+<li>'match', the User Agent info or the bots table info was used to determin that the client was a ROBOT.
+<li>'robot', the robots.php file was called by a client looking at the robots.txt file.
+<li>'sitemap', the sitemap.php file was called by a client looking at the Sitemap.xml file.
+<li>'zero', the client is in the 'bots' table as a 0x100 (BOTS_CRON_ZERO) this causes the Database class to set 'js' field as 0x200 (TRACKER_BOT).
+<li>'counted', the tracker.php or beacon.php files counted the client.
+</ul>
+<p>The above can be a comma seperated list like: 'robot,sitemap,counted'.<br>
+If the Database class does not find that the client was a robot (and the client was not ME) it sets the 'isJavaScript' field in the database
+as TRACKER_ZERO (0). Every 15 minutes a cron job, checktracker.php, looks at the tracker table to see if there are any TRACKER_ZEROs.
+If there are it changes them to CHECKTRACKER ord with TRACKER_BOT (0x8000 | 0x200) which is 0x8200.<br>
+Rows with 'js' with TRACKER_ZERO will be changed to 0x8200 after 15 minutes.
+These rows are <b>curl</b> or something like <b>curl</b> (wget, lynx, etc) and counted as 'bots'.
 These programs have no JavaScript interaction, no header image and no csstest interaction. They simply grab the
 file and disect it. They don't try to get images or any css and they definetly don't use JavaScript.
 </p>

@@ -10,6 +10,7 @@
 // On my desktop browser: chrome://inspect/#devices
 // Plug the tablet into the USB port. You should see "Chrome" and each of the domains that are open on the tablet.
 // You can then debug the tablet if you click on "inspect". It will open the dev-tools.
+// BLP 2023-10-12 - added ip to members table.
 
 $_site = require_once(getenv("SITELOADNAME"));
 
@@ -22,6 +23,7 @@ $_site->defaultCss = null; // Normal default blp.csss
 $_site->base = null; // no base
 $_site->trackerImg1 = "/images/blp-image.png"; // my photo
 $_site->trackerImg2 = null; // blank
+$_site->noTrack = true;
 
 // We will get the things like copyright, author, desc etc.
 
@@ -73,6 +75,12 @@ EOF;
 //$S->link = "<link rel='stylesheet' href='https://csswizardry.com/ct/ct.css' class='ct' />";
 
 $S->css =<<<EOF
+.country {
+        border: 1px solid black;
+        padding: .3rem;
+        background-color: #8dbdd8;
+}
+
 #members {
   margin: 10px 0;
 }
@@ -163,8 +171,46 @@ EOF;
 
 $S->b_script = <<<EOF
 <script src="https://bartonphillips.net/js/maps.js"></script>
-<script
- src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async></script>
+<script>
+function getcountry() {
+  let ip = $("#members tr td:first-child");
+  let ar = [];
+
+  ip.each(function() {
+    let ipval = $(this).text();
+    // remove dups. If ipval is not in the ar array add it once.
+    if(!ar[ipval]) {
+      ar[ipval] = 1; // true
+    }
+  });
+
+  // we have made ipval true so we do not have duplicate
+
+  ar = JSON.stringify(Object.keys(ar)); // get the key which is ipval and make a string like '["123.123.123.123", "..."', ...]'
+
+  $.ajax("https://bartonlp.com/otherpages/webstats-ajax.php", {
+    type: 'post',
+    data: {list: ar},
+    success: function(co) {
+      let com = JSON.parse(co); // com is an array of countries by ip.
+      console.log("com: ", com);
+
+      ip.each(function(i) { // ip is the first td. We look at each td.
+        ip = $(this).text();
+        co = com[ip]; // co is the country
+    
+        // We make co-ip means country-ip.
+
+        $(this).html("<span class='co-ip'>"+ip+"</span><br><div class='country'>"+co+"</div>");
+        });
+    },
+    error: function(err) {
+      console.log("ERROR:", err);
+    }
+  });
+}
+getcountry();
 </script>
 EOF;
 
@@ -175,7 +221,7 @@ EOF;
 $T = new dbTables($S);
 
 if($S->siteName != "bartonhome") {
-  $sql = "select name, email, finger, count, created, lasttime from bartonphillips.members";
+  $sql = "select ip, name, email, finger, count, created, lasttime from bartonphillips.members"; // BLP 2023-10-12 - added ip to members table.
 
   [$members] = $T->maketable($sql, array('attr'=>array('border'=>'1', 'id'=>'members')));
   $members = <<<EOF
@@ -241,8 +287,7 @@ $sql = "select lat, lon, finger, ip, created, lasttime from $S->masterdb.geo whe
 // Get the SiteId cookie
 
 $cookies = $_COOKIE;
-
-//vardump("cookies", $cookies);
+//vardump("getcookie.php: cookies", $cookies);
 // This is the standard bottom message
 
 $bottom =<<<EOF
@@ -262,17 +307,10 @@ EOF;
 
 //$S->ip = "122.333.333.1"; // For testing only
 
-if($cookies['SiteId'] !== null) {
-  [$cookieFinger, $cookieEmail] = explode(":", $cookies['SiteId']);
-}
-
-if($S->isMe() && $cookieEmail !== "bartonphillips@gmail.com") {
-  $msg = "<h1>No Cookie and Wrong IP</h1>"; // Just go away
-  error_log("bartonphillips.net/getcookie.php: ip=$S->ip, cookieEmail=$cookieEmail : Go Away\ncookie=" . print_r($cookies, true) . ", agent=$S->agent");
-} elseif(!$cookies['SiteId']) {
-  $msg = <<<EOF
-<h1>No SiteId Cookie</h1>
-EOF;
+if(($siteIdCookie = $cookies['SiteId']) !== null) {
+  [$cookieName, $cookieFinger, $cookieEmail] = explode(":", $siteIdCookie);
+} else {
+  error_log("bartonlp.com/otherpages/getcookie.php: No SiteId Cookie, isMe()=" . ($S->isMe() ? "true" : "false"));
 }
 
 // This is the full message if we have a cookies
@@ -280,9 +318,6 @@ EOF;
 $all = '';
   
 foreach($cookies as $key=>$cookie) {
-  if($key == "mytime") {
-    $cookie = $cookie;
-  }
   $all .= "<li><button class='reset'>Reset: <span>$key</span></button>$cookie</li>";
 }
   
@@ -296,6 +331,9 @@ EOF;
 echo <<<EOF
 $top
 <div id="contain">
+<p>Your IP is: $S->ip.</p>
+<p id="getcookie"></p>
+
 <form action="getcookie.php" method="post">
   Select Site:
   <select name='site'>

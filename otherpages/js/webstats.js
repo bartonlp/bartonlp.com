@@ -5,10 +5,53 @@
 
 'use strict';
 
+const DEBUG = false; // BLP 2023-10-17 - if true we do the debug_performanceObserver function.
+
 const flags = {all: false, webmaster: false, bots: false, ip6: true};
-const path = document.location.pathname;
 const ajaxurl = 'https://bartonlp.com/otherpages/webstats-ajax.php'; // URL for all ajax calls.
-var xxpos, yypos;
+
+function removeAll() {
+  $("#Human").remove();
+  $("#Overflow").remove();
+  $("#FindBot").remove();
+  $("#outer").hide();
+}
+
+function debug_performanceObserver() {
+  try {
+    // Create the performance observer.
+    const po = new PerformanceObserver((list) => {
+      //console.log("list: ", list);
+
+      for(const entry of list.getEntries()) {
+      // Logs all server timing data for this response
+      //console.log("entry: ", entry);
+        let date = entry.serverTiming[0];
+        let time = entry.serverTiming[1];
+        console.log('Server Timing: date='+ date.description + ', time=' + time.duration / 1e6);
+      }
+    });
+    // Start listening for navigation entries to be dispatched.
+
+    po.observe({type: 'navigation', buffered: true});
+  } catch (e) {
+    // Do nothing if the browser doesn't support this API.
+    console.log("ERROR: ", e);
+  }
+  try {
+    const po1 = new PerformanceObserver(list => {
+      for(const entry of list.getEntries()) {
+        console.log("Name: " + entry.name + `
+                    Type: `
+                    + entry.entryType +
+                    ", Start: " + entry.startTime +
+                    ", Duration: " + entry.duration
+                   );
+      }
+    });
+    po1.observe({type: 'resource', buffered: true});
+  } catch(e) {}
+}
 
 // For 'tracker'
 // The .bots class is set in webstats-ajax.php.
@@ -238,7 +281,8 @@ function ipaddress(e, self) {
           // For mobile devices there is NO ctrKey! so we don't
           // need to worry about position fixed not working!
 
-        $("#FindBot").remove();
+        removeAll();
+
         table.append("<div id='FindBot' style='position: absolute;top: "+ypos+"px;left:"+xpos+"px;"+
                      "background-color: white; border: 5px solid black;padding: 10px'>"+
                      data+"</div>");
@@ -254,13 +298,15 @@ function ipaddress(e, self) {
       data: {page: 'findbot', ip: ip},
       type: "post",
       success: function(data) {
-        $("#FindBot").remove();
+        removeAll();
+
         $("<div id='FindBot' style='position: fixed;top: 10px; "+
             "background-color: white; border: 5px solid black;padding: 10px'>"+
             data+"</div>").appendTo("body");
 
         if($("#FindBot").height() > window.innerHeight) {
-          $("#FindBot").remove();
+          removeAll();
+
           $("<div id='FindBot' style='position: absolute;top: "+bottom+"px; "+
               "background-color: white; border: 5px solid black;padding: 10px'>"+
               data+"</div>").appendTo("body");
@@ -277,7 +323,7 @@ function ipaddress(e, self) {
 function gettracker() {
   $.ajax(ajaxurl, {
     //url: directory+'/webstats-ajax.php',
-    data: {page: 'gettracker', site: thesite, mask: mask}, // thesite is set in webstats via inlineScript
+    data: {page: 'gettracker', site: thesite, mask: mask, thedate: thedate}, // thesite is set in webstats via inlineScript
     type: 'post',
     success: function(data) {
       $("#trackerdiv").html(data);
@@ -288,7 +334,8 @@ function gettracker() {
       $("#tracker").parent().before("<div id='beforetracker'>Ctrl Click on the 'ip' items to <span id='ip'>Show Only ip</span>.<br>"+
                                     "Alt Click on the 'ip' items to <span class='red'>Show http://ipinfo.io info</span><br>"+
                                     "Double Click on the 'page' items to <span id='page'>Show Only page</span>.<br>"+
-                                    "Click on the 'js' items to see human readable info.<br>"+
+                                    "Ctrl Click on the 'js' items to see human readable info.<br>"+
+                                    "Click on 'page', 'agent' to see the full field, or scroll the fields if needed.<br>"+
                                     "Average stay time: <span id='average'></span> (times over two hours are discarded.)<br>"+
                                     "<button id='webmaster'>Show webmaster</button>"+
                                     "<button id='bots'>Show bots</button>"+
@@ -380,37 +427,6 @@ function gettracker() {
         gettracker();
       });
 
-      // Second field 'page' dbl clicked
-
-      $("body").on('dblclick', '#tracker td:nth-child(2)', function() { // 2 is 'page'
-        let msg;
-        
-        if(flags.page) { // if true
-          flags.page = false;
-
-          $("#tracker tr").removeClass('page');
-
-          for(let f in flags) {
-            if(flags[f] == true) {
-              $("."+f).show();
-            }
-          }
-          $(".normal").show();
-          msg = "Show Only Page";
-        } else {
-          flags.page = true;
-          let page = $(this).text();
-          $("#tracker td:nth-child(2)").each(function(i, v) { // 2 is page
-            if($(v).text() == page) {
-              $(v).parent().addClass('page');
-            }
-          });
-          $("#tracker tr").not(".page").hide();
-          msg = "Show All Page";
-        }
-        $("#page").text(msg);
-      });
-
       $("#tracker td:first-child").on("click", function(e) {
         ipaddress(e, this);
       });
@@ -421,11 +437,20 @@ function gettracker() {
   });
 }
 
+// After the DOM is complete.
+
 jQuery(document).ready(function($) {
+  if(DEBUG) debug_performanceObserver();
+
+  $("body").on("click", function(e) {
+    $("#Human").remove();
+    $("#Overflow").remove();
+    $("#FindBot").remove();
+  });
+  
   $("#robots2 td:nth-of-type(4)").each(function() {
     let botCode = $(this).text();
-    
-    $(this).text(robots[botCode]); // robots was set in webstats.php in inlineScript
+    $(this).text(robots[botCode]);
   });
   
   $("#logip, #logagent, #counter, #counter2, #robots, #robots2").tablesorter({
@@ -461,7 +486,7 @@ jQuery(document).ready(function($) {
   // Set up analysis tables for tablesorter
   
   $("#os1, #os2, #browser1, #browser2")
-      .tablesorter({ headers: { 1: {sorter: 'strnum'}, 2: {sorter: false}, 3: {sorter: false}}, sortList: [[1,1]]});
+  .tablesorter({ headers: { 1: {sorter: 'strnum'}, 2: {sorter: false}, 3: {sorter: false}}, sortList: [[1,1]]});
 
   // Set up robots for tablesorter
   
@@ -498,14 +523,6 @@ jQuery(document).ready(function($) {
       showhide.text("Show Only");
     }
     this.flag = !this.flag;
-  });
-
-  // A click anywhere will remove #FindBot which is used for the bots,
-  // for the isJavaScript 'human' and ipinfo.io.
-  // There can only be one of these Id's at a time.
-  
-  $("body").on("click", function(e) {
-    $("#FindBot").remove();
   });
 
   // Click on the ip address of any of the tables.
@@ -551,11 +568,12 @@ jQuery(document).ready(function($) {
     }
     ypos = pos.top;
 
+    console.log("human:", human);
     for(let [k, v] of Object.entries(human)) {
       h += (js & k) ? v + "<br>" : '';
     }
-    
-    $("#FindBot").remove();
+
+    removeAll();
 
     // Now append FindBot to the table.
     
@@ -574,67 +592,122 @@ jQuery(document).ready(function($) {
     e.stopPropagation();
   });
 
-  // BLP 2021-12-24 -- tracker agent field look for http: or https:
+  // BLP 2023-10-17 - Was b_inlineScript. Moved to here.
+  
+  $("body").on("click", "#tracker td:nth-of-type(2), #tracker td:nth-of-type(3), #tracker td:nth-of-type(4)", function(e) {
+    removeAll();
 
-  $("body").on("click", "#tracker td:nth-child(4)", function(e) { // 4 is agent
-    if($(this).css("color") == "rgb(255, 0, 0)") {
-      const txt = $(this).text();
-      const pat = /(http.?:\/\/.*)[)]/;
-      const found = txt.match(pat);
-      if(found) {
-        window.open(found[1], "bot");
+    // We use ctrl click on td:nth-of-type(4) which is
+    // cellIndex 3 to show a new tab with the http. CellIndex runs 0,1... while nth-of-type() runs
+    // 1,2...
+    
+    if(e.ctrlKey) {
+      if($(this)[0].cellIndex == 3) {
+        if($(this).css("color") == "rgb(255, 0, 0)") { // Only if the cell is RED
+          const txt = $(this).text();
+          const pat = /(http.?:\/\/.*?)\)/;
+          const found = txt.match(pat);
+          //console.log("found:", found);
+          if(found) {
+            window.open(found[1], "bot");
+          }
+        }
+        e.stopPropagation();
+      } else if($(this)[0].cellIndex == 1) {
+        // Second field 'page' ctrl clicked
+
+        let msg;
+
+        if(flags.page) { // if true
+          flags.page = false;
+
+          $("#tracker tr").removeClass('page');
+
+          for(let f in flags) {
+            if(flags[f] == true) {
+              $("."+f).show();
+            }
+          }
+          $(".normal").show();
+          msg = "Show Only Page";
+        } else {
+          flags.page = true;
+          let page = $(this).text();
+          $("#tracker td:nth-child(2)").each(function(i, v) { // 2 is page
+            if($(v).text() == page) {
+              $(v).parent().addClass('page');
+            }
+          });
+          $("#tracker tr").not(".page").hide();
+          msg = "Show All Page";
+        }
+        $("#page").text(msg);
+        e.stopPropagation();
       }
-      console.log("found: "+found);
-    }
+    } else {   
+      let ypos, xpos;
+      let pos = $(this).position();
+      xpos = pos.left - 200;
+      ypos = pos.top;
+
+      if($(this).text()) {
+        $("#tracker").append("<div id='Overflow' style='position: absolute; top: "+ypos+"px; left: "+xpos+"px; "+
+                             "background-color: white; border: 5px solid black; "+
+                             "padding: 10px;'>"+$(this).text()+"</div>");
+        e.stopPropagation()
+      };
+    };
   });
 
   // Get the finger and use ajax to get the lat, log from the gps table
   // if the finger exists.
   
   $("body").on("click", "#tracker tbody tr td:nth-of-type(3)", function(e) { // 3 is finger
-    let finger = ($(this).text()).split(' :')[0];
-    let ip = $(this).closest('tr').find('.co-ip').text();
-    let pos = $(this).position();
-    let xpos = pos.left + $(this).width() + 17;
-    let ypos = pos.top;
-    let table = $(this).closest("table");
+    if(e.ctrlKey) {
+      let finger = ($(this).text()).split(' :')[0];
+      let ip = $(this).closest('tr').find('.co-ip').text();
+      let pos = $(this).position();
+      let xpos = pos.left; // + $(this).width();
+      let ypos = pos.top + 50;
+      let table = $(this).closest("table");
 
-    $.ajax(ajaxurl, {
-      type: 'post',
-      data: {page: 'fingerToGps', finger: finger, site: thesite, ip: ip},
-      success: function(data) {
-        console.log("data: ", data);
-        let items = '';
-        let cnt = 0;
+      $.ajax(ajaxurl, {
+        type: 'post',
+        data: {page: 'fingerToGps', finger: finger, site: thesite, ip: ip},
+        success: function(data) {
+          console.log("data: ", data);
+          let items = '';
+          let cnt = 0;
 
-        if(data != "NOT FOUND") {
-          const ar = JSON.parse(data).sort();
-          let last = '';
+          if(data != "NOT FOUND") {
+            const ar = JSON.parse(data).sort();
+            let last = '';
 
-          for(let item in ar) {
-            if(last == ar[item]) {
-              continue;
+            for(let item in ar) {
+              if(last == ar[item]) {
+                continue;
+              }
+              cnt++;
+              last = ar[item];
+              items += "<span class='item'>"+ar[item]+"</span><br>";
             }
-            cnt++;
-            last = ar[item];
-            items += "<span class='item'>"+ar[item]+"</span><br>";
+          } else {
+            items = data;
           }
-        } else {
-          items = data;
+          removeAll();
+
+          table.append("<div id='FindBot' style='position: absolute;top: "+ypos+"px;left:"+xpos+"px;"+
+                       "background-color: white; border: 5px solid black;padding: 10px'>"+
+                       items+"</div>");
+          if(cnt == 1) {
+            $("#FindBot .item").trigger('click');
+          }
+        },
+        error: function(err) {
+          console.log("ERROR:", err);
         }
-        $("#outer").hide();
-        $("#FindBot").remove();
-        table.append("<div id='FindBot' style='position: absolute;top: "+ypos+"px;left:"+xpos+"px;"+
-                     "background-color: white; border: 5px solid black;padding: 10px'>"+
-                     items+"</div>");
-        if(cnt == 1) {
-          $("#FindBot .item").trigger('click');
-        }
-      },
-      error: function(err) {
-      console.log("ERROR:", err);
-      }
-    });
+      });
+    }
   });
 
   // ipinfo. Get gps and display the google map.
@@ -642,7 +715,8 @@ jQuery(document).ready(function($) {
   $("body").on("click", "#FindBot .location, #FindBot .item", function(e) {
     let t = $("#FindBot").position().top + $(this).height() + 10;
 
-    $("#FindBot").remove();
+    removeAll();
+    //$("#FindBot").remove();
     
     let gps = ($(this).text()).split(",");
     const pos = {

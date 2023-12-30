@@ -1,6 +1,7 @@
 <?php
 $_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
+$_site->noTrack = $_site->noGeo = true;
+
 $tbl = (require(SITECLASS_DIR . "/whatisloaded.class.php"))[0];
 
 $S = new SiteClass($_site);

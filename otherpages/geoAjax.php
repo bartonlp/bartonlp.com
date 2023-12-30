@@ -1,5 +1,5 @@
 <?php
-// This is the Ajax for webstats.js and geo.js
+// This is the Ajax for webstats.js, getcookie.php and geo.js
 // BLP 2023-08-12 - We do not need to symlink this file!
 // BLP 2023-09-10 - IMPORTANT: This file does noTrack=true so we do not do tracker.js and therefore
 // no tracker.php or beacon.php.
@@ -12,15 +12,40 @@ if(!$_POST['mysitemap']) {
   echo "<h1>Not Authorized</h1><p>This file is not to be run standalone.</p>";
   exit();
 }
+$_site = require_once(getenv("SITELOADNAME"));
 
-$host = (require_once(getenv("SITELOADNAME")))->dbinfo->host; // Get the dbinfo->host for this machine
+$mysite = $_POST['mysitemap'];
 
-$_site = json_decode(stripComments(file_get_contents($_POST['mysitemap']))); // BLP 2023-08-12 - get $_site from the parent's dir.
-$_site->dbinfo->host = $host;
+$tmp = $_site->dbinfo->host; // BLP 2023-09-10 -
+
+unset($_site);
+
+if(str_contains($mysite, "bartonphillips.org")) {
+  $port = null;
+  if(str_contains($mysite, ":8000")) {
+    $port = ":8000";
+  }
+  $mysite = preg_replace("~/var/www/(.*?)/~", "https://bartonphillips.org$port/", $_POST['mysitemap']);
+}
+  
+//error_log("*** geoAjax.php: mysite=$mysite");
+
+$_site = json_decode(stripComments(file_get_contents($mysite)));
+
+if($_site === null) {
+  error_log("*** geoAjax.php: \$_site is NULL");
+  echo "ERROR \$_site is NULL";
+  exit();
+}
+
+$_site->dbinfo->host = $tmp; // BLP 2023-09-10 -
+
+//$ip = $_SERVER['REMOTE_ADDR'];
+//if($ip != "195.252.232.86") error_log("*** geoAjax.php: mysite=$mysite, site=$_site->siteName, ip=$ip, host=$tmp");
 
 $_site->noTrack = true; // BLP 2023-09-10 - DO NOT TRACK. We will not load tracker.js and therefore not do tracker.php or beacon.php
 
-$S = new $_site->className($_site);
+$S = new SiteClass($_site);
 
 //$DEBUG = true;
 
@@ -68,7 +93,7 @@ if($_POST['page'] == 'geo') {
   
   // We have the lat and long and visitor so set nogeo to false (the default is NULL).
   
-  $S->query("update $S->masterdb.tracker set nogeo=0 where id='$id'");
+  $S->sql("update $S->masterdb.tracker set nogeo=0 where id='$id'");
   
   $exp = time() + 60*60*24*365;
 
@@ -79,7 +104,7 @@ if($_POST['page'] == 'geo') {
   }
 
   $sql = "select lat, lon from $S->masterdb.geo where site='$site' and finger='$visitor' and ip='$ip'";
-  $x = $S->query($sql);
+  $x = $S->sql($sql);
 
   // If lat and lon is the same as what we just found update
   
@@ -90,7 +115,7 @@ if($_POST['page'] == 'geo') {
       // We use $site instead of $S->siteName as they may be different.
       
       $sql = "update $S->masterdb.geo set lasttime=now(), ip='$ip' where lat=$slat and lon=$slon and site='$site' and finger='$visitor'";
-      $S->query($sql);
+      $S->sql($sql);
 
       //if($DEBUG) error_log("geoAjax $id, $site, $ip -- geo Updated");
       //echo "geo Update: $id, $site, $ip";
@@ -106,7 +131,7 @@ if($_POST['page'] == 'geo') {
   // This is either a new visitor or the lat and lon are not the same as before. Insert.
   
   $sql = "insert into $S->masterdb.geo (lat, lon, finger, site, ip, created, lasttime) values('$lat', '$lon', '$visitor', '$site', '$ip', now(), now())";
-  $S->query($sql);
+  $S->sql($sql);
 
   if($DEBUG) error_log("geoAjax $id, $site, $ip -- geo Insert");
   echo "Insert: $id, $site, $ip";
@@ -116,7 +141,7 @@ if($_POST['page'] == 'geo') {
 if($_POST['page'] == 'geoFail') {
   $id = $_POST['id'];
   
-  $S->query("update $S->masterdb.tracker set nogeo=1 where id='$id'");
+  $S->sql("update $S->masterdb.tracker set nogeo=1 where id='$id'");
 
   if($DEBUG) error_log("geoAjax $id, $site, $ip -- geoFail");
   echo "geoFail: id=$id";
@@ -140,7 +165,7 @@ if($_POST['page'] == 'finger') {
 
   // Get the ip, site and agent so we can update logagent with the finger.
   
-  $S->query("select ip, site, agent from $S->masterdb.tracker where id=$id");
+  $S->sql("select ip, site, agent from $S->masterdb.tracker where id=$id");
   [$ip, $site, $agent] = $S->fetchrow('num');
 
   //error_log("geoAjax.php: setSiteCookie BLP-Finger=$visitor, id=$id, ip=$ip, site=$site");
@@ -148,11 +173,11 @@ if($_POST['page'] == 'finger') {
   // tracker table was created in SiteClass
 
   $sql = "update $S->masterdb.tracker set finger='$visitor' where id=$id";
-  $S->query($sql);
+  $S->sql($sql);
 
   // Update logagent with finger.
   
-  $S->query("update $S->masterdb.logagent set finger='$visitor' where ip='$ip' and site='$site' and agent='$agent'");
+  $S->sql("update $S->masterdb.logagent set finger='$visitor' where ip='$ip' and site='$site' and agent='$agent'");
   
   if($DEBUG) error_log("geoAjax $id, $visitor -- finger Updated");
   echo "Updated: $id, $visitor"; // Returned to the javascript.
