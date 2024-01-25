@@ -27,8 +27,6 @@
       "noHtml": false,
       "noOutput": false
     },
-    "meta" : "<meta name='robots' content='noindex'>", // don't index anything in bartonphillips.net
-
     "trackerImg1": "/images/blp-image.png", // /image/.. will get the image from bartonphillips.net.
 
     "headFile": "/var/www/bartonphillips.com/includes/head.i.php",

@@ -12,6 +12,7 @@
 $_site = require_once(getenv("SITELOADNAME"));
 $_site->noTrack = true;
 $_site->noGeo = true;
+ErrorClass::setDevelopment(true);
 
 // BLP 2023-09-18 - Use the phpseclib3
 
@@ -481,26 +482,47 @@ EOF;
 
   // BLP 2023-09-18 - Look to see if this is BartonphillipsOrg or Rpi. These are on remote sites and we need to do
   // ssh to access the file on the server.
-  
-  if(array_intersect([$site], ['BartonphillipsOrg', 'Rpi'])[0] !== null) {
+
+  if($site == 'BartonphillipsOrg' || $site == 'Rpi') {
     // BLP 2023-10-01 - For these two 'remote' sites the 'analysis.php' file has an 'eval()' that
-    // runs the 'analysis.eval' on the server which is a symlink to this file. Why 'analysis.eval'?
+    // runs the 'analysis.eval' on the DigitalOcean server which is a symlink to this file. Why 'analysis.eval'?
     // Well file_get_contents() evaluates the file if it is '.php'.
-    
-    $key = PublicKeyLoader::load(file_get_contents('../id_rsa')); // BLP 2023-09-18 - This is at /var/www which is just above this.
+    // For these to work outside of the cron job you have to use the sites url. For example:
+    // https://bartonphillips.org:8000/analysis.php?siteupdate=Rpi
+    // This will load the file from the url which is in fact an eval.
+    // For further infomation read the HP-envy file id_rsa.readme.txt and then the RPI
+    // id_rsa-readme.txt files. Both are at /var/www on those computers.
 
-    $ssh = new SSH2('bartonlp.org', 2222); // BLP 2023-09-18 - use port 2222 for the server
+    //echo "server: " . print_r($_SERVER['HTTP_HOST'], true) ."<br>";
+    //echo (file_exists("../id_rsa") ? "Exists" : "Not") . "<br>";
 
-    if (!$ssh->login('barton', $key)) {
-      error_log("RPI analysis: Login failed");
-      throw new \Exception('Login failed');
+    // NOTE this file on my RPI is the file from my HP-envy. Read the RPI's id_rsa-readme.txt for
+    // full details.
+
+    try {
+      $key = PublicKeyLoader::load(file_get_contents('../id_rsa')); 
+
+      $ssh = new SSH2('bartonlp.org', 2222); // ssh for my DigitalOcean server is at port 2222
+
+      if (!$ssh->login('barton', $key)) {
+        error_log("Login from REMOTE to server analysis: Login failed");
+        throw new \Exception('Login failed');
+      }
+
+      $analysis = escapeshellarg($analysis); // BLP 2023-09-18 - 
+
+      if($tmp = $ssh->exec("cd www/bartonphillipsnet/analysis; echo " .$analysis. " > $site-analysis.i.txt;")) {
+        //echo "tmp=$tmp<br>";
+        throw new \Exception($tmp);
+      }      
+      
+      //echo "REMOTE analysis DONE<br>";
+      //error_log("REMOTE analysis DONE: " . date("Y-m-d H:i:s"));
+    } catch(Exception $e) {
+      $msg = $e->getMessage();
+      error_log("analysis.php: Error=$msg, site=$site");
+      throw new \Exception($e);
     }
-
-    $analysis = escapeshellarg($analysis); // BLP 2023-09-18 - 
-
-    $ssh->exec("cd www/bartonphillipsnet/analysis; echo " .$analysis. " > $site-analysis.i.txt;");
-
-    error_log("RPI analysis DONE: " . date("Y-m-d H:i:s"));
   } else {
     // BLP 2023-10-01 - The site lives on my server and not on a remote site.
     // If the directory does not exist create it.

@@ -25,7 +25,7 @@ function insertMysqli($sql):void {
   $p = require("/home/barton/database-password");
   $mysqli = new mysqli($i->host, $i->user, $p, 'barton');
 
-  $mysqli->sql($sql);
+  $mysqli->query($sql);
 }
 
 // The GET is set by the POST below or from another of my sites that calls

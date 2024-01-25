@@ -2,6 +2,7 @@
 // The .htaccess file has: ReWriteRule ^robots.txt$ robots.php [L,NC]
 // This file reads the rotbots.txt file and outputs it and then gets the user agent string and
 // saves it in the bots table.
+// NOTE: this file can only be run using mysqli or PDO with the mysql engine!
 /*
 CREATE TABLE `bots` (
   `ip` varchar(40) NOT NULL DEFAULT '',
@@ -40,6 +41,7 @@ if(!file_exists($S->path . "/robots.txt")) {
 }
 
 $robots = file_get_contents($S->path."/robots.txt");
+header("Content-Type: text/plain");
 echo $robots . "# From robots.php\n";
 
 if($S->isMe()) return;
@@ -51,9 +53,9 @@ try {
   // BLP 2021-12-26 -- robots is 1 if we do an insert or robots=robots|2 
 
   $S->sql("insert into $S->masterdb.bots (ip, agent, count, robots, site, creation_time, lasttime) ".
-            "values('$ip', '$agent', 1, $rob, '$S->siteName', now(), now())");
-}  catch(Exception $e) {
-  if($e->getCode() == 1062) { // duplicate key
+          "values('$ip', '$agent', 1, $rob, '$S->siteName', now(), now())");
+} catch(Exception $e) {
+  if($e->getCode() == 1062 || $e->getCode() == 23000) { // duplicate key
     $S->sql("select site from $S->masterdb.bots where ip='$ip' and agent='$agent'");
 
     $who = $S->fetchrow('num')[0];
@@ -66,7 +68,7 @@ try {
     }
 
     $S->sql("update $S->masterdb.bots set robots=robots|$rob, count=count +1, site='$who', lasttime=now() ".
-              "where ip='$ip'");
+            "where ip='$ip'");
   } else {
     error_log("robots: ".print_r($e, true));
   }
@@ -76,10 +78,11 @@ try {
 // BLP 2021-12-26 -- bots2 primary key is 'ip, agent, date, site, which'
 
 $S->sql("insert into $S->masterdb.bots2 (ip, agent, date, site, which, count, lasttime) ".
-          "values('$ip', '$agent', now(), '$S->siteName', $rob, 1, now()) ".
-          "on duplicate key update count=count+1, lasttime=now()");
+        "values('$ip', '$agent', now(), '$S->siteName', $rob, 1, now()) ".
+        "on duplicate key update count=count+1, lasttime=now()");
 
 // Insert or update logagent
 
 $S->sql("insert into $S->masterdb.logagent (site, ip, agent, count, created, lasttime) values('$S->siteName', '$ip', '$agent', 1, now(), now()) ".
-          "on duplicate key update count=count+1, lasttime=now()");
+        "on duplicate key update count=count+1, lasttime=now()");
+

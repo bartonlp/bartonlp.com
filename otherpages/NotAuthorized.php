@@ -7,7 +7,7 @@ $agent = $_SERVER['HTTP_USER_AGENT'];
 $self = htmlentities($_SERVER['PHP_SELF']);
 $requestUri = $_SERVER['REQUEST_URI'];
 
-error_log("webstats.i.php: Call from browser, Go Away: $ip, $self, $requestUri, $agent");
+error_log("NotAuthorized.php: Call from browser, Go Away: $ip, $self, $requestUri, $agent");
 echo <<<EOF
 <h1>Not Authorized</h1>
 <p>This page should only be referenced from another page on our site.</p>
