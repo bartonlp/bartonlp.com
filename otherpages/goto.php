@@ -1,5 +1,4 @@
 <?php
-// BLP 2023-02-25 - use new approach
 // BLP 2021-03-10 -- Proxy by passes all of the tracker.php and tracker.js logic. It writes a
 // special string into the 'site' field ($S->siteName . "Proxy") to identify this behavior.
 // This is a proxy for the gitHub and others. It takes the query string and logs both counter2 and
@@ -51,9 +50,14 @@ function checkUser($S) {
   // $c is 1 if 'blp=ingrid&' was replaced with ''
   
   if(!$c) { // $c is not 1
+    $java = TRACKER_GOTO | TRACKER_GOAWAY;
+    
+    $S->sql("insert into $S->masterdb.tracker (site, page, ip, agent, referer, isJavaScript, error, starttime, lasttime) ".
+            "values('$S->siteName', '$S->self', '$S->ip', '$S->agent', '$query', $java, 'Incorece secret', now(), now())");
+
     $msg = "<h1>Go to our <a href='https://www.bartonphillips.com'>Home Page</a> or just Go Way.</h1>";
     $err = "GoAway";
-    error_log("goto.php $S->siteName: ip=$S->ip secret blp string incorrect, $query");
+    error_log("goto.php $S->siteName: ip=$S->ip secret blp string incorrect, query=$query");
   } else { // $c is 1
     $msg = null;
     $err = "OK";

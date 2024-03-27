@@ -28,6 +28,8 @@ PRIMARY KEY (`ip`,`agent`(254),`date`,`site`,`which`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 */
 
+define("ROBOT_VERSION", 2.0.0);
+
 $_site = require_once(getenv("SITELOADNAME"));
 $_site->noTrack = true;
 $_site->noGeo = true;
@@ -77,8 +79,8 @@ try {
 // BLP 2021-11-12 -- 2 is for seen by robots.php.
 // BLP 2021-12-26 -- bots2 primary key is 'ip, agent, date, site, which'
 
-$S->sql("insert into $S->masterdb.bots2 (ip, agent, date, site, which, count, lasttime) ".
-        "values('$ip', '$agent', now(), '$S->siteName', $rob, 1, now()) ".
+$S->sql("insert into $S->masterdb.bots2 (ip, agent, page, date, site, which, count, lasttime) ".
+        "values('$ip', '$agent', 'robots', now(), '$S->siteName', $rob, 1, now()) ".
         "on duplicate key update count=count+1, lasttime=now()");
 
 // Insert or update logagent
@@ -86,3 +88,8 @@ $S->sql("insert into $S->masterdb.bots2 (ip, agent, date, site, which, count, la
 $S->sql("insert into $S->masterdb.logagent (site, ip, agent, count, created, lasttime) values('$S->siteName', '$ip', '$agent', 1, now(), now()) ".
         "on duplicate key update count=count+1, lasttime=now()");
 
+// Add to tracker
+
+$S->sql("insert into $S->masterdb.tracker(site, ip, page, agent, botAs, starttime, lasttime) ".
+        "values('$S->siteName', '$ip', 'robots.php', '$agent', 'robots',  now(), now()) ".
+        "on duplicate key update botAs=botAs+',robot', lasttime=now()");
