@@ -28,7 +28,7 @@ PRIMARY KEY (`ip`,`agent`(254),`date`,`site`,`which`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 */
 
-define("ROBOT_VERSION", 2.0.0);
+define("ROBOT_VERSION", '2.0.0');
 
 $_site = require_once(getenv("SITELOADNAME"));
 $_site->noTrack = true;
@@ -42,9 +42,9 @@ if(!file_exists($S->path . "/robots.txt")) {
   exit();
 }
 
-$robots = file_get_contents($S->path."/robots.txt");
+$robots = file_get_contents("./robots.txt");
 header("Content-Type: text/plain");
-echo $robots . "# From robots.php\n";
+echo $robots . "\n# From robots.php\n";
 
 if($S->isMe()) return;
 

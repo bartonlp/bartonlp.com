@@ -1,16 +1,21 @@
 <?php
 // Does all of the AJAX for webstats.js
 // The main program is webstats.php
+// BLP 2024-07-12 - Trying API from ip2location.io
 
 // https://ipinfo.io/account/home for access key etc.
 // https://ipinfo.io/developers for developer api information.
 
-use ipinfo\ipinfo\IPinfo; 
+use ipinfo\ipinfo\IPinfo; // This package was loaded via 'composer ipinfo/ipinfo'
 
-$_site = require_once(getenv("SITELOADNAME"));
+$_site = require_once(getenv("SITELOADNAME")); // This will get all of the classes including any others loaded by composer. It also gets helper-function.php
+
+// Don't track or geo!
+
 $_site->noTrack = $_site->noGeo = true;
 
 // Turn an ip address into a long. This is for the country lookup
+// BLP 2024-07-12 - If I am using the ip2location API this is not needed!
 
 function Dot2LongIP($IPaddr) {
   if(strpos($IPaddr, ":") === false) {
@@ -50,6 +55,10 @@ if($list = $_POST['list']) {
 
   $ar = array();
 
+  /* BLP 2024-07-12 - This is the old code that uses the database.
+   *  The new code (below) uses an API from ip2location to do the same thing.
+  */
+  /*--------------
   foreach($list as $ip) {
     $iplong = Dot2LongIP($ip);
     if(strpos($ip, ":") === false) {
@@ -66,7 +75,29 @@ if($list = $_POST['list']) {
     
     $ar[$ip] = $name;
   }
+  
+  $ret = json_encode($ar);
+  -----------------*/
 
+
+  // BLP 2024-07-12 - Try this API from ip2location
+  
+  //$cnt = 0; // For testing
+  //$rj = ''; 
+
+  $key = require_once "/var/www/PASSWORDS/Ip2Location-key";
+  
+  foreach($list as $ip) {
+    if(($json = file_get_contents("https://api.ip2location.io/?key=$key&ip=$ip")) === false) exit("ip2location failed");
+    $info = json_decode($json, true);
+    //$rj .= "$json\n";
+    $ar[$ip] = "{$info['country_code']}<p class='country-name'>{$info['country_name']}<br>region: {$info['region_name']}<br>city: {$info['city_name']}</p>";
+    //++$cnt;
+  }
+  //error_log("webstats-ajax.php: ip2location api raw json:\n$rj");
+  //error_log("webstats-ajax.php: ip2location api count=$cnt");
+  // BLP 2024-07-12 - End of try this from ip2location api
+  
   $ret = json_encode($ar);
   echo $ret;
   exit();

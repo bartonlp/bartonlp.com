@@ -73,7 +73,7 @@ img[alt="DigitalOcean"] {
         vertical-align: middle;
 }
 img[alt="Apache"] {
-        width: 400px;
+        width: 300px; /* BLP 2024-05-17 - change from 400 to better fit phones */
         height: 148px;
 }
 img[alt="PHP Powered"], img[alt="Powered by MySql"] {
@@ -148,7 +148,7 @@ $top
     </a>
 	</p>
 </div>
-<p><a href="https://bartonphillips.net/webstats.php?blp=8653&site=$site">Web Statistics for $site</a></p>
+<p><a href="https://bartonphillips.net/webstats.php?blp=8653&site=$webdomain">Web Statistics for $site</a></p>
 </div>
 $footer
 EOF;

@@ -42,6 +42,7 @@ $checktracker = CHECKTRACKER; // BLP 2023-10-20 - Added by checktracker2.php
 // BLP 2023-10-17 - inlineScript to set up the javascript constants
 
 $S->h_inlineScript = <<<EOF
+// Start h_inlineScript from setupjava.i.php
 const myIp = $myIp1;
 const homeIp = $homeIp1;
 const mask = $mask;
@@ -51,6 +52,7 @@ const tracker = {
   "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
   "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway", "$checktracker": "ADDED"
 };
+// End setupjava.i.php
 EOF;
 
 // BLP 2023-10-17 - END Set up the JavaScript

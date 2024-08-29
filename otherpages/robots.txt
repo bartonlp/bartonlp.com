@@ -2,4 +2,4 @@ user-agent: *
 allow: /index.php
 disallow: /
 
-Sitemap: http://www.bartonphillips.com/Sitemap.xml
+Sitemap: http://www.bartonlp.com/Sitemap.xml

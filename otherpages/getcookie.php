@@ -15,7 +15,6 @@
 $_site = require_once(getenv("SITELOADNAME"));
 
 // We set these up so we have a generic look not tied to a website.
-
 $_site->headFile = "/var/www/bartonphillips.com/includes/head.i.php";
 $_site->bannerFile = "/var/www/bartonphillips.com/includes/banner.i.php";
 $_site->footerFile = "/var/www/bartonphillips.com/includes/footer.i.php";
@@ -23,11 +22,13 @@ $_site->defaultCss = null; // Normal default blp.csss
 $_site->base = null; // no base
 $_site->trackerImg1 = "/images/blp-image.png"; // my photo
 $_site->trackerImg2 = null; // blank
+
+$_site->noGeo = true;
 $_site->noTrack = true;
 
 // We will get the things like copyright, author, desc etc.
 
-$S = new $_site->className($_site);
+$S = new SiteClass($_site);
 
 // POST from the 'form' with the siteNames.
 // We need to use a symlink in each of these directories to be able to get the $_COOKIE correctly
@@ -48,13 +49,6 @@ if(isset($_POST['submit'])) {
     case 'Newbernzig':
       header("Location: https://www.newbernzig.com/getcookie.php");
       break;
-    case 'Allnatural':
-      header("Location: https://www.allnaturalcleaningcompany.com/getcookie.php");
-      break;
-    // BLP 2023-08-12 - not sure if this will work?  
-    //case 'bartonhome':
-    //  header("Location: https://www.bartonphillips.org/getcookie.php");
-    //  break;
     case 'Bonnieburch':
       header("Location: https://www.bonnieburch.com/getcookie.php");
       break;
@@ -80,7 +74,7 @@ $S->css =<<<EOF
         padding: .3rem;
         background-color: #8dbdd8;
 }
-
+.country-name { font-size: 16px; margin-top: 0px; }
 #members {
   margin: 10px 0;
 }
@@ -150,11 +144,13 @@ $S->css =<<<EOF
 }
 @media (max-width: 850px) {
   html { font-size: 10px; }
+  .country-name { display: none; }
 }
 @media (hover: none) and (pointer: coarse) {
   html { font-size: 10px; }
   #resetmsg { padding-inline-start: 5px; }
-  #members td { width: 50px; };  
+  #members td { width: 50px; }
+  .country-name { display: none; }
   /* mygeo is the table */
   #mygeo td {
     padding: 2px 2px 2px 5px;
@@ -220,8 +216,8 @@ EOF;
 
 $T = new dbTables($S);
 
-if($S->siteName != "bartonhome") {
-  $sql = "select ip, name, email, finger, count, created, lasttime from bartonphillips.members"; // BLP 2023-10-12 - added ip to members table.
+if($S->siteName != "BartonphillipsOrg") {
+  $sql = "select ip, name, email, finger, count, created, lasttime from bartonphillips.members order by lasttime desc"; // BLP 2023-10-12 - added ip to members table.
 
   [$members] = $T->maketable($sql, array('attr'=>array('border'=>'1', 'id'=>'members')));
   $members = <<<EOF
@@ -340,9 +336,7 @@ $top
     <option>Bartonphillips</option>
     <option>Tysonweb</option>
     <option>Newbernzig</option>
-    <option>Allnatural</option>
     <option>Bonnieburch</option>
-    <option>bartonhome</option>
   </select>
 
   <button type="submit" name='submit'>Submit</button>

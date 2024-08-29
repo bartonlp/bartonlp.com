@@ -4,7 +4,7 @@
 // logagent.
 // NOTE: this can only be run with mysqli or PDO using engine mysql!
 
-define("SITEMAP_VERSION", 2.0.0);
+define("SITEMAP_VERSION", '2.0.0');
 
 $_site = require_once(getenv("SITELOADNAME"));
 $_site->noTrack = true;
@@ -13,12 +13,12 @@ $S = new Database($_site);
 
 $map = BOTS_SITEMAP;
 
-if(!file_exists($S->path . "/Sitemap.xml")) {
+if(!file_exists("./Sitemap.xml")) {
   echo "<h1>404 - FILE NOT FOUND</h1>";
   exit();
 }
 
-$sitemap = file_get_contents($S->path."/Sitemap.xml");
+$sitemap = file_get_contents("./Sitemap.xml");
 header("Content-Type: application/xml");
 echo $sitemap  . "<!-- From sitemap.php -->";
 

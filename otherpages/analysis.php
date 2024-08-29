@@ -398,7 +398,6 @@ EOF;
 <form method="post" action="analysis.php">
   Get Site: 
   <select name='site'>
-    <option>Allnatural</option>
     <option>Bartonphillips</option>
     <option>BartonlpOrg</option>
     <option>Tysonweb</option>

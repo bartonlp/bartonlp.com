@@ -1,52 +1,54 @@
 <?php
-// BLP 2022-05-01 - Major rework. This now is in https://bartonlp.com/otherpages/webstats.php. I no
+// This now is in https://bartonlp.com/otherpages/webstats.php. I no
 // longer use symlinks and the cumbersom rerouting logic is gone. Now webstats.php is called with
-// ?blp=8653&site={sitename}. The GET grabs the site and puts it into $site. The post is called via
+// ?blp=8653&site={siteDomain}. The GET grabs the site and puts it into $site. The post is called via
 // the <select> and grabs the site a location header call which in turn does a new GET.
-// Once the site is setup by the GET we get $_site and set $_site->siteName to $site.
 // This file still uses webstats.js and webstats-ajax.php.
-// BLP 2023-10-20 - This uses setupjava.i.php to pass the variable needed to the javascript.
+// This uses setupjava.i.php to pass the variable needed to the javascript.
 // setupjava.i.php loads defines.php which has all the defines.
 
-// IMPORTANT: mysitemap.json sets 'noGeo' true so we do not load it in SiteClass::getPageHead()
+// IMPORTANT: we force 'noGeo' true so we do not load it in SiteClass::getPageHead()
 // We use map.js instead of geo.js
 
 //$DEBUG = true;
 
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
+if($site = $_GET['site']) { // $_GET['site'] is the siteDomain from mysitemap.json
+  $_site = require_once getenv("SITELOADNAME"); // Get the $_site for bartonlp.com/otherpages
+
+  // Now we need to add https:// if it is not already there.
+  
+  if(!str_contains($site, "https://")) $site = "https://$site";
+
+  // BLP 2024-05-03 - see .htaccess for removal of RewriteRule.
+  // Get the mysitemap.json from the siteDomain that called webstats.
+
+  $s = json_decode(stripComments(file_get_contents("$site/mysitemap.json")));
+
+  $_site->siteName = $s->siteName; // Get the siteName
+  $_site->memberTable = $s->memberTable; // and memberTable
+  
+  $specialDate = $_GET['date'];
+
+  $_site->noGeo = true; // Don't do geo.js
+}
 
 // This function does a RAW mysqli insert (or what ever is in $sql) but it does not return anything.
 
 function insertMysqli($sql):void {
-  global $_site;
+  // Get the password and force the host, user and database.
   
-  $i = $_site->dbinfo;
   $p = require("/home/barton/database-password");
-  $mysqli = new mysqli($i->host, $i->user, $p, 'barton');
-
+  $mysqli = new mysqli('localhost', 'barton', $p, 'barton');
   $mysqli->query($sql);
-}
-
-// The GET is set by the POST below or from another of my sites that calls
-// webstats.php?site=sitename.
-
-if($_GET['site']) {
-  $site = $_GET['site'];
-  $specialDate = $_GET['date'];
 }
 
 // If someone does a <select> below of a siteName it comes here. I then do a GET with the sitename.
 
 if(isset($_POST['submit'])) {
-  $site = $_POST['site'];
+  $site = $_POST['site']; // site is the siteDomain!
   header("location: webstats.php?blp=8653&site=$site");
   exit();
 }
-
-// Now set siteName to $site from the GET.
-
-$_site->siteName = $site;
 
 // Gather info in case of an error.
 
@@ -56,7 +58,7 @@ $xref = $_SERVER['HTTP_REFERER'];
 $xip = $_SERVER['REMOTE_ADDR'];
 
 if(empty($site)) {
-  error_log("webstats.php ERROR: $xip, $xsite, site=NONE, ref=$xref, agent=$xagent");
+  error_log("*** webstats.php \$site empty: $xip, $xsite, site=NONE, sql=$sql, ref=$xref, agent=$xagent");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -64,9 +66,7 @@ if(empty($site)) {
                "values('$xip', '$xsite', 'webstats', 'counted', 1, 'NO_SITE', -200, 'NO site', '$xagent', now(), now()) ".
                "on duplicate key update count=count+1, lasttime=now()");
   
-  echo <<<EOF
-<h1>GO AWAY</h1>
-EOF;
+  echo "<h1>This Page is Restricted (\$site empty)</h1>";
   exit();
 }
 
@@ -74,20 +74,29 @@ if($DEBUG) $hrStart = hrtime(true);
 
 // Wrap this in a try to see if the constructor fails
 
-$_site->noTrack = $_site->noGeo = true; // BLP 2023-11-22 - Don't track or do geolocation.
-
 try {
+  ErrorClass::setDevelopment(true);
+  
   $S = new SiteClass($_site);
-  // BLP 2023-10-18 - This require sets up the constants needed by webstats.js.
-  // It requires the defines.php
 
-  require_once("./setupjava.i.php");
-  $S->h_inlineScript .= "var thedate = '$specialDate';";
+  // BLP 2023-10-18 - This require sets up the constants needed by webstats.js.
+
+  require_once("/var/www/bartonlp.com/otherpages/setupjava.i.php");
+
+  // NOTE: $S->h_inlineScript has already been set in setupjava.i.php
+  // so this must be an addition ".=".
+
+  $S->h_inlineScript .= <<<EOF
+
+// Start h_inlineScript webstats.php
+var thedate = '$specialDate';
+// End h_inlineScript
+EOF;
 } catch(Exception $e) {
   $errno = $e->getCode();
   $errmsg = $e->getMessage();
   $sql = dbMySqli::$lastQuery;
-  error_log("webstat.php constructor FAILED: $xip, $xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg, agent=$xagent");
+  error_log("*** webstat.php constructor FAILED: $xip, $xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg, agent=$xagent");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -99,7 +108,7 @@ try {
                "values('$xip', '$xsite', 'webstats', 'counted', 1, 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now()) ".
                "on duplicate key update count=count+1, lasttime=now()");
   
-  echo "<h1><i>This Page is Restricted.</i></h1>"; // These are all different so I can find them.
+  echo "<h1><i>This Page is Restricted (constructor FAILED).</i></h1>"; // These are all different so I can find them.
   exit();
 }
 
@@ -127,8 +136,8 @@ if($_GET['blp'] != '8653') error_log("*** webstats.php: ip=$S->ip, site=$S->site
 // At this point I know that blp was not empty. It does not have 8653 but but the ip is one of my ips (in $S->myIp).
 
 if($S->isBot) {
-  error_log("webstats.php: $S->siteName $S->self Bot Restricted, blp={$_GET['blp']} exit: $S->foundBotAs, IP=$S->ip, agent=$S->agent, line=" . __LINE__);
-  echo "<h1>This Page is Restricted</h1>"; // These are all different so I can find them.
+  error_log("*** webstats.php: $S->siteName $S->self Bot Restricted, blp={$_GET['blp']} exit: $S->foundBotAs, IP=$S->ip, agent=$S->agent, line=" . __LINE__);
+  echo "<h1>This Page is Restricted (isBot)</h1>"; // These are all different so I can find them.
   exit();  
 }
 
@@ -146,6 +155,8 @@ $S->css = <<<EOF
   max-width: 150px;
   white-space: pre;
 }
+/* This is part of the info from webstats-ajax.php. This is the <p> */
+.country-name { font-size: 14px; margin: -5px; margin-left: 0px; }
 EOF;
 
 // BLP 2023-10-17 - add these in the <head>
@@ -154,12 +165,17 @@ $S->h_script = <<<EOF
 <script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
 EOF;
 
-// BLP 2023-10-17 - add these after <footer>
+// IMPORTANT NOTE: BLP 2024-04-28 - 
+//   We have restricted the google maps key to our websites. The information on the credentials
+//   page is WRONG! You can NOT do '*.example.com". It doesn't seem to work. I have the base URL
+//   and then the CNAME www.
+//   The gooble maps page is: https://console.cloud.google.com/apis/credentials?project=barton-1324
 
 $S->b_script = <<<EOF
 <script src='https://bartonlp.com/otherpages/js/webstats.js'></script>
 <script src="https://bartonphillips.net/js/maps.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&callback=initMap&v=weekly" async></script>
+<!-- The gooble maps key is restricted to my websites. Therefore this is not a leaked secret -->  
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GtUwyWp3wnFH1iNkvdO9EO6ClRr_pWo&loading=async&callback=initMap&v=weekly" async></script>
 EOF;
 
 $today = date("Y-m-d");
@@ -533,20 +549,17 @@ $form = <<<EOF
 <form action="webstats.php" method="post">
   Select Site:
   <select id="select" name='site'>
-    <option>Allnatural</option>
-    <option>BartonlpOrg</option>
-    <option>Bartonphillips</option>
-    <option>Tysonweb</option>
-    <option>Newbernzig</option>
-    <option>Swam</option>
-    <option>BartonphillipsOrg</option>
-    <option>Rpi</option>
-    <option>Bonnieburch</option>
-    <option>Bridgeclub</option>
-    <option>Marathon</option>
-    <option>Bartonphillipsnet</option>
-    <option>JT-Lawnservice</option>
-    <option>Littlejohnplumbing</option>
+    <option value="https://bartonlp.org">BartonlpOrg</option>
+    <option value="https://bartonphillips.com">Bartonphillips</option>
+    <option value="https://newbern-nc.info">Tysonweb</option>
+    <option value="https://newbernzig.com">Newbernzig</option>
+    <option value="https://swam.us">Swam</option>
+    <option value="https://bonnieburch.com">Bonnieburch</option>
+    <option value="https://bonnieburch.com/bridgeclub">Bridgeclub</option>
+    <option value="https://bonnieburch.com/marathon">Marathon</option>
+    <option value="https://bartonphillips.net">Bartonphillipsnet</option>
+    <option value="https://jt-lawnservice.com">JT-Lawnservice</option>
+    <option value="https://littlejohnplumbing.com">Littlejohnplumbing</option>
   </select>
 
   <button type="submit" name='submit'>Submit</button>
@@ -555,8 +568,8 @@ EOF;
 
 // BLP 2021-06-23 -- Only bartonphillips.com has a members table.
 
-if($S->memberTable) {
-  $sql = "select name, email, ip, agent, count, created, lasttime from $S->memberTable";
+if($S->siteName == "Bartonphillips") {
+  $sql = "select name, email, ip, finger, count, created, lasttime from bartonphillips.members";
 
   $tbl = $T->maketable($sql, array('attr'=>array('id'=>'members', 'border'=>'1')))[0];
 
