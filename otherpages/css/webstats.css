@@ -1,0 +1,328 @@
+/*
+  For webstats.php. It lives in tysonweb and is sym linked to others
+  BLP 2021-03-22 -- added @media for hover and pointer to figure out what is a smartphone
+  Also moved stuff from the analysis.php to here.
+  BLP 2021-03-15 -- remove relative from mail.
+*/
+
+body { margin: 10px; }
+main {
+  width: 100%;
+}
+button {
+  border-radius: .5rem;
+  font-size: 1.2em;
+  margin-bottom: .5rem;
+}
+th, td {
+  padding: .5rem;
+}
+/* 'tables' is not a real HTML tag but css allows it. See <tables> in code */  
+tables ul { margin-top: 0; }
+th, td {
+  padding: .5rem;
+}
+/* 'tables' is not a real HTML tag but css allows it. See <tables> in code */  
+tables ul { margin-top: 0; }
+
+#select { font-size: 1.2em; }
+/* The country of the ip */
+.country {
+  border: 1px solid black;
+  padding: .3rem;
+  background-color: #8dbdd8;
+}
+/* The value in table 1 */
+.blpip {
+  color: red;
+}
+/* No New Data found in table */
+.noNewData {
+  color: red;
+}
+/* The rows with my ip address */
+.blp-row {
+  color: red;
+}
+/* container for logagent, tracker, bots, bots2 */
+.scrolling {
+  height: 800px;
+  border: 1px solid black;
+  overflow: auto;
+}
+/* #ajax is for isJavaScript that has done ajax */
+#ajax { color: red; }
+/* For the human readable information.
+   We need these two relative so the pop up is in the right place.
+*/
+#tracker, #robots {
+  position: relative;
+}
+#getrefid { position: relative; width: 100%; }
+#getrefid td:nth-of-type(3) { width: 200px; word-break: break-all; }
+.home {
+  color: white;
+  background: green;
+  padding: 0 5px;
+}
+.inmyip {
+  color: black;
+  background: lightgreen;
+  padding: 0 5px;
+}
+/* The foundBotAs field in tracker agent */
+.botas {
+  color: black;
+  background: lightgreen;
+  padding: 0 5px;
+}
+#mygeo td {
+  padding: 10px;
+  cursor: pointer;
+}
+#geocontainer {
+  width: 100%;
+  height: 100%;
+  border: 5px solid black;
+  z-index: 100;
+}
+#showMe, #showAll {
+  border-radius: 5px;
+  color: white;
+  background: green;
+  padding: 2px;
+}
+#removemsg {
+  color: white;
+  background: red;
+  border-radius: 5px;
+  padding: 2px;
+  margin: 2px 0 2px 2px;
+  z-index: 100;
+}
+#outer {
+  display: none;
+  position: absolute;
+  background: white;
+  z-index: 99;
+  padding-bottom: 30px;
+}
+/* make the 'count' and 'bots' row as small as posible. It will be as big as the elements in it. */
+#robots td:nth-of-type(4) { width: 1px; text-align: right; padding-right: 10px; }
+#robots td:nth-of-type(3) { width: 1px; text-align: right; padding-right: 10px; }
+#counter td:first-child {
+        word-break: break-all;
+        width: 40rem;
+}
+#counter2 td:first-child {
+        word-break: break-all;
+        width: 40rem;
+}
+/* all to left */
+#daycount * {
+        text-align: right;
+        font-size: .9rem;
+}
+#tracker {
+        width: 100%;
+}
+/* first-child=ip */
+#tracker td:first-child:hover {
+        cursor: pointer;
+}
+/* 1=ip */
+#tracker td:first-child {
+        width: 10rem;
+}
+/* 2=page */
+#tracker td:nth-child(2):hover {
+        cursor: pointer;
+}
+/* 2=page */
+#tracker td:nth-child(2) {
+        width: 25rem;
+        word-break: break-all;
+}
+/* 3=finger */
+#tracker td:nth-child(3) {
+  width: 10rem;
+}
+/* 4=agent */
+#tracker td:nth-child(4) {
+        width: 40rem;
+        word-break: break-all;
+}
+/* 6=starttime, 7=endtime */
+#tracker td:nth-child(6), #tracker td:nth-child(6) {
+        width: 10rem;
+}
+/* 8=difftime */
+#tracker td:nth-child(8) {
+        width: 5rem;
+}
+/* 9=js */
+#tracker td:nth-child(9) {
+        width: 1rem;
+}
+/* 10=id */
+/*#tracker td:nth-of-type(10) {
+        width: 12rem;
+}*/
+/* 9=js */
+#tracker td:nth-of-type(9):hover {
+  cursor: pointer;
+}
+div {
+        padding: .5rem 0;
+}
+/* bots table */
+#robots {
+        width: 100%;
+}
+#robots td {
+        width: 5rem;
+}
+/* 2=agent */
+#robots td:nth-child(2) {
+        font-size: .7em;
+        width: 20rem;
+        word-break: break-all;
+}
+/* 3=bots */
+#robots td:nth-child(3) {
+        width: 1rem;
+}
+/* bots2 table */
+#robots2 {
+        width: 100%;
+}
+/* ip */
+#robots2 td:first-child {
+        word-break: break-all;
+        width: 10rem;
+}
+/* agent */
+#robots2 td:nth-child(2) {
+        font-size: .7em;
+        word-break: break-all;
+        width: 40rem;
+}
+/* which */
+#robots2 td:nth-child(3) {
+  width: 1px;
+  padding-left: 10px;
+}
+/* count */
+#robots2 td:nth-child(4) {
+  width: 1px;
+}
+#showhide {
+        color: pink;
+}
+.botsshowhide {
+        color: pink;
+}
+/* 4=lasttime */
+#logagent td:nth-of-type(4) {
+        width: 8rem;
+}
+#logagent td:nth-of-type(2) {
+        width: 50rem;
+        overflow-wrap: anywhere;
+}
+/* make all tablesorter icoms bigger */
+table .header {
+        background-size: 1.2rem;
+}
+#ip, #page {
+        color: red;
+}
+.red { color: red; }
+
+/* For Analysis */
+.pure-table-striped tr:nth-child(2n-1) td {
+        background-color: inherit;
+}
+.pure-table-striped tbody {
+        background-color: #e0e0e0;
+}
+.pure-table-striped tbody tr:nth-child(2n+2) td {
+        background-color: pink;
+}
+.pure-table thead {
+        background-color: yellow;
+}
+#os1, #os2, #browser1, #browser2 {
+        font-size: 1rem;
+}
+/* make the tablesorter icons bigger */
+#os1 thead th:first-child, #os2 thead th:first-child,
+#browser1 thead th:first-child, #browser2 thead th:first-child {
+        padding: .5rem 2rem .5rem 2rem;
+}
+#os1 td:nth-child(2), #browser1 td:nth-child(2),
+#os2 td:nth-child(2), #browser2 td:nth-child(2),
+#os1 td:nth-child(3), #browser1 td:nth-child(3),
+#os2 td:nth-child(3), #browser2 td:nth-child(3),
+#os1 td:nth-child(4), #browser1 td:nth-child(4),
+#os2 td:nth-child(4), #browser2 td:nth-child(4) {
+        text-align: right;
+}
+.AlignTop {
+        vertical-align: top;
+}
+.pure-table thead {
+        vertical-align: middle;
+}
+.HeaderRow th {
+        padding: 20px 10px;
+}
+/* End Analysis */
+
+.location, #tracker td:nth-of-type(3) { cursor: pointer; }
+#tracker td:nth-of-type(2),#tracker td:nth-of-type(3),#tracker td:nth-of-type(4) {
+  overflow-x: auto;
+  max-width: 150px;
+  white-space: pre;
+}
+/* This is part of the info from webstats-ajax.php. This is the <p> */
+.country-name { font-size: 14px; margin: -5px; margin-left: 0px; }
+
+/* Media settings */
+
+@media (max-width: 800px) {
+  .scrolling {
+    height: 450px;
+  }
+}
+@media (max-width: 600px) {
+  #logagent th:nth-of-type(3) {
+    overflow-wrap: anywhere;
+  }
+  #logagent td:nth-of-type(3) {
+    width: 2%;
+  }
+}
+@media (max-width: 850px) {
+  html { font-size: 10px; }
+  #geocontainer {
+    width: 360px;
+    height: 360px;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  html { font-size: 10px; }
+  #resetmsg { padding-inline-start: 5px; }
+  #members td { width: 50px; };  
+  /* mygeo is the table */
+  #mygeo td {
+    padding: 2px 2px 2px 5px;
+    width: 50px;
+  }
+  /* geo is the div for the image */
+  #geocontainer {
+    width: 360px;
+    height: 360px;
+  }
+}
+

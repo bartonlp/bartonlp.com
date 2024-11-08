@@ -77,26 +77,24 @@ if($list = $_POST['list']) {
   }
   
   $ret = json_encode($ar);
+  echo $ret;
+  exit();
   -----------------*/
 
-
   // BLP 2024-07-12 - Try this API from ip2location
+  // BLP 2024-09-01 - This new API seems to work Okay.
+  // If for some reason this stops working the code above can be uncommented and this code can be
+  // commented OUT. Also, the two tables, ipcontry and ipcontry6, must be up to date. See the two
+  // programs at /var/www/ upload.sh and upload6.sh.
   
-  //$cnt = 0; // For testing
-  //$rj = ''; 
-
   $key = require_once "/var/www/PASSWORDS/Ip2Location-key";
   
   foreach($list as $ip) {
     if(($json = file_get_contents("https://api.ip2location.io/?key=$key&ip=$ip")) === false) exit("ip2location failed");
     $info = json_decode($json, true);
-    //$rj .= "$json\n";
+
     $ar[$ip] = "{$info['country_code']}<p class='country-name'>{$info['country_name']}<br>region: {$info['region_name']}<br>city: {$info['city_name']}</p>";
-    //++$cnt;
   }
-  //error_log("webstats-ajax.php: ip2location api raw json:\n$rj");
-  //error_log("webstats-ajax.php: ip2location api count=$cnt");
-  // BLP 2024-07-12 - End of try this from ip2location api
   
   $ret = json_encode($ar);
   echo $ret;

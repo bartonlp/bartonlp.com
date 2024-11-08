@@ -141,22 +141,11 @@ if($S->isBot) {
   exit();  
 }
 
+// newtblsort.css has only .tablesorter... items.
+
 $S->link = <<<EOF
   <link rel="stylesheet" href="https://bartonphillips.net/css/newtblsort.css">
-  <link rel="stylesheet" href="https://bartonphillips.net/css/webstats.css"> 
-EOF;
-
-// css for the gps location in ipinfo
-
-$S->css = <<<EOF
-.location, #tracker td:nth-of-type(3) { cursor: pointer; }
-#tracker td:nth-of-type(2),#tracker td:nth-of-type(3),#tracker td:nth-of-type(4) {
-  overflow-x: auto;
-  max-width: 150px;
-  white-space: pre;
-}
-/* This is part of the info from webstats-ajax.php. This is the <p> */
-.country-name { font-size: 14px; margin: -5px; margin-left: 0px; }
+  <link rel="stylesheet" href="./css/webstats.css"> 
 EOF;
 
 // BLP 2023-10-17 - add these in the <head>
@@ -221,7 +210,9 @@ $geotbl = <<<EOF
     <button id="removemsg">Click to remove map image</button>
   </div>
   <p id="geomsg"></p>
+  <div class="scrolling">
   $tbl
+  </div>
 </div>
 EOF;
 
@@ -315,6 +306,12 @@ $tbl = $T->maketable($sql, array('attr'=>array('border'=>'1', 'id'=>'counter')))
 
 if(!$tbl) {
   $tbl = "<h3 class='noNewData'>No New Data Today</h2>";
+} else {
+  $tbl =<<<EOF
+<div class="scrolling">
+$tbl
+</div>
+EOF;
 }
 
 if($S->reset) {
@@ -326,9 +323,7 @@ $page .= <<<EOF
 <a href="#table5">Next</a>
 <h4>Showing $S->siteName grand TOTAL hits since last reset $reset for pages viewed today</h4>
 <p>'real' is the number of non-bots and 'bots' is the number of robots.</p>
-<div class="scrolling">
 $tbl
-</div>
 EOF;
 
 // 'count' is actually the number of 'Real' vs 'Bots'. A true 'count' would be Real + Bots.
@@ -341,6 +336,12 @@ $tbl = $T->maketable($sql, array('attr'=>array('border'=>'1', 'id'=>'counter2'))
 
 if(!$tbl) {
   $tbl = "<h3 class='noNewData'>No New Data Today</h2>";
+} else {
+  $tbl =<<<EOF
+<div class="scrolling">
+$tbl
+</div>
+EOF;
 }
   
 $page .= <<<EOF
@@ -559,7 +560,6 @@ $form = <<<EOF
     <option value="https://bonnieburch.com/marathon">Marathon</option>
     <option value="https://bartonphillips.net">Bartonphillipsnet</option>
     <option value="https://jt-lawnservice.com">JT-Lawnservice</option>
-    <option value="https://littlejohnplumbing.com">Littlejohnplumbing</option>
   </select>
 
   <button type="submit" name='submit'>Submit</button>
@@ -584,7 +584,7 @@ if($S->siteName == "Bartonphillips") {
   $mtbl = <<<EOF
 <h2 id="table10">From table <i>$S->memberTable</i></h2>
 $togeo
-<div id="memberstable">
+<div id="memberstable" class="scrolling">
 $tbl
 </div>
 EOF;

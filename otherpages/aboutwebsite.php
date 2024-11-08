@@ -1,5 +1,4 @@
 <?php
-// BLP 2023-02-25 - use new approach
 // All sites that have an "About Website" link should have a symlink
 // to /var/www/bartonlp.com/otherpages/aboutwebsite.php
   
@@ -39,10 +38,11 @@ $prefix = $_SERVER['HTTPS'] == "on" ? 'https://' : 'http://';
 $webdomain = $prefix . $webdomain;
 
 $S->title = "About This Website and Server";
-$S->banner = "<h2 class='center'>About This Website and Server<br>($webdomain)</h2>";
+$S->banner = "<h2 class='center'>About This Website and Server<br><span id='banner-span'>($webdomain)</span></h2>";
 $S->css = <<<EOF
 img { border: 0; }
 /* About this website (aboutwebsite.php)  */
+
 #aboutWebSite {
         margin-left: auto;
         margin-right: auto;
@@ -73,8 +73,8 @@ img[alt="DigitalOcean"] {
         vertical-align: middle;
 }
 img[alt="Apache"] {
-        width: 300px; /* BLP 2024-05-17 - change from 400 to better fit phones */
-        height: 148px;
+        width: 400px; /* BLP 2024-05-17 - change from 400 to better fit phones */
+        /*height: 148px;*/
 }
 img[alt="PHP Powered"], img[alt="Powered by MySql"] {
         width: 150px;
@@ -84,10 +84,20 @@ img[alt="Best viewed with Mozilla or any other browser"] {
         width: 321px;
 }
 @media (max-width: 800px) {
+        #banner-span { font-size: 16px; }
         #runWith {
-          width: 94%;
+          width: 100%;
           margin: 0px;
         }
+        img[alt="Apache"] { width: 200px; }
+}
+@media (hover: none) and (pointer: coarse) {
+        #banner-span { font-size: 16px; }
+        #runWith {
+          width: 100%;
+          margin: 0px;
+        }
+        img[alt="Apache"] { width: 200px; }
 }
 EOF;
 
