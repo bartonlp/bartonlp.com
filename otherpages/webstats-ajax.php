@@ -81,8 +81,6 @@ if($list = $_POST['list']) {
   exit();
   -----------------*/
 
-  // BLP 2024-07-12 - Try this API from ip2location
-  // BLP 2024-09-01 - This new API seems to work Okay.
   // If for some reason this stops working the code above can be uncommented and this code can be
   // commented OUT. Also, the two tables, ipcontry and ipcontry6, must be up to date. See the two
   // programs at /var/www/ upload.sh and upload6.sh.

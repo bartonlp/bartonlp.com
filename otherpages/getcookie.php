@@ -30,6 +30,22 @@ $_site->noTrack = true;
 
 $S = new SiteClass($_site);
 
+// Ajax for getcookie.php
+
+if($_POST['page'] == 'reset') {
+  $cookie = $_POST['name'];
+
+  if($S->setSiteCookie($cookie, '', -1) === false) {
+    error_log("geoAjax.php: remove cookie Error");
+    echo "geoAjax.php: remove cookie Error";
+  } else {
+    //error_log("geoAjax.php: remove cookie OK");
+    echo "geoAjax.php: remove cookie OK";
+  }
+ 
+  exit();
+}
+
 // POST from the 'form' with the siteNames.
 // We need to use a symlink in each of these directories to be able to get the $_COOKIE correctly
 
@@ -207,6 +223,27 @@ function getcountry() {
   });
 }
 getcountry();
+
+// Only used in getcookie.php
+
+$(".reset").on("click", function() {
+  let cookieName = $('span', this).text();
+  let self = this; // pass this into the ajax
+
+  $.ajax({
+    url: 'getcookie.php',
+    data: { page: 'reset', name: cookieName },
+    type: 'post',
+    success: function(data) {
+      console.log("return: " + data);
+      $(self).parent().remove();
+    },
+    error: function(err) {
+      console.log(err);
+    }
+  });
+});
+
 </script>
 EOF;
 

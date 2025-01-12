@@ -16,30 +16,6 @@ $_site = require_once(getenv("SITELOADNAME"));
 
 $mysite = $_POST['mysitemap'];
 
-$tmp = $_site->dbinfo->host; // BLP 2023-09-10 -
-
-unset($_site);
-
-if(str_contains($mysite, "bartonphillips.org")) {
-  $port = null;
-  if(str_contains($mysite, ":8000")) {
-    $port = ":8000";
-  }
-  $mysite = preg_replace("~/var/www/(.*?)/~", "https://bartonphillips.org$port/", $_POST['mysitemap']);
-}
-  
-//error_log("*** geoAjax.php: mysite=$mysite");
-
-$_site = json_decode(stripComments(file_get_contents($mysite)));
-
-if($_site === null) {
-  error_log("*** geoAjax.php: \$_site is NULL");
-  echo "ERROR \$_site is NULL";
-  exit();
-}
-
-$_site->dbinfo->host = $tmp; // BLP 2023-09-10 -
-
 //$ip = $_SERVER['REMOTE_ADDR'];
 //if($ip != "195.252.232.86") error_log("*** geoAjax.php: mysite=$mysite, site=$_site->siteName, ip=$ip, host=$tmp");
 
@@ -48,22 +24,6 @@ $_site->noTrack = true; // BLP 2023-09-10 - DO NOT TRACK. We will not load track
 $S = new SiteClass($_site);
 
 //$DEBUG = true;
-
-// Ajax for getcookie.php
-
-if($_POST['page'] == 'reset') {
-  $cookie = $_POST['name'];
-
-  if($S->setSiteCookie($cookie, '', -1) === false) {
-    error_log("geoAjax.php: remove cookie Error");
-    echo "geoAjax.php: remove cookie Error";
-  } else {
-    //error_log("geoAjax.php: remove cookie OK");
-    echo "geoAjax.php: remove cookie OK";
-  }
- 
-  exit();
-}
 
 // BLP 2021-10-07 -- AJAX for geo.js used in index.php for bartonphillips.com, tysonweb and
 // newbernzig.com (also bartonphillips.org on HP).

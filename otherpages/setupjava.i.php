@@ -11,7 +11,7 @@ if(!class_exists("Database")) header("location: https://bartonlp.com/otherpages/
 // BLP 2023-10-17 - START Set up the JavaScript
 
 $myIp = implode(",", $S->myIp);
-$homeIp = gethostbyname("bartonphillips.org");
+$homeIp = gethostbyname("bartonphillips.org"); // bartonphillips.org is my ip for Metronet at 1230 Pine Valley Dr.
 
 $myIp1 = '"'.$myIp.'"'; // BLP 2023-10-17 - make $myIp and $homeIp have quotes around them for javascript.
 $homeIp1 = '"'.$homeIp.'"';
@@ -39,6 +39,9 @@ $goto = TRACKER_GOTO; // Proxy
 $goaway = TRACKER_GOAWAY; // unusal tracker.
 $checktracker = CHECKTRACKER; // BLP 2023-10-20 - Added by checktracker2.php
 
+$trackerRobots = TRACKER_ROBOTS; // BLP 2025-01-11 - new
+$trackerSitemap = TRACKER_SITEMAP; // BLP 2025-01-11 -
+
 // BLP 2023-10-17 - inlineScript to set up the javascript constants
 
 $S->h_inlineScript = <<<EOF
@@ -50,7 +53,8 @@ const robots = {"$robots": "Robots", "$siteclass": "BOT", "$sitemap": "Sitemap",
 const tracker = {
   "$start": "Start", "$load": "Load", "$normal": "Normal", "$noscript": "NoScript",
   "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
-  "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway", "$checktracker": "ADDED"
+  "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway", "$checktracker": "ADDED",
+  "$trackerRobots": "robots.txt", "$trackerSitemap": "sitemap.xml"
 };
 // End setupjava.i.php
 EOF;

@@ -1,1 +1,1 @@
-/var/www/vendor/bartonlp/site-class/includes/getVersions.php
+../../vendor/bartonlp/site-class/includes/getVersions.php

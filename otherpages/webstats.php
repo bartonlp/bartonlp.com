@@ -13,8 +13,9 @@
 //$DEBUG = true;
 
 if($site = $_GET['site']) { // $_GET['site'] is the siteDomain from mysitemap.json
-  $_site = require_once getenv("SITELOADNAME"); // Get the $_site for bartonlp.com/otherpages
-
+//  $_site = require_once getenv("SITELOADNAME"); // Get the $_site for bartonlp.com/otherpages
+  $_site = require_once "/var/www/site-class/includes/autoload.php";
+  
   // Now we need to add https:// if it is not already there.
   
   if(!str_contains($site, "https://")) $site = "https://$site";
@@ -320,34 +321,9 @@ if($S->reset) {
     
 $page .= <<<EOF
 <h2 id="table4">From table <i>counter</i> for today</h2>
-<a href="#table5">Next</a>
+<a href="#table6">Next</a>
 <h4>Showing $S->siteName grand TOTAL hits since last reset $reset for pages viewed today</h4>
 <p>'real' is the number of non-bots and 'bots' is the number of robots.</p>
-$tbl
-EOF;
-
-// 'count' is actually the number of 'Real' vs 'Bots'. A true 'count' would be Real + Bots.
-
-$sql = "select filename as Page, `real` as 'Real', bots as Bots, lasttime as LastTime ".
-"from $S->masterdb.counter2 ".
-"where site='$S->siteName' and lasttime >= current_date() order by lasttime desc";
-
-$tbl = $T->maketable($sql, array('attr'=>array('border'=>'1', 'id'=>'counter2')))[0];
-
-if(!$tbl) {
-  $tbl = "<h3 class='noNewData'>No New Data Today</h2>";
-} else {
-  $tbl =<<<EOF
-<div class="scrolling">
-$tbl
-</div>
-EOF;
-}
-  
-$page .= <<<EOF
-<h2 id="table5">From table <i>counter2</i> for today</h2>
-<a href="#table6">Next</a>
-<h4>Showing $S->siteName  number of hits TODAY</h4>
 $tbl
 EOF;
 
@@ -367,7 +343,25 @@ $meIp = rtrim($meIp, ',');
 $real = $bots = $ajax = $countTot = 0; // Total accumulators.
 $strAr = [];
 
-// Make the daycount.
+/**** Start make daycount. */
+
+$S->sql("select date(lasttime) ".
+        "from $S->masterdb.tracker ".
+        "where starttime>=current_date() - interval 7 day ".
+        "and site='$S->siteName' and not isJavaScript & ". TRACKER_BOT . // 0x200
+        " and isJavaScript != ".  TRACKER_ZERO . // 0
+        " and ip not in($meIp) group by ip,date(lasttime)");
+
+// There should be ONE UNIQUE ip per row. So count them into the date.
+
+$Visitors = 0;
+$visitorsAr = [];
+$i=0;
+
+while([$date] = $S->fetchrow('num')) {
+  ++$visitorsAr[$date];
+  ++$Visitors;
+}
 
 for($i=0; $i<7; ++$i) {
   $cntBots = $cntReal = $cntAjax = 0; // Local accumulators are reset each iteration.
@@ -399,39 +393,11 @@ for($i=0; $i<7; ++$i) {
     }
   }
 
+  $visitor = $visitorsAr[$dd] ?? 0;
+
   $count = $cntBots + $cntReal;
   $countTotal += $count;
-  $strAr[] = "<tr><td>$dd</td><td>$count</td><td>$cntReal</td><td>$cntBots</td><td>$cntAjax</td>";
-}
-
-$S->sql("select date(lasttime) ".
-          "from $S->masterdb.tracker ".
-          "where starttime>=current_date() - interval 6 day ".
-          "and site='$S->siteName' and not isJavaScript & ". TRACKER_BOT . // 0x200
-          " and isJavaScript != ".  TRACKER_ZERO . // 0
-          " and ip not in($meIp) group by ip,date(lasttime)");
-
-// There should be ONE UNIQUE ip per row. So count them into the date.
-
-$Visitors = 0;
-$visitorsAr = [];
-
-while([$date] = $S->fetchrow('num')) {
-  ++$visitorsAr[$date];
-  ++$Visitors;
-}
-
-$i = 0;
-$visitsTotal = 0;
-
-// Get visits from daycounts. This is actually the only thing we get from that table. 'visits' is
-// updated in tracker.js as the 'mytime' cookie (see tracker.js)
-
-$S->sql("select date, visits from $S->masterdb.daycounts where site='$S->siteName' and date>=current_date() - interval 6 day order by date desc");
-
-while([$date, $visits] = $S->fetchrow('num')) {
-  $strAr[$i++] .= "<td>$visitorsAr[$date]</td><td>$visits</td></tr>";
-  $visitsTotal += $visits;
+  $strAr[] = "<tr><td>$dd</td><td>$count</td><td>$cntReal</td><td>$cntBots</td><td>$cntAjax</td><td>$visitor</td></tr>";
 }
 
 $str = implode("\n", $strAr); // Turn the array into a string seperated by cr. This is the body of daycount.
@@ -439,7 +405,7 @@ $str = implode("\n", $strAr); // Turn the array into a string seperated by cr. T
 $hdr =<<<EOF
 <table id='daycount' border='1'>
 <thead>
-<tr><th>Date</th><th>Count</th><th>Real</th><th>Bots</th><th>Ajax</th><th>Visitors</th><th>Visits</th></tr>
+<tr><th>Date</th><th>COUNT</th><th>REAL</th><th>BOTS</th><th>AJAX</th><th>VISITORS</th></tr>
 </thead>
 <tbody>
 EOF;
@@ -447,7 +413,7 @@ EOF;
 $ftr =<<<EOF
 </tbody>
 <tfoot>
-<tr><th>Totals</th><td>$countTotal</td><td>$real</td><td>$bots</td><td>$ajax</td><td>$Visitors</td><td>$visitsTotal</td></tr>
+<tr><th>Totals</th><td>$countTotal</td><td>$real</td><td>$bots</td><td>$ajax</td><td>$Visitors</td></tr>
 </tfoot>
 </table>
 EOF;
@@ -465,24 +431,20 @@ if($S->siteName == "Bartonphillipsnet") {
 EOF;
 } else {
   $page .= <<<EOF
-<h2 id="table6">From table <i>daycount</i> for seven days</h2>
+<h2 id="table6">From table <i>tracker</i> for seven days</h2>
 <a href="#table7">Next</a>
 
 <h4>Showing $S->siteName for seven days</h4>
-<p>Webmaster (me) is not counted.</p>
+<p>Webmaster (me) is <span class="red">NEVER</span> counted.</p>
 <ul>
-<li>'Visitors' is the number of distinct (AJAX) IP addresses (via 'tracker' table).
-<li>'Count' is the sum of 'Real' and 'Bots', the total number of HITS.
-<li>'Real' is the number of accesses that actually spent some time on our site (\$diff not empty).
-<li>'AJAX' is the number of accesses with AJAX via tracker.js (from the 'tracker' table).
-<li>'Bots' is the number of robots.
-<li>'Visits' is the number of non-robots outside of a 10 minutes window.
+<li><b>COUNT</b> is the sum of <b>REAL</b> and <b>BOTS</b>, the total number of accesses (HITS).
+<li><b>REAL</b> is the number of accesses that actually spent some time on our site (\$diff not empty).
+<li><b>BOTS</b> is the number of robots.
+<li><b>AJAX</b> is the number of accesses that came via <i>JavaScript</i> (via the 'tracker' table). This does not count <b>BOTS</b>.
+<li><b>VISITORS</b> is the number of distinct IP addresses that are not <b>BOTS</b> (via the 'tracker' table <b>AJAX</b>).
 </ul>
-
-<p>So if you come to the site from two different IP addresses you would be two 'Visitors'.<br>
-If you hit our site 10 times the sum of 'Real' and 'Bots' would be 10.<br>
-If you hit our site 5 time within 10 minutes you will have only one 'Visits'.<br>
-If you hit our site again after 10 minutes you would have two 'Visits'.</p>
+<p><b>AJAX</b> counts only non <b>BOTS</b> accesses (POST) from <i>JavaScript</i>. <b>Visitors</b>
+ is the numbere of unique IP addresses that are not <b>BOTS</b>.</p>
 $tbl
 EOF;
 }
@@ -556,7 +518,6 @@ $form = <<<EOF
     <option value="https://newbernzig.com">Newbernzig</option>
     <option value="https://swam.us">Swam</option>
     <option value="https://bonnieburch.com">Bonnieburch</option>
-    <option value="https://bonnieburch.com/bridgeclub">Bridgeclub</option>
     <option value="https://bonnieburch.com/marathon">Marathon</option>
     <option value="https://bartonphillips.net">Bartonphillipsnet</option>
     <option value="https://jt-lawnservice.com">JT-Lawnservice</option>
@@ -612,8 +573,7 @@ $form
 <ul>
    <li><a href="#table3">Goto Table: logagent</a></li>
    <li><a href="#table4">Goto Table: counter</a></li>
-   <li><a href="#table5">Goto Table: counter2</a></li>
-   <li><a href="#table6">Goto Table: daycounts</a></li>
+   <li><a href="#table6">Goto daycount Info</a></li>
    <li><a href="#table7">Goto Table: tracker</a></li>
    <li><a href="#table8">Goto Table: bots</a></li>
    <li><a href="#table9">Goto Table: bots2</a></li>
@@ -626,28 +586,29 @@ $page
 <h2 id="table7">From table <i>tracker</i> today</h2>
 <a href="#table8">Next</a>
 <h4>Only Showing $S->siteName</h4>
-<div>'js' is hex.
+<div>'js' is hex. <span class="red">Red</span> indicates that some items were via <i>JavaScript</i>.
 <ul>
-<li>1=Start, 2=Load : via javascript
-<li>4=Normal, 8=NoScript : via javascript (image in header)
-<li>0x10=B-PageHide, 0x20=B-Unload, 0x40=B-BeforeUnload : via javascript (beacon), 0x80=B-VisChange
-<li>0x100=Timer hits once every 10 seconds via ajax : via javascript
-<li>0x200=BOT : via SiteClass
-<li>0x400=Csstest : via .htaccess RewriteRule (tracker)
-<li>0x800=isMe : via SiteClass
-<li>0x1000=Proxy : via goto.php
-<li>0x2000=GoAway (Unexpected Tracker) : via tracker
-<li>0x8000=ADDED by the cron checktracker2.php
+<li>1=<b>Start</b>, 2=<b>Load</b> : via <i>JavaScript</i>
+<li>4=<b>Normal</b> : <i>JavaScript</i> puts the image into the &lt;header&gt; which causes a GET of the image.
+<li>8=<b>NoScript</b> : the user or browser has restricted the use of <i>JavaScript</i>. The &lt;noscript&gt; tag has an image that triggers tracker.php
+<li>0x10=<b>B-PageHide</b>, 0x20=<b>B-Unload</b>, 0x40=<b>B-BeforeUnload</b> : via <i>JavaScript</i> (beacon), 0x80=B-VisChange
+<li>0x100=<b>Timer</b> hits once every 10 seconds via ajax : via <i>JavaScript</i>
+<li>0x200=<b>BOT</b> : via PHP
+<li>0x400=<b>Csstest</b> : via .htaccess RewriteRule
+<li>0x800=<b>isMe</b> : via PHP
+<li>0x1000=<b>Proxy</b> : via goto.php
+<li>0x2000=<b>GoAway</b> : Unexpected event : via tracker
+<li>0x8000=<b>ADDED</b> : CRON via checktracker2.php
 </ul>
-<p>All of the items marked (via javascript) are events.<br>
-The 'starttime' field is done by SiteClass (PHP) when the file is loaded.<br>
+<p>All of the items marked (via <i>JavaScript</i>) are events.<br>
+The 'starttime' field is done via PHP when the file is loaded.<br>
 The 'botAs' field has the following values:</p>
 <ul>
-<li>'match', the User Agent info or the bots table info was used to determin that the client was a ROBOT.
-<li>'robot', the robots.php file was called by a client looking at the robots.txt file.
-<li>'sitemap', the sitemap.php file was called by a client looking at the Sitemap.xml file.
-<li>'zero', the client is in the 'bots' table as a 0x100 (BOTS_CRON_ZERO) this causes the Database class to set 'js' field as 0x200 (TRACKER_BOT).
-<li>'counted', the tracker.php or beacon.php files counted the client.
+<li><b>match</b>: the User Agent info or the bots table info was used to determin that the client was a ROBOT.
+<li><b>robot</b>: the robots.php file was called by a client looking at the robots.txt file.
+<li><b>sitemap</b>: the sitemap.php file was called by a client looking at the Sitemap.xml file.
+<li><b>zero</b>: the client is in the 'bots' table as a 0x100 (BOTS_CRON_ZERO) this causes the Database class to set 'js' field as 0x200 (TRACKER_BOT).
+<li><b>counted</b>: the tracker.php or beacon.php files counted the client.
 </ul>
 <p>The above can be a comma seperated list like: 'robot,sitemap,counted'.<br>
 If the Database class does not find that the client was a robot (and the client was not ME) it sets the 'isJavaScript' field in the database
@@ -655,8 +616,8 @@ as TRACKER_ZERO (0). Every 15 minutes a cron job, checktracker.php, looks at the
 If there are it changes them to CHECKTRACKER ord with TRACKER_BOT (0x8000 | 0x200) which is 0x8200.<br>
 Rows with 'js' with TRACKER_ZERO will be changed to 0x8200 after 15 minutes.
 These rows are <b>curl</b> or something like <b>curl</b> (wget, lynx, etc) and counted as 'bots'.
-These programs have no JavaScript interaction, no header image and no csstest interaction. They simply grab the
-file and disect it. They don't try to get images or any css and they definetly don't use JavaScript.
+These programs have no <i>JavaScript</i> interaction, no header image and no csstest interaction. They simply grab the
+file and disect it. They don't try to get images or any css and they definetly don't use <i>JavaScript</i>.
 </p>
 </div>
 $tracker
