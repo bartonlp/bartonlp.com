@@ -2,7 +2,7 @@
 // BLP 2023-10-18 - This is the catch all file when someone tries to run one of my include file
 // directly from the browser.
 
-$site = $_GET['site'];
+$site = $_GET['host'];
 $page = $_GET['page'];
 $ip = $_GET['ip'];
 $agent = $_GET['agent'];

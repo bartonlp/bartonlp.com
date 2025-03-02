@@ -125,7 +125,7 @@ if($_POST['page'] == 'findbot') {
   
   $ip = $_POST['ip'];
 
-  $human = [BOTS_ROBOTS=>"robots", BOTS_SITECLASS=>"BOT",
+  $human = [BOTS_ROBOTS=>"robot", BOTS_SITECLASS=>"BOT",
             BOTS_SITEMAP=>"sitemap", BOTS_CRON_ZERO=>"Zero"];
 
   $S->sql("select agent, site, robots, count, creation_time from $S->masterdb.bots where ip='$ip'");

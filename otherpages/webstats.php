@@ -59,7 +59,7 @@ $xref = $_SERVER['HTTP_REFERER'];
 $xip = $_SERVER['REMOTE_ADDR'];
 
 if(empty($site)) {
-  error_log("*** webstats.php \$site empty: $xip, $xsite, site=NONE, sql=$sql, ref=$xref, agent=$xagent");
+  error_log("*** webstats.php \$site empty: sql=$sql, ref=$xref");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -97,7 +97,7 @@ EOF;
   $errno = $e->getCode();
   $errmsg = $e->getMessage();
   $sql = dbMySqli::$lastQuery;
-  error_log("*** webstat.php constructor FAILED: $xip, $xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg, agent=$xagent");
+  error_log("*** webstat.php constructor FAILED: ip=$xip, site=$xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -137,7 +137,7 @@ if($_GET['blp'] != '8653') error_log("*** webstats.php: ip=$S->ip, site=$S->site
 // At this point I know that blp was not empty. It does not have 8653 but but the ip is one of my ips (in $S->myIp).
 
 if($S->isBot) {
-  error_log("*** webstats.php: $S->siteName $S->self Bot Restricted, blp={$_GET['blp']} exit: $S->foundBotAs, IP=$S->ip, agent=$S->agent, line=" . __LINE__);
+  error_log("*** webstats.php: $S->siteName $S->self Bot Restricted, blp={$_GET['blp']} exit: $S->foundBotAs, IP=$S->ip, line=" . __LINE__);
   echo "<h1>This Page is Restricted (isBot)</h1>"; // These are all different so I can find them.
   exit();  
 }

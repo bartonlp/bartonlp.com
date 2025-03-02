@@ -52,7 +52,7 @@ const mask = $mask;
 const robots = {"$robots": "Robots", "$siteclass": "BOT", "$sitemap": "Sitemap", "$zero": "Zero"};
 const tracker = {
   "$start": "Start", "$load": "Load", "$normal": "Normal", "$noscript": "NoScript",
-  "$bvisibilitychange": "B-VisChange", "$bpagehide": "B-PageHide", "$bunload": "B-Unload", "$bbeforeunload": "B-BeforeUnload",
+  "$bvisibilitychange": "VisChange", "$bpagehide": "PageHide", "$bunload": "Unload", "$bbeforeunload": "BeforeUnload",
   "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway", "$checktracker": "ADDED",
   "$trackerRobots": "robots.txt", "$trackerSitemap": "sitemap.xml"
 };
