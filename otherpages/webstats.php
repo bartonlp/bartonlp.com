@@ -12,9 +12,49 @@
 
 //$DEBUG = true;
 
+// This function does a RAW mysqli insert (or what ever is in $sql) but it does not return anything.
+
+function insertPdo($sql):void {
+  global $_site;
+
+  if($_site) {
+    // Get the information from dbinfo: $envine, $database, $host, $user.
+
+    extract((array)$_site->dbinfo);
+  } else {
+    $engine = "mysql";
+    $database = $user = "barton";
+    $host = "localhost";
+  }
+
+  // Get the password from our secret location. This is the same location for the server and my HP
+  // and rpi.
+
+  $p = require("/home/barton/database-password");
+
+  $pdo = new PDO("$engine:dbname=$database; host=$host; user=$user; password=$p");
+  $pdo->query($sql);
+}
+// Gather info in case of an error.
+
+$xsite = $_SERVER['HTTP_HOST'];
+$xagent = $_SERVER['HTTP_USER_AGENT'] ?? ''; // BLP 2022-01-28 -- CLI agent is NULL so make it blank ''
+$xref = $_SERVER['HTTP_REFERER'];
+$xip = $_SERVER['REMOTE_ADDR'];
+
+// From form. If someone does a <select> below of a siteName it comes here. I then do a GET with the sitename.
+
+if(isset($_POST['submit'])) {
+  $site = $_POST['site']; // site is the siteDomain!
+  header("location: webstats.php?blp=8653&site=$site");
+  exit();
+}
+
+// Check for $_GET['site'] 
+
 if($site = $_GET['site']) { // $_GET['site'] is the siteDomain from mysitemap.json
-//  $_site = require_once getenv("SITELOADNAME"); // Get the $_site for bartonlp.com/otherpages
-  $_site = require_once "/var/www/site-class/includes/autoload.php";
+  $_site = require_once getenv("SITELOADNAME"); // Get the $_site for bartonlp.com/otherpages
+  //$_site = require_once "/var/www/site-class/includes/autoload.php";
   
   // Now we need to add https:// if it is not already there.
   
@@ -31,43 +71,37 @@ if($site = $_GET['site']) { // $_GET['site'] is the siteDomain from mysitemap.js
   $specialDate = $_GET['date'];
 
   $_site->noGeo = true; // Don't do geo.js
-}
-
-// This function does a RAW mysqli insert (or what ever is in $sql) but it does not return anything.
-
-function insertMysqli($sql):void {
-  // Get the password and force the host, user and database.
+} else {
+  // $_GET['site'] not set. NO $site
   
-  $p = require("/home/barton/database-password");
-  $mysqli = new mysqli('localhost', 'barton', $p, 'barton');
-  $mysqli->query($sql);
-}
-
-// If someone does a <select> below of a siteName it comes here. I then do a GET with the sitename.
-
-if(isset($_POST['submit'])) {
-  $site = $_POST['site']; // site is the siteDomain!
-  header("location: webstats.php?blp=8653&site=$site");
-  exit();
-}
-
-// Gather info in case of an error.
-
-$xsite = $_site->siteName;
-$xagent = $_SERVER['HTTP_USER_AGENT'] ?? ''; // BLP 2022-01-28 -- CLI agent is NULL so make it blank ''
-$xref = $_SERVER['HTTP_REFERER'];
-$xip = $_SERVER['REMOTE_ADDR'];
-
-if(empty($site)) {
-  error_log("*** webstats.php \$site empty: sql=$sql, ref=$xref");
+  error_log("webstats.php \$site empty: sql=$sql, ref=$xref");
 
   // We do not have $S so we can't add this to the badplayer table.
 
-  insertMysqli("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
-               "values('$xip', '$xsite', 'webstats', 'counted', 1, 'NO_SITE', -200, 'NO site', '$xagent', now(), now()) ".
-               "on duplicate key update count=count+1, lasttime=now()");
+  insertPdo("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+            "values('$xip', '$xsite', 'webstats', 'counted', 1, 'NO_SITE', -200, 'NO site', '$xagent', now(), now()) ".
+            "on duplicate key update count=count+1, lasttime=now()");
   
-  echo "<h1>This Page is Restricted (\$site empty)</h1>";
+  $errmsg = "(site empty)";
+  $error = true;
+}
+
+// Check for magic 'blp'. If not found check if one of my recent ips. If not justs 'Go Away'
+// The magic comes only from adminsites.php or aboutwebsite.php
+
+if($_GET['blp'] != '8653') {
+  error_log("webstats.php ERROR_NOT_IN_MYIP: ip=$xip, site=$xsite, page=webstat, blp={$_GET['blp']}"); // BLP 2023-11-11 - 
+
+  insertPdo("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+            "values('$xip', '$xsite', 'webstats', 'counted', 1, 'ERROR_BLP', -300, 'sql=$sql', '$xagent', now(), now()) ".
+            "on duplicate key update count=count+1, lasttime=now()");
+    
+  $errmsg .= "(secret error)"; 
+  $error = true;
+} 
+
+if($error) {
+  echo "<h1>This Page is Restricted $errmsg;</h1>";
   exit();
 }
 
@@ -89,15 +123,13 @@ try {
 
   $S->h_inlineScript .= <<<EOF
 
-// Start h_inlineScript webstats.php
-var thedate = '$specialDate';
-// End h_inlineScript
+var thedate = "$specialDate";
 EOF;
 } catch(Exception $e) {
   $errno = $e->getCode();
   $errmsg = $e->getMessage();
   $sql = dbMySqli::$lastQuery;
-  error_log("*** webstat.php constructor FAILED: ip=$xip, site=$xsite, site=$site, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg");
+  error_log("webstat.php constructor FAILED: ip=$xip, site=$xsite, site=$site, page=webstats, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -105,51 +137,31 @@ EOF;
 
   // We do not have a $S so use the database name here and the x* items.
   
-  insertMysqli("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
-               "values('$xip', '$xsite', 'webstats', 'counted', 1, 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now()) ".
-               "on duplicate key update count=count+1, lasttime=now()");
+  insertPdo("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
+            "values('$xip', '$xsite', 'webstats', 'counted', 1, 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now()) ".
+            "on duplicate key update count=count+1, lasttime=now()");
   
   echo "<h1><i>This Page is Restricted (constructor FAILED).</i></h1>"; // These are all different so I can find them.
   exit();
 }
 
-// Check for magic 'blp'. If not found check if one of my recent ips. If not justs 'Go Away'
-// The magic comes only from adminsites.php or aboutwebsite.php
-
-if(empty($_GET['blp']) || $_GET['blp'] != '8653') { // If blp is empty or set but not '8653' then check $S->myIp
-  // BLP 2021-12-20 -- $S->myIp is always an array from SiteClass.
-
-  if(!array_intersect([$S->ip], $S->myIp)) {
-    error_log("*** webstats.php: $S->ip, $S->siteName, ERROR Not in myIp, blp={$_GET['blp']}"); // BLP 2023-11-11 - 
-    insertMysqli("insert into $S->masterdb.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
-                 "values('$S->ip', '$S->siteName', 'webstats', 'counted', 1, 'ERROR_BLP', -300, 'sql=$sql', '$S->agent', now(), now()) ".
-                 "on duplicate key update count=count+1, lasttime=now()");
-    
-    echo "<h1>This Page is Restricted (myIp)</h1>"; // These are all different so I can find them.
-    exit();
-  }
-} 
-
-// BLP 2023-11-11 - Not sure how this can happen?
-
-if($_GET['blp'] != '8653') error_log("*** webstats.php: ip=$S->ip, site=$S->siteName, page=$S->self -- \$S->ip is in \$S->myIp but blp={$_GET['blp']}");
-
-// At this point I know that blp was not empty. It does not have 8653 but but the ip is one of my ips (in $S->myIp).
+// Now we finally have $S from SiteClass so we can check if this is a bot.
+// At this point I know that blp==8653
 
 if($S->isBot) {
-  error_log("*** webstats.php: $S->siteName $S->self Bot Restricted, blp={$_GET['blp']} exit: $S->foundBotAs, IP=$S->ip, line=" . __LINE__);
+  error_log("webstats.php BOT_RESTRICTED: ip=$xip,site=$xsite, page=webstat, blp={$_GET['blp']}, foundBotAs=$S->foundBotAs, line=" . __LINE__);
   echo "<h1>This Page is Restricted (isBot)</h1>"; // These are all different so I can find them.
   exit();  
 }
 
-// newtblsort.css has only .tablesorter... items.
+// BLP 2025-03-06 - newtblsort.css has been modified to not screw up my header.
 
 $S->link = <<<EOF
   <link rel="stylesheet" href="https://bartonphillips.net/css/newtblsort.css">
   <link rel="stylesheet" href="./css/webstats.css"> 
 EOF;
 
-// BLP 2023-10-17 - add these in the <head>
+// BLP 2025-03-06 - this is the most current tablesorter 2.32.0
 
 $S->h_script = <<<EOF
 <script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
@@ -586,37 +598,42 @@ $page
 <h2 id="table7">From table <i>tracker</i> today</h2>
 <a href="#table8">Next</a>
 <h4>Only Showing $S->siteName</h4>
-<div>'js' is hex. <span class="red">Red</span> indicates that some items were via <i>JavaScript</i>.
+<div>The header column <b>js</b> is hex. <span class="red">Red</span> indicates that items were via <i>JavaScript</i>.
 <ul>
 <li>1=<b>Start</b>, 2=<b>Load</b> : via <i>JavaScript</i>
 <li>4=<b>Normal</b> : <i>JavaScript</i> puts the image into the &lt;header&gt; which causes a GET of the image.
 <li>8=<b>NoScript</b> : the user or browser has restricted the use of <i>JavaScript</i>. The &lt;noscript&gt; tag has an image that triggers tracker.php
-<li>0x10=<b>B-PageHide</b>, 0x20=<b>B-Unload</b>, 0x40=<b>B-BeforeUnload</b> : via <i>JavaScript</i> (beacon), 0x80=B-VisChange
+<li>0x10=<b>PageHide</b>, 0x20=<b>Unload</b>, 0x40=<b>BeforeUnload</b> : 0x80=<b>VisChange</b> : via <i>JavaScript</i> (beacon.php)
 <li>0x100=<b>Timer</b> hits once every 10 seconds via ajax : via <i>JavaScript</i>
-<li>0x200=<b>BOT</b> : via PHP
-<li>0x400=<b>Csstest</b> : via .htaccess RewriteRule
-<li>0x800=<b>isMe</b> : via PHP
-<li>0x1000=<b>Proxy</b> : via goto.php
-<li>0x2000=<b>GoAway</b> : Unexpected event : via tracker
-<li>0x8000=<b>ADDED</b> : CRON via checktracker2.php
+<li>0x200=<b>BOT</b> : <i>via SiteClass</i>
+<li>0x400=<b>Csstest</b> : <i>via .htaccess RewriteRule</i>
+<li>0x800=<b>isMe</b> : <i>via SiteClass</i>
+<li>0x1000=<b>Proxy</b> : <i>via goto.php</i>
+<li>0x2000=<b>GoAway</b> : <i>via tracker.php</i> (Unexpected event)
+<li>0x8000=<b>ADDED</b> : <i>via CRON</i> (checktracker2.php. Always with <b>BOT</b>)
+<li>0x10000=<b>ROBOT</b> : <i>via robots.php</i>
+<li>0x20000=<b>SITEMAP</b> : <i>via sitemap.php</i>
 </ul>
 <p>All of the items marked (via <i>JavaScript</i>) are events.<br>
 The 'starttime' field is done via PHP when the file is loaded.<br>
 The 'botAs' field has the following values:</p>
 <ul>
 <li><b>match</b>: the User Agent info or the bots table info was used to determin that the client was a ROBOT.
+<li><b>good-bot</b>: the User Agent listed a web page where one can go to for information.
 <li><b>robot</b>: the robots.php file was called by a client looking at the robots.txt file.
 <li><b>sitemap</b>: the sitemap.php file was called by a client looking at the Sitemap.xml file.
-<li><b>zero</b>: the client is in the 'bots' table as a 0x100 (BOTS_CRON_ZERO) this causes the Database class to set 'js' field as 0x200 (TRACKER_BOT).
+<li><b>zero</b>: the client is in the 'bots' table as a 0x100 (BOTS_CRON_ZERO) this causes the Database class to set the <b>js</b>
+field as 0x200 (TRACKER_BOT).
 <li><b>counted</b>: the tracker.php or beacon.php files counted the client.
 </ul>
 <p>The above can be a comma seperated list like: 'robot,sitemap,counted'.<br>
 If the Database class does not find that the client was a robot (and the client was not ME) it sets the 'isJavaScript' field in the database
 as TRACKER_ZERO (0). Every 15 minutes a cron job, checktracker.php, looks at the tracker table to see if there are any TRACKER_ZEROs.
-If there are it changes them to CHECKTRACKER ord with TRACKER_BOT (0x8000 | 0x200) which is 0x8200.<br>
-Rows with 'js' with TRACKER_ZERO will be changed to 0x8200 after 15 minutes.
-These rows are <b>curl</b> or something like <b>curl</b> (wget, lynx, etc) and counted as 'bots'.
-These programs have no <i>JavaScript</i> interaction, no header image and no csstest interaction. They simply grab the
+If there are it changes them to CHECKTRACKER ored with TRACKER_BOT (0x8000 | 0x200).<br>
+Header column <b>js</b> with TRACKER_ZERO will be changed to 0x8200 after 15 minutes.
+These are show as <b>ADDED</b> items in the <b>js</b> columb and are <b>curl</b> or something like <b>curl</b> (wget, lynx, etc)
+and counted as a <b>BOT</b>.
+Such items have no header image or csstest interaction. They simply grab the
 file and disect it. They don't try to get images or any css and they definetly don't use <i>JavaScript</i>.
 </p>
 </div>
