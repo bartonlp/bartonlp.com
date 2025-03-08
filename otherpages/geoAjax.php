@@ -12,6 +12,7 @@ if(!$_POST['mysitemap']) {
   echo "<h1>Not Authorized</h1><p>This file is not to be run standalone.</p>";
   exit();
 }
+
 $_site = require_once(getenv("SITELOADNAME"));
 
 $mysite = $_POST['mysitemap'];
