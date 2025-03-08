@@ -271,15 +271,14 @@ function ipaddress(e, self) {
 
   console.log("IP: "+ip);
 
-  if(e.altKey) { // Alt key?
+  if(e.type == "dblclick") {
     $.ajax(ajaxurl, {
-      //url: directory+"/webstats-ajax.php",
       data: {page: 'curl', ip: ip},
       type: "post",
       success: function(data) {
         console.log(data);
-          // For mobile devices there is NO ctrKey! so we don't
-          // need to worry about position fixed not working!
+        // For mobile devices there is NO ctrKey! so we don't
+        // need to worry about position fixed not working!
 
         removeAll();
 
@@ -332,10 +331,11 @@ function gettracker() {
       // Put a couple of buttons before the tracker table
 
       $("#tracker").parent().before("<div id='beforetracker'>Ctrl Click on the 'ip' items to <span id='ip'>Show Only ip</span>.<br>"+
-                                    "Alt Click on the 'ip' items to <span class='red'>Show http://ipinfo.io info</span><br>"+
-                                    "Double Click on the 'page' items to <span id='page'>Show Only page</span>.<br>"+
-                                    "Ctrl Click on the 'js' items to see human readable info.<br>"+
-                                    "Click on 'page', 'agent' to see the full field, or scroll the fields if needed.<br>"+
+                                    "Ctrl Click on the 'ip' to popup 'bots' information."+
+                                    "Dbl Click on the 'ip' items to <span class='red'>Show http://ipinfo.io info</span><br>"+
+                                    "Click on 'page' or 'agent' items to see the full field, or scroll the fields if needed.<br>"+
+                                    "Ctrl Click on the 'page' items to <span id='page'>Show Only page</span>.<br>"+
+                                    "Click on the 'js' items to see human readable info.<br>"+
                                     "Average stay time: <span id='average'></span> (times over two hours are discarded.)<br>"+
                                     "<button id='webmaster'>Show webmaster</button>"+
                                     "<button id='bots'>Show bots</button>"+
@@ -427,7 +427,11 @@ function gettracker() {
         gettracker();
       });
 
-      $("#tracker td:first-child").on("click", function(e) {
+      $("#tracker td:first-of-type").on("dblclick", function(e) {
+        ipaddress(e, this);
+      });
+      
+      $("#tracker td:first-of-type").on("click", function(e) { 
         ipaddress(e, this);
       });
       
@@ -456,7 +460,7 @@ jQuery(document).ready(function($) {
   $("#logip, #logagent, #counter, #counter2, #robots, #robots2").tablesorter({
     theme: 'blue',
     sortList: [[0][1]]
-  }); //.addClass('tablesorter');
+  });
   
   // Add two special tablesorter functions: hex and strnum
   
@@ -534,9 +538,11 @@ jQuery(document).ready(function($) {
     ipaddress(e, this);
   });
 
-  // Popup a human version of 'isJavaScript'
+  // Popup a human version of 'isJavaScript' for tracker table and
+  // 'robots' in bots table. Tracker table is column 9 and bots table
+  // is column 4
 
-  $("body").on("click", "#tracker td:nth-child(9), #robots td:nth-child(4)", function(e) { // 9 is isJavaScript
+  $("body").on("click", "#tracker td:nth-child(9), #robots td:nth-child(4)", function(e) {
     let js = parseInt($(this).text(), 16),
     h = '', ypos, xpos;
     let human;
@@ -548,12 +554,11 @@ jQuery(document).ready(function($) {
     
     let table = $(this).closest("table");
     let pos = $(this).position(); // get the top and left
-    let id = table.attr("id");
     
     // The td is in a tr which in in a tbody, so table is three
     // prents up.
 
-    if(id != 'tracker') {
+    if(table.attr("id") != 'tracker') {
       // Robots (bots table)
       
       human = robots; // robots was set in webstats.php in the inlineScript.
@@ -592,35 +597,89 @@ jQuery(document).ready(function($) {
     e.stopPropagation();
   });
 
-  // BLP 2023-10-17 - Was b_inlineScript. Moved to here.
+  // Columns 2, 3 and 4 are page, finger and agent.
+  // If just a click then show a popup with the full text.
+  // If ctrl-click on agent with a 'http' prefix brings up the
+  // website of the good-bot.
+  // If ctrl-click on page (cellIndex 1) shows only that page (toggle).
+  // There is no ctrl-click for finger.  
   
   $("body").on("click", "#tracker td:nth-of-type(2), #tracker td:nth-of-type(3), #tracker td:nth-of-type(4)", function(e) {
     removeAll();
 
-    // We use ctrl click on td:nth-of-type(4) which is
-    // cellIndex 3 to show a new tab with the http. CellIndex runs 0,1... while nth-of-type() runs
-    // 1,2...
+    // Ctrl-click on agent shows a new tab with the http
+    // information about the agent. 
+    // Ctrl-click on page toggles the display from all pages to just
+    // the page ctrl-clicked on and back.
+    // Finger has no ctrl-click.
     
     if(e.ctrlKey) {
-      if($(this)[0].cellIndex == 3) {
-        if($(this).css("color") == "rgb(255, 0, 0)") { // Only if the cell is RED
+      if($(this)[0].cellIndex == 3) { // cellIndex 3 is td 4
+        if($(this).css("color") == "rgb(255, 0, 0)") { // RED means it is a bot and may have information.
           const txt = $(this).text();
           const pat = /(http.?:\/\/.*?)\)/;
           const found = txt.match(pat);
-          //console.log("found:", found);
+
           if(found) {
             window.open(found[1], "bot");
           }
         }
         e.stopPropagation();
-      } else if($(this)[0].cellIndex == 1) {
+      } else if($(this)[0].cellIndex == 2) { // cellIndex 2 is td 3
+        let finger = ($(this).text()).split(' :')[0];
+        let ip = $(this).closest('tr').find('.co-ip').text();
+        let pos = $(this).position();
+        let xpos = pos.left; // + $(this).width();
+        let ypos = pos.top + 50;
+        let table = $(this).closest("table");
+
+        $.ajax(ajaxurl, {
+          type: 'post',
+          data: {page: 'fingerToGps', finger: finger, site: thesite, ip: ip},
+          success: function(data) {
+            console.log("data: ", data);
+            let items = '';
+            let cnt = 0;
+
+            if(data != "NOT FOUND") {
+              const ar = JSON.parse(data).sort();
+              let last = '';
+
+              for(let item in ar) {
+                if(last == ar[item]) {
+                  continue;
+                }
+                cnt++;
+                last = ar[item];
+                items += "<span class='item'>"+ar[item]+"</span><br>";
+              }
+            } else {
+              items = data;
+            }
+            removeAll();
+
+            table.append("<div id='FindBot' style='position: absolute;top: "+ypos+"px;left:"+xpos+"px;"+
+                         "background-color: white; border: 5px solid black;padding: 10px'>"+
+                         items+"</div>");
+            if(cnt == 1) {
+              $("#FindBot .item").trigger('click');
+            }
+          },
+          error: function(err) {
+            console.log("ERROR:", err);
+          }
+        });
+        e.stopPropagation();
+      } else if($(this)[0].cellIndex == 1) { // cellIndex 1 is td 2
         // Second field 'page' ctrl clicked
 
         let msg;
 
-        if(flags.page) { // if true
+        if(flags.page) { // toggle flag
           flags.page = false;
 
+          // flag is false so show all of the pages.
+          
           $("#tracker tr").removeClass('page');
 
           for(let f in flags) {
@@ -631,6 +690,8 @@ jQuery(document).ready(function($) {
           $(".normal").show();
           msg = "Show Only Page";
         } else {
+          // Show only the page. All information is just for this page.
+          
           flags.page = true;
           let page = $(this).text();
           $("#tracker td:nth-child(2)").each(function(i, v) { // 2 is page
@@ -644,13 +705,18 @@ jQuery(document).ready(function($) {
         $("#page").text(msg);
         e.stopPropagation();
       }
-    } else {   
+    } else {
+      // This was NOT a ctrlKay. Just a normal 'click' show popup a
+      // full display of the field.
+      
       let ypos, xpos;
       let pos = $(this).position();
       xpos = pos.left - 200;
       ypos = pos.top;
 
       if($(this).text()) {
+        // Display a pop up to show the full text of the field.
+        
         $("#tracker").append("<div id='Overflow' style='position: absolute; top: "+ypos+"px; left: "+xpos+"px; "+
                              "background-color: white; border: 5px solid black; "+
                              "padding: 10px;'>"+$(this).text()+"</div>");
@@ -659,64 +725,12 @@ jQuery(document).ready(function($) {
     };
   });
 
-  // Get the finger and use ajax to get the lat, log from the gps table
-  // if the finger exists.
-  
-  $("body").on("click", "#tracker tbody tr td:nth-of-type(3)", function(e) { // 3 is finger
-    if(e.ctrlKey) {
-      let finger = ($(this).text()).split(' :')[0];
-      let ip = $(this).closest('tr').find('.co-ip').text();
-      let pos = $(this).position();
-      let xpos = pos.left; // + $(this).width();
-      let ypos = pos.top + 50;
-      let table = $(this).closest("table");
-
-      $.ajax(ajaxurl, {
-        type: 'post',
-        data: {page: 'fingerToGps', finger: finger, site: thesite, ip: ip},
-        success: function(data) {
-          console.log("data: ", data);
-          let items = '';
-          let cnt = 0;
-
-          if(data != "NOT FOUND") {
-            const ar = JSON.parse(data).sort();
-            let last = '';
-
-            for(let item in ar) {
-              if(last == ar[item]) {
-                continue;
-              }
-              cnt++;
-              last = ar[item];
-              items += "<span class='item'>"+ar[item]+"</span><br>";
-            }
-          } else {
-            items = data;
-          }
-          removeAll();
-
-          table.append("<div id='FindBot' style='position: absolute;top: "+ypos+"px;left:"+xpos+"px;"+
-                       "background-color: white; border: 5px solid black;padding: 10px'>"+
-                       items+"</div>");
-          if(cnt == 1) {
-            $("#FindBot .item").trigger('click');
-          }
-        },
-        error: function(err) {
-          console.log("ERROR:", err);
-        }
-      });
-    }
-  });
-
   // ipinfo. Get gps and display the google map.
 
   $("body").on("click", "#FindBot .location, #FindBot .item", function(e) {
     let t = $("#FindBot").position().top + $(this).height() + 10;
 
     removeAll();
-    //$("#FindBot").remove();
     
     let gps = ($(this).text()).split(",");
     const pos = {
