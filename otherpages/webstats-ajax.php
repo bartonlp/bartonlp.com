@@ -218,7 +218,7 @@ if($_POST['page'] == 'gettracker') {
 
     $x = (int)$row['js']; // $row['js'] is a string make it an int for test below.
     
-    if(($x &~ $mask) != 0) {
+    if(($x & $mask) != 0) {
       $row['js'] = "<span id='ajax'>" . dechex($row['js']) . "</span>";
     } else {
       $row['js'] = dechex($row['js']);
@@ -238,11 +238,12 @@ if($_POST['page'] == 'gettracker') {
 
    if(empty($thedate)) {
     $thedate = "current_date()";
-  } else {
+   } else {
+     $lasttime = ", lasttime";
      $thedate = "'$thedate'";
   }
     
-  $sql = "select ip, page, finger, agent, botAs, starttime, endtime, difftime, isJavaScript as js, id, browser ".
+  $sql = "select ip, page, finger, agent, botAs, starttime, endtime, difftime, isJavaScript as js, id, browser$lasttime ".
          "from $S->masterdb.tracker " .
          "where site='$site' and lasttime >=$thedate " .
          "order by lasttime desc";
