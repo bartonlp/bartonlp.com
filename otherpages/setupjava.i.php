@@ -38,7 +38,7 @@ $me = TRACKER_ME;
 $goto = TRACKER_GOTO; // Proxy
 $goaway = TRACKER_GOAWAY; // unusal tracker.
 $checktracker = CHECKTRACKER; // BLP 2023-10-20 - Added by checktracker2.php
-
+$checkvischanged = TRACKER_ADDED; // BLP 2025-03-08 - Added by checkvischange.php
 $trackerRobots = TRACKER_ROBOTS; // BLP 2025-01-11 - new
 $trackerSitemap = TRACKER_SITEMAP; // BLP 2025-01-11 -
 
@@ -54,7 +54,7 @@ const tracker = {
   "$start": "Start", "$load": "Load", "$normal": "Normal", "$noscript": "NoScript",
   "$bvisibilitychange": "VisChange", "$bpagehide": "PageHide", "$bunload": "Unload", "$bbeforeunload": "BeforeUnload",
   "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway", "$checktracker": "ADDED",
-  "$trackerRobots": "robots.txt", "$trackerSitemap": "sitemap.xml"
+  "$checkvischange" : "VISADDED", "$trackerRobots": "robots.txt", "$trackerSitemap": "sitemap.xml"
 };
 // End setupjava.i.php
 EOF;
