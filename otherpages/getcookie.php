@@ -286,12 +286,12 @@ function myipfixup(&$row, &$rowdesc) {
 $today = date("Y-m-d");
 
 // BLP 2021-11-11 -- Get the list of know fingerprints. I would normally do:
-// $me = require_once("/var/www/bartonphillipsnet/myfingerprints.php");
+// $me = require_once("/var/www/bartonphillips.net/myfingerprints.php");
 // BUT NOTE, require can't work on HP or Rpi so do use file_get_contents() and get
 // this little file that requires myfingerprints.php and then truns the array into json.
 // This is a bit of a workaround but it works.
 
-$me = json_decode(file_get_contents("https://bartonphillips.net/getfinger.php"));
+$me = json_decode(file_get_contents("/var/www/bartonphillips.net/getfinger.php"));
 
 //vardump("me", $me);
 

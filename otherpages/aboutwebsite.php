@@ -12,9 +12,8 @@ $site = $_GET['site'];
 $webdomain = $_GET['domain'];
 
 if(empty($site) || empty($webdomain)) {
-  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) ".
-            "values('$S->ip', '$S->siteName', 'counted', 'ABOUTWEBSITE', 1, '-202', 'No site or domain provided', '$S->agent', now(), now()) ".
-            "on duplicate key update count=count+1, lasttime=now()");
+  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, errno, errmsg, agent, created, lasttime) ".
+            "values('$S->ip', '$S->siteName', 'counted', 'ABOUTWEBSITE', '-202', 'No site or domain provided', '$S->agent', now(), now())");
 
   $tmp = "$site, $webdomain";
   error_log("aboutwebsite.php NO_SITE_OR_WEBDOMAIN: ip=$S->ip, \$S->sitename='$S->siteName', site/webdomain=$tmp, agent=$S->agent");

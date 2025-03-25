@@ -195,7 +195,7 @@ if($_POST['page'] == 'gettracker') {
 
   // Callback function for maketable()
 
-  $me = json_decode(file_get_contents("https://bartonphillips.net/myfingerprints.json"));
+  $me = json_decode(file_get_contents("/var/www/bartonphillips.net/myfingerprints.json"));
 
   function callback1(&$row, &$desc) {
     global $S, $me, $mask;

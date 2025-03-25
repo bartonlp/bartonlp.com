@@ -41,11 +41,12 @@ $xsite = $_SERVER['HTTP_HOST'];
 $xagent = $_SERVER['HTTP_USER_AGENT'] ?? ''; // BLP 2022-01-28 -- CLI agent is NULL so make it blank ''
 $xref = $_SERVER['HTTP_REFERER'];
 $xip = $_SERVER['REMOTE_ADDR'];
+$xpage = $_SERVER['PHP_SELF'];
 
 // From form. If someone does a <select> below of a siteName it comes here. I then do a GET with the sitename.
 
 if(isset($_POST['submit'])) {
-  $site = $_POST['site']; // site is the siteDomain!
+  $site = $_POST['site']; // site is the siteName!
   header("location: webstats.php?blp=8653&site=$site");
   exit();
 }
@@ -56,52 +57,53 @@ if($site = $_GET['site']) { // $_GET['site'] is the siteDomain from mysitemap.js
   $_site = require_once getenv("SITELOADNAME"); // Get the $_site for bartonlp.com/otherpages
   //$_site = require_once "/var/www/site-class/includes/autoload.php";
   
-  // Now we need to add https:// if it is not already there.
+  $site = "/var/www/$site";
   
-  if(!str_contains($site, "https://")) $site = "https://$site";
-
-  // BLP 2024-05-03 - see .htaccess for removal of RewriteRule.
   // Get the mysitemap.json from the siteDomain that called webstats.
+  // We want the siteName and memberTable info only.
+  // This sets up the siteName for the selected site.
 
   $s = json_decode(stripComments(file_get_contents("$site/mysitemap.json")));
 
   $_site->siteName = $s->siteName; // Get the siteName
   $_site->memberTable = $s->memberTable; // and memberTable
-  
+
   $specialDate = $_GET['date'];
 
   $_site->noGeo = true; // Don't do geo.js
 } else {
   // $_GET['site'] not set. NO $site
   
-  error_log("webstats.php \$site empty: sql=$sql, ref=$xref");
+  error_log("webstats.php \$site empty: xip=$xip, xsite=$xsite, xpage=$xpage, sql=$sql, ref=$xref");
 
-  // We do not have $S so we can't add this to the badplayer table.
+  // We do not have $S so we must use insertPdo() 
 
-  insertPdo("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
-            "values('$xip', '$xsite', 'webstats', 'counted', 1, 'NO_SITE', -200, 'NO site', '$xagent', now(), now()) ".
-            "on duplicate key update count=count+1, lasttime=now()");
+  insertPdo("insert into barton.badplayer (ip, site, page, botAs, type, errno, errmsg, agent, created, lasttime) ".
+            "values('$xip', '$xsite', 'webstats', 'counted', 'NO_SITE', -200, 'NO site', '$xagent', now(), now())");
   
-  $errmsg = "(site empty)";
-  $error = true;
+  $errmsg = "(site empty line=". __LINE__ . ")";
+  $error = true; // Set $error to true. It is checked below the check for 'blp'.
 }
 
 // Check for magic 'blp'. If not found check if one of my recent ips. If not justs 'Go Away'
 // The magic comes only from adminsites.php or aboutwebsite.php
 
 if($_GET['blp'] != '8653') {
-  error_log("webstats.php ERROR_NOT_IN_MYIP: ip=$xip, site=$xsite, page=webstat, blp={$_GET['blp']}"); // BLP 2023-11-11 - 
+  error_log("webstats.php ERROR_NOT_IN_MYIP: ip=$xip, site=$xsite, xpage=$xpage, blp={$_GET['blp']}"); // BLP 2023-11-11 - 
 
-  insertPdo("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
-            "values('$xip', '$xsite', 'webstats', 'counted', 1, 'ERROR_BLP', -300, 'sql=$sql', '$xagent', now(), now()) ".
-            "on duplicate key update count=count+1, lasttime=now()");
+  insertPdo("insert into barton.badplayer (ip, site, page, botAs, type, errno, errmsg, agent, created, lasttime) ".
+            "values('$xip', '$xsite', 'webstats', 'counted', 'ERROR_BLP', -300, 'sql=$sql', '$xagent', now(), now())");
     
-  $errmsg .= "(secret error)"; 
+  $errmsg .= "(secret error line=". __LINE__ . ")"; 
   $error = true;
 } 
 
+// If $error is ture output message and exit.
+
 if($error) {
   echo "<h1>This Page is Restricted $errmsg;</h1>";
+  $errmsg = "Page Restricted $errmsg";
+  error_log("webstats: xid=$xid, xsite=$xsite, xpage=$xpage, errmsg=$errmsg, line=". __LINE__);
   exit();
 }
 
@@ -129,7 +131,7 @@ EOF;
   $errno = $e->getCode();
   $errmsg = $e->getMessage();
   $sql = dbMySqli::$lastQuery;
-  error_log("webstat.php constructor FAILED: ip=$xip, site=$xsite, site=$site, page=webstats, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg");
+  error_log("webstat.php constructor FAILED: xip=$xip, xsite=$xsite, xsite=$site, xpage=$xpage, sql=$sql, ref=$xref, errno=$errno, errmsg=$errmsg");
 
   // We do not have $S so we can't add this to the badplayer table.
 
@@ -137,9 +139,8 @@ EOF;
 
   // We do not have a $S so use the database name here and the x* items.
   
-  insertPdo("insert into barton.badplayer (ip, site, page, botAs, count, type, errno, errmsg, agent, created, lasttime) ".
-            "values('$xip', '$xsite', 'webstats', 'counted', 1, 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now()) ".
-            "on duplicate key update count=count+1, lasttime=now()");
+  insertPdo("insert into barton.badplayer (ip, site, page, botAs, type, errno, errmsg, agent, created, lasttime) ".
+            "values('$xip', '$xsite', 'webstats', 'counted', 'CONSTRUCTOR_ERROR', -200, 'sql=$sql', '$xagent', now(), now())");
   
   echo "<h1><i>This Page is Restricted (constructor FAILED).</i></h1>"; // These are all different so I can find them.
   exit();
@@ -149,7 +150,7 @@ EOF;
 // At this point I know that blp==8653
 
 if($S->isBot) {
-  error_log("webstats.php BOT_RESTRICTED: ip=$xip,site=$xsite, page=webstat, blp={$_GET['blp']}, foundBotAs=$S->foundBotAs, line=" . __LINE__);
+  error_log("webstats.php BOT_RESTRICTED: xip=$xip, xsite=$xsite, xpage=$xpage, blp={$_GET['blp']}, botAs=$S->botAs, line=" . __LINE__);
   echo "<h1>This Page is Restricted (isBot)</h1>"; // These are all different so I can find them.
   exit();  
 }
@@ -187,7 +188,7 @@ $today = date("Y-m-d");
 // symlinks, I can use a require_once here. In other places, like getcookie.php which do need to be
 // symlinked into the director (and server) I use getfinger.php also in bartonphillips.net.
 
-$myfingerprints = require_once("/var/www/bartonphillipsnet/myfingerprints.php");
+$myfingerprints = require_once "/var/www/bartonphillips.net/myfingerprints.php";
 
 $T = new dbTables($S); // My table class
 
@@ -436,7 +437,7 @@ $tbl = $hdr . $str . $ftr;
 
 /**** End make daycount */
 
-if($S->siteName == "Bartonphillipsnet") {
+if($S->siteName == "Bartonphillips.net") {
   $page .= <<<EOF
 <h2 id="table6">We Do Not Count <i>daycount</i> For $S->siteName</h2>
 <a href="#table7">Next</a>
@@ -461,10 +462,10 @@ $tbl
 EOF;
 }
 
-$analysis = file_get_contents("https://bartonphillips.net/analysis/$S->siteName-analysis.i.txt");
+$analysis = file_get_contents("/var/www/bartonphillips.net/analysis/$S->siteName-analysis.i.txt");
 
 if(!$analysis) {
-  $errMsg = "<p>https://bartonphillips.net/analysis/$S->siteName-analysis.i.txt: NOT FOUND</p>";
+  $errMsg = "<p>/var/www/bartonphillips.net/analysis/$S->siteName-analysis.i.txt: NOT FOUND</p>";
   $analysis = null;
 } else {
   $analysisGoto = "<li><a href='#analysis-info'>Goto Analysis Info</a></li>";
@@ -518,21 +519,22 @@ EOF;
   
 $date = date("Y-m-d H:i:s T");
 
-// BLP 2021-10-10 -- Display even for Tysonweb
+// This form select uses siteDomain as the value and the siteName as the message.
+// These are all passed as just the domain without any protical prefix and we put /var/www/ in front of the doman.
 
 $form = <<<EOF
 <form action="webstats.php" method="post">
   Select Site:
   <select id="select" name='site'>
-    <option value="https://bartonlp.org">BartonlpOrg</option>
-    <option value="https://bartonphillips.com">Bartonphillips</option>
-    <option value="https://newbern-nc.info">Tysonweb</option>
-    <option value="https://newbernzig.com">Newbernzig</option>
-    <option value="https://swam.us">Swam</option>
-    <option value="https://bonnieburch.com">Bonnieburch</option>
-    <option value="https://bonnieburch.com/marathon">Marathon</option>
-    <option value="https://bartonphillips.net">Bartonphillipsnet</option>
-    <option value="https://jt-lawnservice.com">JT-Lawnservice</option>
+    <option value="bartonlp.org">BartonlpOrg</option>
+    <option value="bartonphillips.com">Bartonphillips</option>
+    <option value="newbern-nc.info">Tysonweb</option>
+    <option value="newbernzig.com">Newbernzig</option>
+    <option value="swam.us">Swam</option>
+    <option value="bonnieburch.com">Bonnieburch</option>
+    <option value="bonnieburch.com/marathon">Marathon</option>
+    <option value="bartonphillips.net">Bartonphillips.net</option>
+    <option value="jt-lawnservice.com">JT-Lawnservice</option>
   </select>
 
   <button type="submit" name='submit'>Submit</button>

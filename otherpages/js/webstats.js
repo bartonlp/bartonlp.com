@@ -11,7 +11,6 @@ const flags = {all: false, webmaster: false, bots: false, ip6: true};
 const ajaxurl = 'https://bartonlp.com/otherpages/webstats-ajax.php'; // URL for all ajax calls.
 
 function removeAll() {
-  $("#Human").remove();
   $("#Overflow").remove();
   $("#FindBot").remove();
   $("#outer").hide();
@@ -447,9 +446,7 @@ jQuery(document).ready(function($) {
   if(DEBUG) debug_performanceObserver();
 
   $("body").on("click", function(e) {
-    $("#Human").remove();
-    $("#Overflow").remove();
-    $("#FindBot").remove();
+    removeAll();
   });
   
   $("#robots2 td:nth-of-type(4)").each(function() {

@@ -28,7 +28,7 @@ PRIMARY KEY (`ip`,`agent`(254),`date`,`site`,`which`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 */
 
-define("ROBOT_VERSION", '2.0.0');
+define("ROBOT_VERSION", '2.0.1'); // BLP 2025-03-23 - add TRACKER_ROBOTS to tracker table.
 
 $_site = require_once(getenv("SITELOADNAME"));
 $_site->noTrack = true;
@@ -89,7 +89,11 @@ $S->sql("insert into $S->masterdb.logagent (site, ip, agent, count, created, las
         "on duplicate key update count=count+1, lasttime=now()");
 
 // Add to tracker
+// BLP 2025-03-23 - add TRACKER_ROBOTS
+// BLP 2025-03-24 - I should look to see if this $agent looks like a bot with $S->isBot($agent).
+// This would set up $botAs.
 
-$S->sql("insert into $S->masterdb.tracker(site, ip, page, agent, botAs, starttime, lasttime) ".
-        "values('$S->siteName', '$ip', 'robots.php', '$agent', 'robots',  now(), now()) ".
-        "on duplicate key update botAs=botAs+',robot', lasttime=now()");
+$S->sql("insert into $S->masterdb.tracker(site, ip, page, agent, botAs, isjavascript, starttime, lasttime) ".
+        "values('$S->siteName', '$ip', 'robots.php', '$agent', 'robots', ".
+        TRACKER_ROBOTS . ", now(), now()) ".
+        "on duplicate key update botAs=botAs+',robot', isjavascript=isjavascript |" . TRACKER_ROBOTS . ", lasttime=now()");

@@ -113,7 +113,7 @@ EOF;
 
   [$top, $footer] = $S->getPageTopBottom();
 
-  $analysis = file_get_contents("https://bartonphillips.net/analysis/$site-analysis.i.txt");
+  $analysis = file_get_contents("/var/www/bartonphillips.net/analysis/$site-analysis.i.txt");
 
   echo <<<EOF
 $top
@@ -286,33 +286,35 @@ function getAnalysis(Database $S, string $site='ALL'):void {
   $S->sql("select created from $S->masterdb.logagent ".
             "where ip not in ($ips)$where1 order by created limit 1");
 
-  $startDate = $S->fetchrow('num')[0];
+  $startDate = $S->fetchrow('num')[0]; // Header date for left hand section, all entried since the start of time.
 
   // Now select agent and count from logagent where it is not Me and the site if not ALL
   // This gets all of the records since the last time the table was truncated. Now it is truncated
   // in cleanuptables.php which is run from cron. See crontab -l and
   // /var/www/bartonlp/scripts/cleanuptables.php for details.
 
-  //echo "where=$where1<br>";
+  // Set up $sql for maketable2.
   
   $sql = "select agent, count, ip from $S->masterdb.logagent where ip not in($ips)$where1";
   
-  [$totals, $counts, $n[0]] = maketable2($sql, $S);
+  [$totals, $counts, $n[0]] = maketable2($sql, $S); // Uses $sql from above!
 
   // Now we get only 60 days worth of data.
   
   $days = 60;
 
   $S->sql("select created from $S->masterdb.logagent ".
-            "where created >= current_date() - interval $days day ".
-            "and ip not in ($ips)$where1 order by created limit 1");
+          "where created >= current_date() - interval $days day ".
+          "and ip not in ($ips)$where1 order by created limit 1");
   
-  $sinceDate = $S->fetchrow('num')[0];
+  $sinceDate = $S->fetchrow('num')[0]; // Header date for the right hand section, entries from 60 days ago till now.
 
+  // Set up for maketable2.
+  
   $sql = "select agent, count, ip from $S->masterdb.logagent ".
          "where created >= current_date() - interval $days day and ip not in ($ips)$where1";
 
-  [$totals2, $counts2, $n[1]] = maketable2($sql, $S);
+  [$totals2, $counts2, $n[1]] = maketable2($sql, $S); // Uses $sql from above!
 
 
 //  vardump("totals", $totals);
@@ -403,7 +405,7 @@ EOF;
     <option>Tysonweb</option>
     <option>Newbernzig</option>
     <option>Bonnieburch</option>
-    <option>Marathon</option>
+    <!--<option>Marathon</option>-->
     <option>JT-lawnservice</option>
     <option>ALL</option>
   </select>
@@ -473,7 +475,7 @@ $browser[1]
 </div>
 EOF;
 
-  $analysis_dir = "/var/www/bartonphillipsnet/analysis/";
+  $analysis_dir = "/var/www/bartonphillips.net/analysis/";
 
   // BLP 2023-10-01 - The site lives on my server and not on a remote site.
   // If the directory does not exist create it.
@@ -484,9 +486,9 @@ EOF;
     }
   }
 
-  if(file_put_contents("/var/www/bartonphillipsnet/analysis/$site-analysis.i.txt", $analysis) === false) {
+  if(file_put_contents("/var/www/bartonphillips.net/analysis/$site-analysis.i.txt", $analysis) === false) {
     $e = error_get_last();
-    debug("analysis $site: file_put_content('/var/www/bartonphillipsnet/analysis/$site-analysis.i.txt') Failed err= ". print_r($e, true));
+    debug("analysis $site: file_put_content('/var/www/bartonphillips.net/analysis/$site-analysis.i.txt') Failed err= ". print_r($e, true));
   }
 }
 

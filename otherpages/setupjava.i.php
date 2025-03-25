@@ -38,7 +38,7 @@ $me = TRACKER_ME;
 $goto = TRACKER_GOTO; // Proxy
 $goaway = TRACKER_GOAWAY; // unusal tracker.
 $checktracker = CHECKTRACKER; // BLP 2023-10-20 - Added by checktracker2.php
-$checkvischanged = TRACKER_ADDED; // BLP 2025-03-08 - Added by checkvischange.php
+$checkvischange = TRACKER_ADDED; // BLP 2025-03-08 - Added by checkvischange.php
 $trackerRobots = TRACKER_ROBOTS; // BLP 2025-01-11 - new
 $trackerSitemap = TRACKER_SITEMAP; // BLP 2025-01-11 -
 
@@ -52,9 +52,9 @@ const mask = $mask;
 const robots = {"$robots": "Robots", "$siteclass": "BOT", "$sitemap": "Sitemap", "$zero": "Zero"};
 const tracker = {
   "$start": "Start", "$load": "Load", "$normal": "Normal", "$noscript": "NoScript",
-  "$bvisibilitychange": "VisChange", "$bpagehide": "PageHide", "$bunload": "Unload", "$bbeforeunload": "BeforeUnload",
+  "$bvisibilitychange": "VisChange", "$checkvischange" : "VIS_EXIT", "$bpagehide": "PageHide", "$bunload": "Unload", "$bbeforeunload": "BeforeUnload",
   "$timer": "Timer", "$bot": "BOT", "$css": "Csstest", "$me": "isMe", "$goto": "Proxy", "$goaway": "GoAway", "$checktracker": "ADDED",
-  "$checkvischange" : "VISADDED", "$trackerRobots": "robots.txt", "$trackerSitemap": "sitemap.xml"
+  "$trackerRobots": "robots.txt", "$trackerSitemap": "sitemap.xml"
 };
 // End setupjava.i.php
 EOF;
