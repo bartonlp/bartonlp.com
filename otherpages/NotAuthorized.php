@@ -21,6 +21,9 @@ CREATE TABLE `badplayer` (
 $_site = require_once getenv("SITELOADNAME");
 $S = new SiteClass($_site);
 
+// Some times these are supplied as parameters, but not always.
+// $_GET['site'] should be the $S->siteDomain not $S->siteName!
+
 $site = $_GET['site'] ?? $_GET['host'] ?? $S->siteDomain;
 $page = $_GET['page'] ?? $S->self;
 $ip = $_GET['ip'] ?? $S->ip;

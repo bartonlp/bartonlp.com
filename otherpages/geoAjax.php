@@ -54,7 +54,7 @@ if($_POST['page'] == 'geo') {
   
   // We have the lat and long and visitor so set nogeo to false (the default is NULL).
   
-  $S->sql("update $S->masterdb.tracker set nogeo=0 where id='$id'");
+  $S->sql("update $S->masterdb.tracker set nogeo=0, count=count+1 where id='$id'");
   
   $exp = time() + 60*60*24*365;
 
@@ -83,7 +83,7 @@ if($_POST['page'] == 'geo') {
       //exit();
     }
     if($found) {
-      if($DEBUG) error_log("geoAjax $id, $site, $ip -- geo Updated: found=$found");
+      if($DEBUG) error_log("geoAjax: id=$id, ip=$ip, stie= $site, geo Updated=found=$found");
       echo "Update: $id, $site, $ip";
       exit();
     }
@@ -94,7 +94,7 @@ if($_POST['page'] == 'geo') {
   $sql = "insert into $S->masterdb.geo (lat, lon, finger, site, ip, created, lasttime) values('$lat', '$lon', '$visitor', '$site', '$ip', now(), now())";
   $S->sql($sql);
 
-  if($DEBUG) error_log("geoAjax $id, $site, $ip -- geo Insert");
+  if($DEBUG) error_log("geoAjax: id=$id, ip=$ip, site=$site, geo Insert");
   echo "Insert: $id, $site, $ip";
   exit();
 }
@@ -102,9 +102,9 @@ if($_POST['page'] == 'geo') {
 if($_POST['page'] == 'geoFail') {
   $id = $_POST['id'];
   
-  $S->sql("update $S->masterdb.tracker set nogeo=1 where id='$id'");
+  $S->sql("update $S->masterdb.tracker set nogeo=1, count=count+1 where id='$id'");
 
-  if($DEBUG) error_log("geoAjax $id, $site, $ip -- geoFail");
+  if($DEBUG) error_log("geoAjax: id=$id, ip=$ip, site=$site, geoFail");
   echo "geoFail: id=$id";
   exit();
 }
@@ -133,14 +133,14 @@ if($_POST['page'] == 'finger') {
     
   // tracker table was created in SiteClass
 
-  $sql = "update $S->masterdb.tracker set finger='$visitor' where id=$id";
+  $sql = "update $S->masterdb.tracker set finger='$visitor', count=count+1 where id=$id";
   $S->sql($sql);
 
   // Update logagent with finger.
   
   $S->sql("update $S->masterdb.logagent set finger='$visitor' where ip='$ip' and site='$site' and agent='$agent'");
   
-  if($DEBUG) error_log("geoAjax $id, $visitor -- finger Updated");
+  if($DEBUG) error_log("geoAjax: id=$id, ip=$ip, site=$site, visitor=$visitor, finger Updated");
   echo "Updated: $id, $visitor"; // Returned to the javascript.
   exit();
 }
